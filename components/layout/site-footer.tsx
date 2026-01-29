@@ -1,0 +1,45 @@
+export function SiteFooter() {
+  return (
+    <footer className="border-t border-border bg-foreground/95 text-background">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="grid gap-8 md:grid-cols-3">
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <span className="sr-only">Shining English</span>
+              </span>
+              <span className="font-bold">Shining English</span>
+            </div>
+            <p className="text-sm text-background/70">
+              Nơi mình chia sẻ toàn bộ khóa học tiếng Anh tự quay và giảng dạy
+            </p>
+          </div>
+          <div>
+            <h4 className="font-semibold mb-4">Sản Phẩm</h4>
+            <ul className="space-y-2 text-sm text-background/70">
+              <li><a href="#" className="hover:text-background transition-colors">Khóa Học</a></li>
+              <li><a href="#" className="hover:text-background transition-colors">Lộ Trình</a></li>
+              <li><a href="#" className="hover:text-background transition-colors">Tính Năng</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-semibold mb-4">Pháp Lý</h4>
+            <ul className="space-y-2 text-sm text-background/70">
+              <li><a href="#" className="hover:text-background transition-colors">Bảo Mật</a></li>
+              <li><a href="#" className="hover:text-background transition-colors">Điều Khoản</a></li>
+              <li><a href="#" className="hover:text-background transition-colors">Cookie</a></li>
+            </ul>
+          </div>
+        </div>
+        <div className="border-t border-background/20 mt-8 pt-8 flex items-center justify-between text-sm text-background/60">
+          <p>&copy; 2025 Shining English. Tất cả quyền được bảo lưu.</p>
+          <div className="flex gap-4">
+            <a href="#" className="hover:text-background transition-colors">Facebook</a>
+            <a href="#" className="hover:text-background transition-colors">Instagram</a>
+            <a href="#" className="hover:text-background transition-colors">TikTok</a>
+          </div>
+        </div>
+      </div>
+    </footer>
+  )
+}
