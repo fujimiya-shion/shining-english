@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import {
   BookOpen,
-  Compass,
+  Home,
   Info,
   Map,
   NotebookPen,
@@ -22,7 +22,7 @@ type NavItem = {
 }
 
 const navItems: NavItem[] = [
-  { label: 'Trang Chủ', icon: Compass, href: '/' },
+  { label: 'Trang Chủ', icon: Home, href: '/' },
   { label: 'Khóa Học', icon: BookOpen, href: '/dashboard' },
   { label: 'Lộ Trình', icon: Map, href: '/notes' },
   { label: 'Về Shining English', icon: Info, showFrom: 'lg' },
@@ -38,14 +38,14 @@ type SiteHeaderProps = {
 export function SiteHeader({ cartCount = 0 }: SiteHeaderProps) {
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+      <div className="mx-auto grid max-w-7xl grid-cols-[auto_1fr_auto] items-center px-4 py-3 sm:px-6 lg:px-8">
         <Link
           href="/"
-          className="font-bold text-xl bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent"
+          className="font-bold text-xl bg-gradient-to-r from-[#0f2b52] via-[#1e4f86] via-[60%] to-primary bg-clip-text text-transparent"
         >
           Shining English
         </Link>
-        <div className="flex items-center gap-3 lg:gap-6">
+        <div className="flex items-center justify-center gap-3 lg:gap-6">
           <div className="hidden items-center gap-3 md:flex lg:gap-4">
             {navItems.map((item) => {
               const Icon = item.icon
@@ -61,7 +61,7 @@ export function SiteHeader({ cartCount = 0 }: SiteHeaderProps) {
                     className="h-4 w-4 text-muted-foreground transition-colors group-hover:text-primary"
                     aria-hidden={true}
                   />
-                  {item.label}
+                  <span>{item.label}</span>
                 </>
               )
               return item.href ? (
@@ -83,9 +83,14 @@ export function SiteHeader({ cartCount = 0 }: SiteHeaderProps) {
             })}
           </div>
 
-          <Button variant="default" size="sm" className="gap-2 hidden md:inline-flex">
-            <LogIn className="h-4 w-4" aria-hidden="true" />
-            Đăng Nhập
+          <div className="md:hidden" />
+        </div>
+        <div className="flex items-center justify-end gap-3 lg:gap-6">
+          <Button asChild variant="default" size="sm" className="gap-2 hidden md:inline-flex">
+            <Link href="/login">
+              <LogIn className="h-4 w-4" aria-hidden="true" />
+              Đăng Nhập
+            </Link>
           </Button>
 
           <div className="relative hidden md:block">
@@ -136,9 +141,11 @@ export function SiteHeader({ cartCount = 0 }: SiteHeaderProps) {
                   )
                 )}
                 <div className="mt-2 flex items-center gap-3">
-                  <Button size="sm" className="flex-1 gap-2">
-                    <LogIn className="h-4 w-4" aria-hidden="true" />
-                    Đăng Nhập
+                  <Button asChild size="sm" className="flex-1 gap-2">
+                    <Link href="/login">
+                      <LogIn className="h-4 w-4" aria-hidden="true" />
+                      Đăng Nhập
+                    </Link>
                   </Button>
                   <button className="relative" aria-label="Giỏ hàng">
                     <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-background shadow-sm">

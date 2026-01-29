@@ -5,9 +5,7 @@ export function SiteFooter() {
         <div className="grid gap-8 md:grid-cols-3">
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <span className="sr-only">Shining English</span>
-              </span>
+              <span className="sr-only">Shining English</span>
               <span className="font-bold">Shining English</span>
             </div>
             <p className="text-sm text-background/70">

@@ -64,9 +64,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${gilroy.variable} ${robotoMono.variable} font-sans antialiased`}>
+      <body className={`${gilroy.variable} ${robotoMono.variable} font-sans antialiased min-h-screen flex flex-col`}>
         <SiteHeader />
-        {children}
+        <main className="flex-1">{children}</main>
         <SiteFooter />
         <Analytics />
       </body>
