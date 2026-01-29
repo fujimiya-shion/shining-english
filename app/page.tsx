@@ -351,7 +351,7 @@ export default function HomePage() {
             {mockCourses.map((course) => (
               <Card
                 key={course.id}
-                className="course-card reveal-item group relative overflow-hidden rounded-2xl border border-border/70 bg-[#f2f6ff]/92 p-0 gap-0 shadow-[0_12px_30px_-20px_rgba(0,0,0,0.45)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_50px_-22px_rgba(0,0,0,0.5)]"
+                className="course-card reveal-item group relative overflow-hidden rounded-2xl border border-border/70 bg-white p-0 gap-0 shadow-[0_12px_30px_-20px_rgba(0,0,0,0.45)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_50px_-22px_rgba(0,0,0,0.5)]"
               >
                 <div className="relative">
                   <div className="relative aspect-[4/3] bg-muted overflow-hidden rounded-t-2xl">

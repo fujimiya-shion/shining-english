@@ -18,16 +18,17 @@ type NavItem = {
   label: string
   icon: React.ComponentType<{ className?: string; 'aria-hidden'?: boolean }>
   href?: string
+  showFrom?: 'lg' | 'xl'
 }
 
 const navItems: NavItem[] = [
   { label: 'Trang Chủ', icon: Compass, href: '/' },
   { label: 'Khóa Học', icon: BookOpen, href: '/dashboard' },
   { label: 'Lộ Trình', icon: Map, href: '/notes' },
-  { label: 'Về Shining English', icon: Info },
-  { label: 'Học Viên', icon: Users2, href: '/dashboard' },
-  { label: 'Blog', icon: NotebookPen },
-  { label: 'Liên Hệ', icon: Phone },
+  { label: 'Về Shining English', icon: Info, showFrom: 'lg' },
+  { label: 'Học Viên', icon: Users2, href: '/dashboard', showFrom: 'lg' },
+  { label: 'Blog', icon: NotebookPen, showFrom: 'xl' },
+  { label: 'Liên Hệ', icon: Phone, showFrom: 'xl' },
 ]
 
 type SiteHeaderProps = {
@@ -44,10 +45,16 @@ export function SiteHeader({ cartCount = 0 }: SiteHeaderProps) {
         >
           Shining English
         </Link>
-        <div className="flex items-center gap-3 md:gap-6">
-          <div className="hidden items-center gap-4 md:flex">
+        <div className="flex items-center gap-3 lg:gap-6">
+          <div className="hidden items-center gap-3 md:flex lg:gap-4">
             {navItems.map((item) => {
               const Icon = item.icon
+              const responsiveClass =
+                item.showFrom === 'xl'
+                  ? 'hidden xl:inline-flex'
+                  : item.showFrom === 'lg'
+                    ? 'hidden lg:inline-flex'
+                    : 'inline-flex'
               const content = (
                 <>
                   <Icon
@@ -61,14 +68,14 @@ export function SiteHeader({ cartCount = 0 }: SiteHeaderProps) {
                 <Link
                   key={item.label}
                   href={item.href}
-                  className="nav-item group inline-flex items-center gap-2 px-2 py-1 text-sm transition-colors hover:text-primary"
+                  className={`nav-item group items-center gap-2 px-2 py-1 text-sm transition-colors hover:text-primary ${responsiveClass}`}
                 >
                   {content}
                 </Link>
               ) : (
                 <button
                   key={item.label}
-                  className="nav-item group inline-flex items-center gap-2 px-2 py-1 text-sm transition-colors hover:text-primary"
+                  className={`nav-item group items-center gap-2 px-2 py-1 text-sm transition-colors hover:text-primary ${responsiveClass}`}
                 >
                   {content}
                 </button>
