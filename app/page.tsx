@@ -241,7 +241,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-background text-foreground bg-[radial-gradient(1200px_circle_at_top_left,#e9f3ff_0%,#f4f8ff_55%,#ffffff_100%)]">
       {/* Banner Section */}
-      <section className="relative h-[450px] overflow-hidden border-b border-border flex items-end xl:items-center">
+      <section className="relative h-[450px] overflow-hidden border-b border-border flex items-end md:items-center">
         <div className="absolute inset-0">
           <div className="relative h-full w-full">
             <Image
@@ -255,22 +255,24 @@ export default function HomePage() {
           </div>
           <div className="absolute inset-0 bg-linear-to-r from-[#06162b]/95 via-[#0b1f3a]/70 to-transparent"></div>
         </div>
-        <div className="relative max-w-7xl mx-auto px-4 pb-20 pt-28 sm:px-6 lg:px-8 xl:pt-20 xl:pb-24 2xl:pt-16">
+        <div className="relative mx-auto max-w-7xl px-4 pb-12 pt-20 sm:px-6 sm:pb-16 sm:pt-24 lg:px-8 xl:pt-20 xl:pb-24 2xl:pt-16">
           <div className="w-full text-white text-left">
-            <p className="banner-kicker text-sm uppercase tracking-[0.2em] text-[#cfe6ff]">Series mới mỗi tuần</p>
-            <h2 className="banner-title mt-5 text-5xl sm:text-5xl lg:text-6xl font-bold leading-tight max-w-7xl ml-0">
+            <p className="banner-kicker text-xs uppercase tracking-[0.2em] text-[#cfe6ff] sm:text-sm">
+              Series mới mỗi tuần
+            </p>
+            <h2 className="banner-title mt-4 text-3xl font-bold leading-tight max-w-7xl ml-0 sm:mt-5 sm:text-4xl lg:text-6xl">
               Học tiếng Anh theo video ngắn, dễ hiểu, thực tế
             </h2>
 
-            <p className="banner-subtitle mt-5 text-lg sm:text-xl text-[#d7ebff] max-w-3xl ml-0">
+            <p className="banner-subtitle mt-4 text-sm text-[#d7ebff] max-w-3xl ml-0 sm:mt-5 sm:text-lg lg:text-xl">
               Hệ thống bài học do một người tự quay và giảng dạy, tập trung vào lỗi thường gặp.
             </p>
             
-            <div className="banner-buttons mt-8 flex flex-wrap gap-3">
-              <Button size="lg" className="px-7">
+            <div className="banner-buttons mt-8 grid gap-3 sm:flex sm:flex-wrap">
+              <Button size="lg" className="px-7 w-full sm:w-auto">
                 Khám Phá Khóa Học
               </Button>
-              <Button size="lg" variant="outline" className="px-7 bg-transparent text-white border-white/40 hover:border-white">
+              <Button size="lg" variant="outline" className="px-7 w-full sm:w-auto bg-transparent text-white border-white/40 hover:border-white">
                 Xem Lộ Trình
               </Button>
             </div>
@@ -281,26 +283,26 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 min-h-[600px] flex items-center">
         <div className="grid gap-12 lg:grid-cols-2 lg:gap-8 items-center w-full">
-          <div>
-            <div className="hero-kicker inline-flex items-center gap-2 rounded-full border border-[#1f4a7a] bg-[#0f2b52]/85 px-4 py-1 text-xs font-medium text-[#cfe6ff] shadow-sm">
+          <div className="text-center lg:text-left w-full">
+            <div className="hero-kicker inline-flex items-center gap-2 rounded-full border border-[#1f4a7a] bg-[#0f2b52]/85 px-4 py-1 text-xs font-medium text-[#cfe6ff] shadow-sm mx-auto lg:mx-0">
               <span className="h-2 w-2 rounded-full bg-[#f5b400]"></span>
               Nền tảng học tiếng Anh do một người trực tiếp xây dựng
             </div>
-            <h1 className="hero-title mt-4 text-5xl sm:text-6xl font-bold tracking-tight text-balance leading-tight">
+            <h1 className="hero-title mt-4 text-[30px] sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight max-w-[22rem] sm:max-w-none mx-auto lg:mx-0">
               Nói Tiếng Anh <span className="text-primary">Tự Tin</span> & Lưu Loát
             </h1>
-            <p className="hero-subtitle mt-6 text-lg text-muted-foreground leading-relaxed max-w-lg">
+            <p className="hero-subtitle mt-6 text-lg text-muted-foreground leading-relaxed max-w-lg mx-auto lg:mx-0">
               Mình tự quay video, tự dạy và tự xây lộ trình học. Bạn học ngữ pháp, giao tiếp, viết và luyện thi theo cách dễ hiểu, gọn và thực tế.
             </p>
-            <div className="hero-buttons mt-10 flex flex-wrap gap-4">
-              <Button size="lg" className="px-8">
+            <div className="hero-buttons mt-10 grid w-full gap-4 lg:flex lg:flex-wrap lg:justify-start">
+              <Button size="lg" className="px-8 w-full sm:w-auto">
                 Bắt Đầu Học Ngay
               </Button>
-              <Button size="lg" variant="outline" className="px-8 bg-transparent">
+              <Button size="lg" variant="outline" className="px-8 w-full sm:w-auto bg-transparent">
                 Xem Khóa Học
               </Button>
             </div>
-            <div className="hero-stats mt-12 flex gap-8">
+            <div className="hero-stats mt-12 flex gap-8 justify-center lg:justify-start">
               <div>
                 <p className="text-3xl font-bold text-primary">10K+</p>
                 <p className="text-sm text-muted-foreground mt-1">Người Học Đã Theo</p>
@@ -343,7 +345,7 @@ export default function HomePage() {
         data-animate="stagger"
       >
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-          <div className="mb-12 reveal-item">
+          <div className="mb-12 reveal-item text-center lg:text-left">
             <h2 className="text-3xl font-bold">Khóa Học Mình Tự Làm</h2>
             <p className="mt-2 text-white/70">Nội dung tự quay – tự dạy, tập trung vào hiệu quả thực tế</p>
           </div>

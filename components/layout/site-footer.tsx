@@ -29,9 +29,9 @@ export function SiteFooter() {
             </ul>
           </div>
         </div>
-        <div className="border-t border-background/20 mt-8 pt-8 flex items-center justify-between text-sm text-background/60">
+        <div className="border-t border-background/20 mt-8 pt-8 flex flex-col gap-3 text-sm text-background/60 md:flex-row md:items-center md:justify-between">
           <p>&copy; 2025 Shining English. Tất cả quyền được bảo lưu.</p>
-          <div className="flex gap-4">
+          <div className="flex flex-wrap gap-4">
             <a href="#" className="hover:text-background transition-colors">Facebook</a>
             <a href="#" className="hover:text-background transition-colors">Instagram</a>
             <a href="#" className="hover:text-background transition-colors">TikTok</a>
