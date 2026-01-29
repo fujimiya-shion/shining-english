@@ -239,7 +239,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground bg-[radial-gradient(1200px_circle_at_top_left,#e9f3ff_0%,#f4f8ff_55%,#ffffff_100%)]">
       {/* Banner Section */}
       <section className="relative h-[450px] overflow-hidden border-b border-border flex items-end xl:items-center">
         <div className="absolute inset-0">
@@ -253,16 +253,16 @@ export default function HomePage() {
               priority
             />
           </div>
-          <div className="absolute inset-0 bg-linear-to-r from-black/70 via-black/40 to-transparent"></div>
+          <div className="absolute inset-0 bg-linear-to-r from-[#06162b]/95 via-[#0b1f3a]/70 to-transparent"></div>
         </div>
         <div className="relative max-w-7xl mx-auto px-4 pb-20 pt-28 sm:px-6 lg:px-8 xl:pt-20 xl:pb-24 2xl:pt-16">
           <div className="w-full text-white text-left">
-            <p className="banner-kicker text-sm uppercase tracking-[0.2em] text-white/70">Series mới mỗi tuần</p>
+            <p className="banner-kicker text-sm uppercase tracking-[0.2em] text-[#cfe6ff]">Series mới mỗi tuần</p>
             <h2 className="banner-title mt-5 text-5xl sm:text-5xl lg:text-6xl font-bold leading-tight max-w-7xl ml-0">
               Học tiếng Anh theo video ngắn, dễ hiểu, thực tế
             </h2>
 
-            <p className="banner-subtitle mt-5 text-lg sm:text-xl text-white/80 max-w-3xl ml-0">
+            <p className="banner-subtitle mt-5 text-lg sm:text-xl text-[#d7ebff] max-w-3xl ml-0">
               Hệ thống bài học do một người tự quay và giảng dạy, tập trung vào lỗi thường gặp.
             </p>
             
@@ -282,8 +282,8 @@ export default function HomePage() {
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 min-h-[600px] flex items-center">
         <div className="grid gap-12 lg:grid-cols-2 lg:gap-8 items-center w-full">
           <div>
-            <div className="hero-kicker inline-flex items-center gap-2 rounded-full border border-border bg-background/80 px-4 py-1 text-xs font-medium text-muted-foreground shadow-sm">
-              <span className="h-2 w-2 rounded-full bg-accent"></span>
+            <div className="hero-kicker inline-flex items-center gap-2 rounded-full border border-[#1f4a7a] bg-[#0f2b52]/85 px-4 py-1 text-xs font-medium text-[#cfe6ff] shadow-sm">
+              <span className="h-2 w-2 rounded-full bg-[#f5b400]"></span>
               Nền tảng học tiếng Anh do một người trực tiếp xây dựng
             </div>
             <h1 className="hero-title mt-4 text-5xl sm:text-6xl font-bold tracking-tight text-balance leading-tight">
@@ -338,17 +338,20 @@ export default function HomePage() {
       </section>
 
       {/* Featured Courses */}
-      <section className="bg-muted/30 border-t border-border" data-animate="stagger">
+      <section
+        className="bg-[linear-gradient(135deg,#0b1f3a_0%,#102a4c_60%,#123763_100%)] border-t border-border text-white"
+        data-animate="stagger"
+      >
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
           <div className="mb-12 reveal-item">
             <h2 className="text-3xl font-bold">Khóa Học Mình Tự Làm</h2>
-            <p className="text-muted-foreground mt-2">Nội dung tự quay – tự dạy, tập trung vào hiệu quả thực tế</p>
+            <p className="mt-2 text-white/70">Nội dung tự quay – tự dạy, tập trung vào hiệu quả thực tế</p>
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {mockCourses.map((course) => (
               <Card
                 key={course.id}
-                className="course-card reveal-item group relative overflow-hidden rounded-2xl border border-border/70 bg-card/90 p-0 gap-0 shadow-[0_12px_30px_-20px_rgba(0,0,0,0.45)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_50px_-22px_rgba(0,0,0,0.5)]"
+                className="course-card reveal-item group relative overflow-hidden rounded-2xl border border-border/70 bg-[#f2f6ff]/92 p-0 gap-0 shadow-[0_12px_30px_-20px_rgba(0,0,0,0.45)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_50px_-22px_rgba(0,0,0,0.5)]"
               >
                 <div className="relative">
                   <div className="relative aspect-[4/3] bg-muted overflow-hidden rounded-t-2xl">
@@ -435,32 +438,35 @@ export default function HomePage() {
       </section>
 
       {/* How It Works */}
-      <section className="bg-muted/30 border-t border-border" data-animate="stagger">
+      <section
+        className="bg-[linear-gradient(135deg,#0b1f3a_0%,#102a4c_60%,#123763_100%)] border-t border-border text-white"
+        data-animate="stagger"
+      >
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
           <div className="mb-12 text-center reveal-item">
             <h2 className="text-3xl font-bold mb-4">Học Kiểu Thực Tế</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">Chọn khóa, học theo video, luyện tập và nhận phản hồi</p>
+            <p className="text-white/70 max-w-2xl mx-auto">Chọn khóa, học theo video, luyện tập và nhận phản hồi</p>
           </div>
           <div className="grid gap-8 md:grid-cols-4">
             <div className="course-card reveal-item text-center">
               <div className="text-5xl font-bold text-primary mb-4">1</div>
               <h3 className="font-semibold mb-2">Chọn Khóa Học</h3>
-              <p className="text-sm text-muted-foreground">Lựa chọn khóa học phù hợp với mục tiêu và trình độ của bạn</p>
+              <p className="text-sm text-white/70">Lựa chọn khóa học phù hợp với mục tiêu và trình độ của bạn</p>
             </div>
             <div className="course-card reveal-item text-center">
               <div className="text-5xl font-bold text-primary mb-4">2</div>
               <h3 className="font-semibold mb-2">Học & Thực Hành</h3>
-              <p className="text-sm text-muted-foreground">Xem video, làm bài tập và luyện nói theo bài</p>
+              <p className="text-sm text-white/70">Xem video, làm bài tập và luyện nói theo bài</p>
             </div>
             <div className="course-card reveal-item text-center">
               <div className="text-5xl font-bold text-primary mb-4">3</div>
               <h3 className="font-semibold mb-2">Nhận Phản Hồi</h3>
-              <p className="text-sm text-muted-foreground">Gửi bài, mình xem và góp ý cách học nhanh hơn</p>
+              <p className="text-sm text-white/70">Gửi bài, mình xem và góp ý cách học nhanh hơn</p>
             </div>
             <div className="course-card reveal-item text-center">
               <div className="text-5xl font-bold text-primary mb-4">4</div>
               <h3 className="font-semibold mb-2">Ghi Nhận Tiến Bộ</h3>
-              <p className="text-sm text-muted-foreground">Theo dõi kỹ năng bạn cải thiện mỗi tuần</p>
+              <p className="text-sm text-white/70">Theo dõi kỹ năng bạn cải thiện mỗi tuần</p>
             </div>
           </div>
         </div>
