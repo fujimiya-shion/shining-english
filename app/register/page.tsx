@@ -11,10 +11,10 @@ import {
 
 export default function RegisterPage() {
   return (
-    <main className="relative min-h-full overflow-hidden bg-[radial-gradient(1200px_circle_at_top_left,#eaf4ff_0%,#f7faff_50%,#ffffff_100%)] py-12 lg:py-16">
-      <div className="pointer-events-none absolute -left-24 top-10 h-64 w-64 rounded-full bg-[#8fd3ff]/30 blur-3xl"></div>
+    <main className="relative min-h-full overflow-hidden bg-[radial-gradient(1200px_circle_at_top_left,var(--sky-110)_0%,var(--sky-60)_50%,var(--white)_100%)] py-12 lg:py-16">
+      <div className="pointer-events-none absolute -left-24 top-10 h-64 w-64 rounded-full bg-[color:var(--sky-300)]/30 blur-3xl"></div>
       <div className="pointer-events-none absolute right-0 top-32 h-72 w-72 rounded-full bg-primary/20 blur-[120px]"></div>
-      <div className="pointer-events-none absolute bottom-0 left-1/3 h-64 w-64 rounded-full bg-[#0f2b52]/10 blur-[140px]"></div>
+      <div className="pointer-events-none absolute bottom-0 left-1/3 h-64 w-64 rounded-full bg-[color:var(--brand-900)]/10 blur-[140px]"></div>
       <div className="relative mx-auto grid max-w-6xl items-stretch gap-10 px-4 lg:grid-cols-[0.95fr_1.05fr]">
         <Card className="mx-auto flex w-full max-w-lg flex-col border-border/70 bg-white/95 shadow-[0_24px_70px_-50px_rgba(15,43,82,0.35)]">
           <CardHeader className="space-y-2">
@@ -29,7 +29,7 @@ export default function RegisterPage() {
               className="h-11 w-full justify-center gap-3 rounded-full"
               type="button"
             >
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-sm font-semibold text-[#0f2b52] shadow-sm">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-sm font-semibold text-[color:var(--brand-900)] shadow-sm">
                 G
               </span>
               Đăng ký với Google
@@ -84,7 +84,7 @@ export default function RegisterPage() {
               </Button>
             </form>
 
-            <div className="rounded-2xl border border-border/70 bg-[#f6f9ff] p-4">
+            <div className="rounded-2xl border border-border/70 bg-[color:var(--sky-70)] p-4">
               <div className="grid gap-3 sm:grid-cols-3">
                 {[
                   { label: 'Bắt đầu', value: '3 phút' },
@@ -93,7 +93,7 @@ export default function RegisterPage() {
                 ].map((item) => (
                   <div key={item.label} className="rounded-xl bg-white px-3 py-2 text-center shadow-sm">
                     <p className="text-xs text-muted-foreground">{item.label}</p>
-                    <p className="text-sm font-semibold text-[#0f2b52]">{item.value}</p>
+                    <p className="text-sm font-semibold text-[color:var(--brand-900)]">{item.value}</p>
                   </div>
                 ))}
               </div>
@@ -117,9 +117,9 @@ export default function RegisterPage() {
         </Card>
 
         <div className="hidden lg:flex">
-          <div className="relative flex w-full flex-col overflow-hidden rounded-3xl border border-border bg-[#0f2b52] px-8 py-10 text-white shadow-[0_30px_80px_-50px_rgba(15,43,82,0.9)]">
+          <div className="relative flex w-full flex-col overflow-hidden rounded-3xl border border-border bg-[color:var(--brand-900)] px-8 py-10 text-white shadow-[0_30px_80px_-50px_rgba(15,43,82,0.9)]">
             <div className="absolute -right-10 -top-10 h-36 w-36 rounded-full bg-primary/20 blur-2xl"></div>
-            <div className="absolute -bottom-16 -left-8 h-40 w-40 rounded-full bg-[#8fd3ff]/20 blur-3xl"></div>
+            <div className="absolute -bottom-16 -left-8 h-40 w-40 rounded-full bg-[color:var(--sky-300)]/20 blur-3xl"></div>
             <p className="text-xs uppercase tracking-[0.35em] text-white/70">Lộ trình cá nhân hóa</p>
             <h2 className="mt-4 text-4xl font-semibold leading-tight">
               Học đúng nhu cầu, tiến bộ đều mỗi tuần.

@@ -37,6 +37,25 @@
   --sidebar-accent-foreground: #f5f8ff;
   --sidebar-border: #1f3f66;
   --sidebar-ring: #f5b400;
+  --brand-950: #06162b;
+  --brand-925: #0b1f3a;
+  --brand-900: #0f2b52;
+  --brand-850: #102a4c;
+  --brand-800: #1e4f86;
+  --brand-750: #123763;
+  --brand-700: #1f4a7a;
+  --sky-50: #f8fbff;
+  --sky-60: #f7faff;
+  --sky-70: #f6f9ff;
+  --sky-80: #f4f8ff;
+  --sky-90: #eef5ff;
+  --sky-100: #e9f3ff;
+  --sky-110: #eaf4ff;
+  --sky-200: #cfe6ff;
+  --sky-220: #d7ebff;
+  --sky-300: #8fd3ff;
+  --surface-ghost: #f2f6ff;
+  --white: #ffffff;
 }
 
 .dark {
@@ -72,6 +91,25 @@
   --sidebar-accent-foreground: #eaf2ff;
   --sidebar-border: #1c3a60;
   --sidebar-ring: #f5b400;
+  --brand-950: #06162b;
+  --brand-925: #0b1f3a;
+  --brand-900: #0f2b52;
+  --brand-850: #102a4c;
+  --brand-800: #1e4f86;
+  --brand-750: #123763;
+  --brand-700: #1f4a7a;
+  --sky-50: #f8fbff;
+  --sky-60: #f7faff;
+  --sky-70: #f6f9ff;
+  --sky-80: #f4f8ff;
+  --sky-90: #eef5ff;
+  --sky-100: #e9f3ff;
+  --sky-110: #eaf4ff;
+  --sky-200: #cfe6ff;
+  --sky-220: #d7ebff;
+  --sky-300: #8fd3ff;
+  --surface-ghost: #f2f6ff;
+  --white: #ffffff;
 }
 
 @theme inline {

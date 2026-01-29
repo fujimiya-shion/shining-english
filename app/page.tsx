@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
+import { CourseCard } from '@/components/course/course-card'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
@@ -14,8 +14,8 @@ import {
   Award,
   MessageCircle,
   Rocket,
-  Star,
 } from 'lucide-react'
+import { Card } from '@/components/ui/card'
 
 const mockCourses = [
   {
@@ -239,7 +239,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground bg-[radial-gradient(1200px_circle_at_top_left,#e9f3ff_0%,#f4f8ff_55%,#ffffff_100%)]">
+    <div className="min-h-screen bg-background text-foreground bg-[radial-gradient(1200px_circle_at_top_left,var(--sky-100)_0%,var(--sky-80)_55%,var(--white)_100%)]">
       {/* Banner Section */}
       <section className="relative h-[450px] overflow-hidden border-b border-border flex items-end md:items-center">
         <div className="absolute inset-0">
@@ -253,18 +253,18 @@ export default function HomePage() {
               priority
             />
           </div>
-          <div className="absolute inset-0 bg-linear-to-r from-[#06162b]/95 via-[#0b1f3a]/70 to-transparent"></div>
+          <div className="absolute inset-0 bg-linear-to-r from-[color:var(--brand-950)]/95 via-[color:var(--brand-925)]/70 to-transparent"></div>
         </div>
         <div className="relative mx-auto max-w-7xl px-4 pb-12 pt-20 sm:px-6 sm:pb-16 sm:pt-24 lg:px-8 xl:pt-20 xl:pb-24 2xl:pt-16">
           <div className="w-full text-white text-left">
-            <p className="banner-kicker text-xs uppercase tracking-[0.2em] text-[#cfe6ff] sm:text-sm">
+            <p className="banner-kicker text-xs uppercase tracking-[0.2em] text-[color:var(--sky-200)] sm:text-sm">
               Series mới mỗi tuần
             </p>
             <h2 className="banner-title mt-4 text-3xl font-bold leading-tight max-w-7xl ml-0 sm:mt-5 sm:text-4xl lg:text-6xl">
               Học tiếng Anh theo video ngắn, dễ hiểu, thực tế
             </h2>
 
-            <p className="banner-subtitle mt-4 text-sm text-[#d7ebff] max-w-3xl ml-0 sm:mt-5 sm:text-lg lg:text-xl">
+            <p className="banner-subtitle mt-4 text-sm text-[color:var(--sky-220)] max-w-3xl ml-0 sm:mt-5 sm:text-lg lg:text-xl">
               Hệ thống bài học do một người tự quay và giảng dạy, tập trung vào lỗi thường gặp.
             </p>
             
@@ -284,8 +284,8 @@ export default function HomePage() {
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8 min-h-[600px] flex items-center">
         <div className="grid gap-12 lg:grid-cols-2 lg:gap-8 items-center w-full">
           <div className="text-center lg:text-left w-full">
-            <div className="hero-kicker inline-flex items-center gap-2 rounded-full border border-[#1f4a7a] bg-[#0f2b52]/85 px-4 py-1 text-xs font-medium text-[#cfe6ff] shadow-sm mx-auto lg:mx-0">
-              <span className="h-2 w-2 rounded-full bg-[#f5b400]"></span>
+            <div className="hero-kicker inline-flex items-center gap-2 rounded-full border border-[color:var(--brand-700)] bg-[color:var(--brand-900)]/85 px-4 py-1 text-xs font-medium text-[color:var(--sky-200)] shadow-sm mx-auto lg:mx-0">
+              <span className="h-2 w-2 rounded-full bg-primary"></span>
               Nền tảng học tiếng Anh do một người trực tiếp xây dựng
             </div>
             <h1 className="hero-title mt-4 text-[30px] sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight max-w-[22rem] sm:max-w-none mx-auto lg:mx-0">
@@ -341,7 +341,7 @@ export default function HomePage() {
 
       {/* Featured Courses */}
       <section
-        className="bg-[linear-gradient(135deg,#0b1f3a_0%,#102a4c_60%,#123763_100%)] border-t border-border text-white"
+        className="bg-[linear-gradient(135deg,var(--brand-925)_0%,var(--brand-850)_60%,var(--brand-750)_100%)] border-t border-border text-white"
         data-animate="stagger"
       >
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
@@ -351,43 +351,18 @@ export default function HomePage() {
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {mockCourses.map((course) => (
-              <Card
+              <CourseCard
                 key={course.id}
-                className="course-card reveal-item group relative overflow-hidden rounded-2xl border border-border/70 bg-white p-0 gap-0 shadow-[0_12px_30px_-20px_rgba(0,0,0,0.45)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_50px_-22px_rgba(0,0,0,0.5)]"
-              >
-                <div className="relative">
-                  <div className="relative aspect-[4/3] bg-muted overflow-hidden rounded-t-2xl">
-                    <Image
-                      src={course.image || "/placeholder.svg"}
-                      alt={course.title}
-                      fill
-                      sizes="(min-width: 1024px) 25vw, (min-width: 768px) 50vw, 100vw"
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent"></div>
-                  <div className="absolute top-4 left-4 rounded-full bg-background/90 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-foreground shadow-sm">
-                    {course.category}
-                  </div>
-                  <div className="absolute top-4 right-4 flex items-center gap-1 rounded-full bg-background/90 px-2.5 py-1 text-xs font-medium text-foreground shadow-sm">
-                    <Star className="h-3.5 w-3.5 fill-accent text-accent" />
-                    {course.rating}
-                  </div>
-                </div>
-                <div className="flex-1 p-6 flex flex-col">
-                  <h3 className="text-base font-semibold leading-snug line-clamp-2 group-hover:text-primary transition-colors">
-                    {course.title}
-                  </h3>
-                  <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
-                    <span>{course.students.toLocaleString()} học viên</span>
-                    <span className="h-1 w-1 rounded-full bg-muted-foreground/60"></span>
-                    <span>Chứng chỉ hoàn thành</span>
-                  </div>
-                  <div className="mt-auto pt-5 flex items-center justify-between border-t border-border/60">
-                    <span className="text-lg font-bold text-primary">₫{course.price.toLocaleString('vi-VN')}</span>
-                    <span className="text-xs text-muted-foreground">/khóa</span>
-                  </div>
-                  <div className="mt-4 flex items-center gap-3">
+                title={course.title}
+                image={course.image || "/placeholder.svg"}
+                category={course.category}
+                rating={course.rating}
+                students={course.students}
+                price={course.price}
+                metaNote="Chứng chỉ hoàn thành"
+                href={`/courses/${course.id}`}
+                actions={
+                  <>
                     <Button asChild className="flex-1 rounded-full">
                       <Link href={`/courses/${course.id}`}>Xem Chi Tiết</Link>
                     </Button>
@@ -407,9 +382,9 @@ export default function HomePage() {
                         className="h-5 w-5"
                       />
                     </Button>
-                  </div>
-                </div>
-              </Card>
+                  </>
+                }
+              />
             ))}
           </div>
         </div>
@@ -441,7 +416,7 @@ export default function HomePage() {
 
       {/* How It Works */}
       <section
-        className="bg-[linear-gradient(135deg,#0b1f3a_0%,#102a4c_60%,#123763_100%)] border-t border-border text-white"
+        className="bg-[linear-gradient(135deg,var(--brand-925)_0%,var(--brand-850)_60%,var(--brand-750)_100%)] border-t border-border text-white"
         data-animate="stagger"
       >
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">

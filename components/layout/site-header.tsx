@@ -25,7 +25,7 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { label: 'Trang Chủ', icon: Home, href: '/' },
-  { label: 'Khóa Học', icon: BookOpen, href: '/dashboard' },
+  { label: 'Khóa Học', icon: BookOpen, href: '/courses' },
   { label: 'Lộ Trình', icon: Map, href: '/notes' },
   { label: 'Về Shining English', icon: Info, showFrom: 'lg' },
   { label: 'Học Viên', icon: Users2, href: '/dashboard', showFrom: 'lg' },
@@ -50,7 +50,7 @@ export function SiteHeader({ cartCount = 0 }: SiteHeaderProps) {
       <div className="mx-auto grid max-w-7xl grid-cols-[auto_1fr_auto] items-center px-4 py-3 sm:px-6 lg:px-8">
         <Link
           href="/"
-          className="font-bold text-xl bg-gradient-to-r from-[#0f2b52] via-[#1e4f86] via-[60%] to-primary bg-clip-text text-transparent"
+          className="font-bold text-xl bg-gradient-to-r from-[color:var(--brand-900)] via-[color:var(--brand-800)] via-[60%] to-primary bg-clip-text text-transparent"
         >
           Shining English
         </Link>
@@ -103,7 +103,7 @@ export function SiteHeader({ cartCount = 0 }: SiteHeaderProps) {
           </Button>
 
           <div className="relative hidden md:block">
-            <button className="relative" aria-label="Giỏ hàng">
+            <Link href="/cart" className="relative" aria-label="Giỏ hàng">
               <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-background shadow-sm transition-colors hover:border-primary/40 hover:text-primary">
                 <ShoppingBag className="h-5 w-5" strokeWidth={2} aria-hidden="true" />
               </span>
@@ -112,7 +112,7 @@ export function SiteHeader({ cartCount = 0 }: SiteHeaderProps) {
                   {cartCount}
                 </span>
               )}
-            </button>
+            </Link>
           </div>
 
           <details className="relative md:hidden group">
@@ -156,7 +156,12 @@ export function SiteHeader({ cartCount = 0 }: SiteHeaderProps) {
                       Đăng Nhập
                     </Link>
                   </Button>
-                  <button className="relative" aria-label="Giỏ hàng" onClick={closeMobileMenu}>
+                  <Link
+                    href="/cart"
+                    className="relative"
+                    aria-label="Giỏ hàng"
+                    onClick={closeMobileMenu}
+                  >
                     <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-background shadow-sm">
                       <ShoppingBag className="h-5 w-5" strokeWidth={2} aria-hidden="true" />
                     </span>
@@ -165,7 +170,7 @@ export function SiteHeader({ cartCount = 0 }: SiteHeaderProps) {
                         {cartCount}
                       </span>
                     )}
-                  </button>
+                  </Link>
                 </div>
               </div>
             </div>
