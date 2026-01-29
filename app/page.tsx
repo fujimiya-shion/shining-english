@@ -242,15 +242,17 @@ export default function HomePage() {
     <div className="min-h-screen bg-background text-foreground">
       {/* Banner Section */}
       <section className="relative h-[450px] overflow-hidden border-b border-border flex items-end xl:items-center">
-        <div className="absolute inset-0 relative">
-          <Image
-            src="/images/banner.webp"
-            alt="Học online cùng video bài giảng"
-            fill
-            sizes="100vw"
-            className="object-cover"
-            priority
-          />
+        <div className="absolute inset-0">
+          <div className="relative h-full w-full">
+            <Image
+              src="/images/banner.webp"
+              alt="Học online cùng video bài giảng"
+              fill
+              sizes="100vw"
+              className="object-cover"
+              priority
+            />
+          </div>
           <div className="absolute inset-0 bg-linear-to-r from-black/70 via-black/40 to-transparent"></div>
         </div>
         <div className="relative max-w-7xl mx-auto px-4 pb-20 pt-28 sm:px-6 lg:px-8 xl:pt-20 xl:pb-24 2xl:pt-16">
