@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import Image from 'next/image'
 import { useState } from 'react'
 
 interface CartItem {
@@ -95,10 +96,12 @@ export function Checkout({ items, onCheckout }: CheckoutProps) {
                   className="flex gap-4 p-4 border border-border rounded-lg hover:bg-muted/30 transition-colors"
                 >
                   <div className="h-20 w-20 flex-shrink-0 rounded-lg bg-muted overflow-hidden">
-                    <img
+                    <Image
                       src={item.image || "/placeholder.svg"}
                       alt={item.title}
-                      className="w-full h-full object-cover"
+                      width={80}
+                      height={80}
+                      className="h-full w-full object-cover"
                     />
                   </div>
                   <div className="flex-1">

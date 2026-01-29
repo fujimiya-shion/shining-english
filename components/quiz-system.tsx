@@ -28,7 +28,6 @@ export function QuizSystem({
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [selectedAnswers, setSelectedAnswers] = useState<(number | null)[]>([])
   const [showResults, setShowResults] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
 
   const questions: QuizQuestion[] = [
     {
@@ -118,9 +117,8 @@ export function QuizSystem({
 
   const handleSubmit = () => {
     setShowResults(true)
-    setSubmitted(true)
 
-    const correctCount = selectedAnswers.reduce((count, answer, index) => {
+    const correctCount = selectedAnswers.reduce<number>((count, answer, index) => {
       return answer === questions[index].correctAnswer ? count + 1 : count
     }, 0)
 
@@ -133,7 +131,7 @@ export function QuizSystem({
   }
 
   if (showResults) {
-    const correctCount = selectedAnswers.reduce((count, answer, index) => {
+    const correctCount = selectedAnswers.reduce<number>((count, answer, index) => {
       return answer === questions[index].correctAnswer ? count + 1 : count
     }, 0)
 
@@ -258,7 +256,6 @@ export function QuizSystem({
                 setCurrentQuestion(0)
                 setSelectedAnswers([])
                 setShowResults(false)
-                setSubmitted(false)
               }}
             >
               Retake Quiz

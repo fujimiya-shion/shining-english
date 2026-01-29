@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useState } from 'react'
 
 interface CartItem {
@@ -97,10 +98,12 @@ export default function CartPage() {
                   <Card key={item.id} className="overflow-hidden">
                     <div className="flex gap-4 p-4 md:p-6">
                       <div className="h-24 w-24 flex-shrink-0 rounded-lg bg-muted overflow-hidden">
-                        <img
+                        <Image
                           src={item.image || "/placeholder.svg"}
                           alt={item.title}
-                          className="w-full h-full object-cover"
+                          width={96}
+                          height={96}
+                          className="h-full w-full object-cover"
                         />
                       </div>
                       <div className="flex-1">

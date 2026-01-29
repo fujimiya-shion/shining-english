@@ -52,7 +52,7 @@ export function SiteHeader({ cartCount = 0 }: SiteHeaderProps) {
                 <>
                   <Icon
                     className="h-4 w-4 text-muted-foreground transition-colors group-hover:text-primary"
-                    aria-hidden="true"
+                    aria-hidden={true}
                   />
                   {item.label}
                 </>
@@ -115,7 +115,7 @@ export function SiteHeader({ cartCount = 0 }: SiteHeaderProps) {
                       href={item.href}
                       className="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-sm hover:bg-muted"
                     >
-                      <item.icon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                      <item.icon className="h-4 w-4 text-muted-foreground" aria-hidden={true} />
                       {item.label}
                     </Link>
                   ) : (
@@ -123,7 +123,7 @@ export function SiteHeader({ cartCount = 0 }: SiteHeaderProps) {
                       key={item.label}
                       className="inline-flex items-center gap-2 rounded-lg px-2 py-2 text-sm hover:bg-muted"
                     >
-                      <item.icon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                      <item.icon className="h-4 w-4 text-muted-foreground" aria-hidden={true} />
                       {item.label}
                     </button>
                   )

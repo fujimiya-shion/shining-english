@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import Image from 'next/image'
 
 interface EnrolledCourse {
   id: number
@@ -164,11 +165,13 @@ export function StudentDashboard() {
               <div className="grid gap-6 md:grid-cols-3">
                 {enrolledCourses.map((course) => (
                   <Card key={course.id} className="overflow-hidden flex flex-col">
-                    <div className="aspect-video bg-muted overflow-hidden">
-                      <img
+                    <div className="relative aspect-video bg-muted overflow-hidden">
+                      <Image
                         src={course.image || "/placeholder.svg"}
                         alt={course.title}
-                        className="w-full h-full object-cover"
+                        fill
+                        sizes="(min-width: 768px) 33vw, 100vw"
+                        className="object-cover"
                       />
                     </div>
                     <div className="flex-1 p-4 flex flex-col">

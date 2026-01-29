@@ -1,7 +1,6 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useState } from 'react'
 import { Star } from 'lucide-react'
@@ -22,7 +21,6 @@ interface CourseModule {
 
 export function CoursePlayer() {
   const [currentLesson, setCurrentLesson] = useState(1)
-  const [currentModule, setCurrentModule] = useState(1)
   const [notes, setNotes] = useState('')
 
   const courseMeta = {
@@ -127,9 +125,8 @@ export function CoursePlayer() {
     return Array.from({ length: 5 }).map((_, index) => (
       <Star
         key={index}
-        className={`h-4 w-4 ${
-          index < Math.round(rating) ? 'fill-accent text-accent' : 'text-muted-foreground/40'
-        }`}
+        className={`h-4 w-4 ${index < Math.round(rating) ? 'fill-accent text-accent' : 'text-muted-foreground/40'
+          }`}
       />
     ))
   }
@@ -368,16 +365,14 @@ export function CoursePlayer() {
                         key={lesson.id}
                         onClick={() => {
                           setCurrentLesson(lesson.id)
-                          setCurrentModule(module.id)
                         }}
                         disabled={lesson.locked}
-                        className={`w-full text-left p-2 rounded-lg text-sm transition-colors ${
-                          currentLesson === lesson.id
+                        className={`w-full text-left p-2 rounded-lg text-sm transition-colors ${currentLesson === lesson.id
                             ? 'bg-primary text-primary-foreground'
                             : lesson.locked
                               ? 'text-muted-foreground bg-muted/50 cursor-not-allowed'
                               : 'hover:bg-muted'
-                        }`}
+                          }`}
                       >
                         <div className="flex items-center gap-2">
                           {lesson.completed ? (

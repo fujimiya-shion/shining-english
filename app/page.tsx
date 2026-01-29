@@ -3,6 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import gsap from 'gsap'
 import {
@@ -241,11 +242,14 @@ export default function HomePage() {
     <div className="min-h-screen bg-background text-foreground">
       {/* Banner Section */}
       <section className="relative h-[450px] overflow-hidden border-b border-border flex items-end xl:items-center">
-        <div className="absolute inset-0">
-          <img
+        <div className="absolute inset-0 relative">
+          <Image
             src="/images/banner.webp"
             alt="Học online cùng video bài giảng"
-            className="h-full w-full object-cover"
+            fill
+            sizes="100vw"
+            className="object-cover"
+            priority
           />
           <div className="absolute inset-0 bg-linear-to-r from-black/70 via-black/40 to-transparent"></div>
         </div>
@@ -307,10 +311,12 @@ export default function HomePage() {
           </div>
           <div className="hero-stats relative">
             <div className="hero-float relative aspect-[4/3] overflow-hidden rounded-2xl border border-border bg-muted shadow-xl">
-              <img
+              <Image
                 src="https://images.unsplash.com/photo-1758874384070-d8f494b5abcf?fm=jpg&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=60&w=3000"
                 alt="Lớp học trực tuyến với giáo viên qua video"
-                className="h-full w-full object-cover"
+                fill
+                sizes="(min-width: 1024px) 50vw, 100vw"
+                className="object-cover"
               />
               <div className="hero-glow absolute inset-0 bg-gradient-to-tr from-black/55 via-black/10 to-transparent"></div>
               <div className="absolute bottom-4 left-4 right-4 rounded-xl bg-background/90 p-4 shadow-lg backdrop-blur">
@@ -343,11 +349,13 @@ export default function HomePage() {
                 className="course-card reveal-item group relative overflow-hidden rounded-2xl border border-border/70 bg-card/90 p-0 gap-0 shadow-[0_12px_30px_-20px_rgba(0,0,0,0.45)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_50px_-22px_rgba(0,0,0,0.5)]"
               >
                 <div className="relative">
-                  <div className="aspect-[4/3] bg-muted overflow-hidden rounded-t-2xl">
-                    <img
+                  <div className="relative aspect-[4/3] bg-muted overflow-hidden rounded-t-2xl">
+                    <Image
                       src={course.image || "/placeholder.svg"}
                       alt={course.title}
-                      className="block h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      fill
+                      sizes="(min-width: 1024px) 25vw, (min-width: 768px) 50vw, 100vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent"></div>
@@ -384,9 +392,11 @@ export default function HomePage() {
                       aria-label="Thêm vào giỏ"
                     >
                       <span className="sr-only">Thêm Vào Giỏ</span>
-                      <img
+                      <Image
                         src="https://img.icons8.com/ios/50/add-shopping-cart--v1.png"
                         alt=""
+                        width={20}
+                        height={20}
                         className="h-5 w-5"
                       />
                     </Button>
@@ -466,9 +476,11 @@ export default function HomePage() {
               <Card key={testimonial.id} className="course-card reveal-item p-6">
                 <div className="flex items-start gap-4 mb-4">
                   <div className="h-12 w-12 overflow-hidden rounded-full border border-border">
-                    <img
+                    <Image
                       src={testimonial.image}
                       alt={testimonial.name}
+                      width={48}
+                      height={48}
                       className="h-full w-full object-cover"
                     />
                   </div>
@@ -477,7 +489,9 @@ export default function HomePage() {
                     <p className="text-xs text-muted-foreground">{testimonial.role}</p>
                   </div>
                 </div>
-                <p className="text-sm text-muted-foreground italic">"{testimonial.content}"</p>
+                <p className="text-sm text-muted-foreground italic">
+                  &ldquo;{testimonial.content}&rdquo;
+                </p>
                 <div className="flex gap-1 mt-4">
                   {[...Array(5)].map((_, i) => (
                     <span key={i} className="text-accent">★</span>
