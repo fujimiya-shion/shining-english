@@ -1,16 +1,17 @@
 import * as React from 'react'
 
 import { Button, buttonVariants } from '@/components/ui/button'
+import type { VariantProps } from 'class-variance-authority'
 
-type ButtonVariant = NonNullable<Parameters<typeof buttonVariants>[0]>['variant']
+type ButtonVariant = VariantProps<typeof buttonVariants>['variant']
 
 type AppButtonVariant = ButtonVariant | 'primary' | 'main'
 
-type AppButtonProps = React.ComponentProps<typeof Button> & {
-  variant?: AppButtonVariant
+type AppButtonProps = Omit<React.ComponentProps<typeof Button>, 'variant'> & {
+  variant?: AppButtonVariant | null
 }
 
-const mapVariant = (variant?: AppButtonVariant): ButtonVariant => {
+const mapVariant = (variant?: AppButtonVariant | null): ButtonVariant => {
   if (!variant || variant === 'primary' || variant === 'main') {
     return 'default'
   }
