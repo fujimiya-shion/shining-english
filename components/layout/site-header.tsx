@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { AppButton } from '@/components/ui/app-button'
 import {
   BookOpen,
   Home,
@@ -27,10 +28,10 @@ const navItems: NavItem[] = [
   { label: 'Trang Chủ', icon: Home, href: '/' },
   { label: 'Khóa Học', icon: BookOpen, href: '/courses' },
   { label: 'Lộ Trình', icon: Map, href: '/notes' },
-  { label: 'Về Shining English', icon: Info, showFrom: 'lg' },
+  { label: 'Về Shining English', icon: Info, href: '/about', showFrom: 'lg' },
   { label: 'Học Viên', icon: Users2, href: '/dashboard', showFrom: 'lg' },
-  { label: 'Blog', icon: NotebookPen, showFrom: 'xl' },
-  { label: 'Liên Hệ', icon: Phone, showFrom: 'xl' },
+  { label: 'Blog', icon: NotebookPen, href: '/blogs', showFrom: 'xl' },
+  { label: 'Liên Hệ', icon: Phone, href: '/contact', showFrom: 'xl' },
 ]
 
 type SiteHeaderProps = {
@@ -95,12 +96,12 @@ export function SiteHeader({ cartCount = 0 }: SiteHeaderProps) {
           <div className="md:hidden" />
         </div>
         <div className="flex items-center justify-end gap-3 lg:gap-6">
-          <Button asChild variant="default" size="sm" className="gap-2 hidden md:inline-flex">
+          <AppButton asChild size="sm" className="gap-2 hidden md:inline-flex">
             <Link href="/login">
               <LogIn className="h-4 w-4" aria-hidden="true" />
               Đăng Nhập
             </Link>
-          </Button>
+          </AppButton>
 
           <div className="relative hidden md:block">
             <Link href="/cart" className="relative" aria-label="Giỏ hàng">
@@ -150,12 +151,12 @@ export function SiteHeader({ cartCount = 0 }: SiteHeaderProps) {
                   )
                 )}
                 <div className="mt-2 flex items-center gap-3">
-                  <Button asChild size="sm" className="flex-1 gap-2">
+                  <AppButton asChild size="sm" className="flex-1 gap-2">
                     <Link href="/login" onClick={closeMobileMenu}>
                       <LogIn className="h-4 w-4" aria-hidden="true" />
                       Đăng Nhập
                     </Link>
-                  </Button>
+                  </AppButton>
                   <Link
                     href="/cart"
                     className="relative"

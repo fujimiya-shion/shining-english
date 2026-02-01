@@ -1,6 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
+import { AppButton } from '@/components/ui/app-button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import Image from 'next/image'
@@ -24,10 +25,8 @@ export function Checkout({ items, onCheckout }: CheckoutProps) {
   const [appliedCoupon, setAppliedCoupon] = useState('')
   const [email, setEmail] = useState('')
   const [fullName, setFullName] = useState('')
-  const [cardNumber, setCardNumber] = useState('')
-  const [expiryDate, setExpiryDate] = useState('')
-  const [cvv, setCvv] = useState('')
   const [processing, setProcessing] = useState(false)
+  const [phone, setPhone] = useState('')
 
   const coupons: { [key: string]: number } = {
     'SAVE20': 20,
@@ -37,7 +36,7 @@ export function Checkout({ items, onCheckout }: CheckoutProps) {
 
   const subtotal = items.reduce((sum, item) => sum + item.price, 0)
   const discountAmount = (subtotal * discount) / 100
-  const tax = (subtotal - discountAmount) * 0.08
+  const tax = 0
   const total = subtotal - discountAmount + tax
 
   const handleApplyCoupon = () => {
@@ -70,7 +69,7 @@ export function Checkout({ items, onCheckout }: CheckoutProps) {
       <div className="lg:col-span-2 space-y-8">
         {/* Cart Items */}
         <Card className="p-6">
-          <h2 className="text-xl font-bold mb-6">Order Summary</h2>
+          <h2 className="text-xl font-bold mb-6">Tóm tắt đơn hàng</h2>
           {items.length === 0 ? (
             <div className="text-center py-12">
               <svg
@@ -86,7 +85,7 @@ export function Checkout({ items, onCheckout }: CheckoutProps) {
                   d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
                 />
               </svg>
-              <p className="mt-4 text-muted-foreground">Your cart is empty</p>
+              <p className="mt-4 text-muted-foreground">Giỏ hàng của bạn đang trống</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -106,10 +105,12 @@ export function Checkout({ items, onCheckout }: CheckoutProps) {
                   </div>
                   <div className="flex-1">
                     <h3 className="font-semibold line-clamp-2">{item.title}</h3>
-                    <p className="text-primary font-bold mt-2">${item.price.toFixed(2)}</p>
+                    <p className="text-primary font-bold mt-2">
+                      {item.price.toLocaleString('vi-VN')}đ
+                    </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm text-muted-foreground">Qty: 1</p>
+                    <p className="text-sm text-muted-foreground">Số lượng: 1</p>
                   </div>
                 </div>
               ))}
@@ -119,41 +120,41 @@ export function Checkout({ items, onCheckout }: CheckoutProps) {
 
         {/* Coupon Code */}
         <Card className="p-6">
-          <h2 className="text-lg font-bold mb-4">Promo Code</h2>
+          <h2 className="text-lg font-bold mb-4">Mã giảm giá</h2>
           {appliedCoupon ? (
             <div className="flex items-center justify-between p-4 bg-accent/10 border border-accent/30 rounded-lg">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Applied coupon</p>
+                <p className="text-sm font-medium text-muted-foreground">Mã đã áp dụng</p>
                 <p className="text-lg font-bold text-accent">{appliedCoupon}</p>
               </div>
               <Button variant="ghost" size="sm" onClick={handleRemoveCoupon}>
-                Remove
+                Gỡ mã
               </Button>
             </div>
           ) : (
             <div className="flex gap-2">
               <Input
-                placeholder="Enter promo code"
+                placeholder="Nhập mã giảm giá"
                 value={couponCode}
                 onChange={(e) => setCouponCode(e.target.value)}
                 className="flex-1"
               />
-              <Button onClick={handleApplyCoupon}>Apply</Button>
+              <AppButton onClick={handleApplyCoupon}>Áp dụng</AppButton>
             </div>
           )}
           <p className="text-xs text-muted-foreground mt-3">
-            Try codes: SAVE20, SAVE30, WELCOME10
+            Gợi ý mã: SAVE20, SAVE30, WELCOME10
           </p>
         </Card>
 
         {/* Billing Information */}
         <Card className="p-6">
-          <h2 className="text-lg font-bold mb-6">Billing Information</h2>
+          <h2 className="text-lg font-bold mb-6">Thông tin thanh toán</h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Full Name</label>
+              <label className="block text-sm font-medium mb-2">Họ và tên</label>
               <Input
-                placeholder="John Doe"
+                placeholder="Nguyễn Minh Anh"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
               />
@@ -162,9 +163,17 @@ export function Checkout({ items, onCheckout }: CheckoutProps) {
               <label className="block text-sm font-medium mb-2">Email</label>
               <Input
                 type="email"
-                placeholder="john@example.com"
+                placeholder="you@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Số điện thoại</label>
+              <Input
+                placeholder="09xx xxx xxx"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
               />
             </div>
           </div>
@@ -172,39 +181,22 @@ export function Checkout({ items, onCheckout }: CheckoutProps) {
 
         {/* Payment Information */}
         <Card className="p-6">
-          <h2 className="text-lg font-bold mb-6">Payment Details</h2>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">Card Number</label>
-              <Input
-                placeholder="1234 5678 9012 3456"
-                value={cardNumber}
-                onChange={(e) =>
-                  setCardNumber(e.target.value.replace(/\s/g, '').slice(0, 16))
-                }
-                maxLength={19}
+          <h2 className="text-lg font-bold mb-6">Phương thức thanh toán</h2>
+          <div className="rounded-xl border border-border bg-[color:var(--sky-70)] p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-[color:var(--brand-900)]">PayOS</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Thanh toán qua chuyển khoản ngân hàng/QR theo chuẩn PayOS.
+                </p>
+              </div>
+              <Image
+                src="https://payos.vn/wp-content/uploads/2025/06/Casso-payOSLogo-1.svg"
+                alt="PayOS"
+                width={90}
+                height={36}
+                className="h-8 w-auto"
               />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">Expiry Date</label>
-                <Input
-                  placeholder="MM/YY"
-                  value={expiryDate}
-                  onChange={(e) => setExpiryDate(e.target.value)}
-                  maxLength={5}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">CVV</label>
-                <Input
-                  placeholder="123"
-                  type="password"
-                  value={cvv}
-                  onChange={(e) => setCvv(e.target.value.slice(0, 3))}
-                  maxLength={3}
-                />
-              </div>
             </div>
           </div>
         </Card>
@@ -213,59 +205,61 @@ export function Checkout({ items, onCheckout }: CheckoutProps) {
       {/* Order Summary Sidebar */}
       <div>
         <Card className="p-6 sticky top-4">
-          <h2 className="text-lg font-bold mb-6">Order Total</h2>
+          <h2 className="text-lg font-bold mb-6">Tổng thanh toán</h2>
           <div className="space-y-4">
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Subtotal</span>
-              <span className="font-medium">${subtotal.toFixed(2)}</span>
+              <span className="text-muted-foreground">Tạm tính</span>
+              <span className="font-medium">{subtotal.toLocaleString('vi-VN')}đ</span>
             </div>
 
             {discount > 0 && (
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Discount ({discount}%)</span>
+                <span className="text-muted-foreground">Giảm giá ({discount}%)</span>
                 <span className="font-medium text-accent">
-                  -${discountAmount.toFixed(2)}
+                  -{discountAmount.toLocaleString('vi-VN')}đ
                 </span>
               </div>
             )}
 
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Tax (8%)</span>
-              <span className="font-medium">${tax.toFixed(2)}</span>
+              <span className="text-muted-foreground">Thuế</span>
+              <span className="font-medium">{tax.toLocaleString('vi-VN')}đ</span>
             </div>
 
             <div className="border-t border-border pt-4 flex justify-between">
-              <span className="font-bold">Total</span>
-              <span className="text-2xl font-bold text-primary">${total.toFixed(2)}</span>
+              <span className="font-bold">Tổng cộng</span>
+              <span className="text-2xl font-bold text-primary">
+                {total.toLocaleString('vi-VN')}đ
+              </span>
             </div>
           </div>
 
-          <Button
+          <AppButton
             className="w-full mt-6"
             size="lg"
             onClick={handleCheckout}
-            disabled={items.length === 0 || !email || !fullName || !cardNumber || processing}
+            disabled={items.length === 0 || !email || !fullName || !phone || processing}
           >
-            {processing ? 'Processing...' : 'Complete Purchase'}
-          </Button>
+            {processing ? 'Đang tạo thanh toán...' : 'Tạo liên kết PayOS'}
+          </AppButton>
 
           <p className="text-xs text-muted-foreground text-center mt-4">
-            Your payment is secure and encrypted
+            Thanh toán được bảo mật qua PayOS
           </p>
 
           <div className="mt-6 space-y-2 border-t border-border pt-6">
             <p className="text-xs font-semibold text-muted-foreground uppercase">
-              Payment Methods
+              Phương thức
             </p>
-            <div className="flex gap-2">
-              {['visa', 'mastercard', 'amex'].map((method) => (
-                <div
-                  key={method}
-                  className="flex-1 h-8 rounded-lg border border-border bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground"
-                >
-                  {method.toUpperCase()}
-                </div>
-              ))}
+            <div className="flex items-center justify-between rounded-lg border border-border bg-muted px-3 py-2">
+              <span className="text-xs font-medium text-muted-foreground">PayOS</span>
+              <Image
+                src="https://payos.vn/wp-content/uploads/2025/06/Casso-payOSLogo-1.svg"
+                alt="PayOS"
+                width={70}
+                height={28}
+                className="h-6 w-auto"
+              />
             </div>
           </div>
         </Card>

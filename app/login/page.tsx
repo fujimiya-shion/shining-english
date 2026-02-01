@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { AppButton } from '@/components/ui/app-button'
 import { Input } from '@/components/ui/input'
 import {
   Card,
@@ -103,9 +104,9 @@ export default function LoginPage() {
                   Quên mật khẩu?
                 </Link>
               </div>
-              <Button className="h-11 w-full rounded-full" type="button">
+              <AppButton className="h-11 w-full rounded-full" type="button">
                 Đăng nhập
-              </Button>
+              </AppButton>
             </form>
 
             <div className="rounded-2xl border border-border/70 bg-[color:var(--sky-70)] p-4">

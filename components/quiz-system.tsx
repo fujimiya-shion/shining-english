@@ -1,6 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
+import { AppButton } from '@/components/ui/app-button'
 import { Card } from '@/components/ui/card'
 import { useState } from 'react'
 
@@ -260,7 +261,7 @@ export function QuizSystem({
             >
               Retake Quiz
             </Button>
-            <Button className="flex-1">Continue to Next Lesson</Button>
+            <AppButton className="flex-1">Continue to Next Lesson</AppButton>
           </div>
         </Card>
       </div>
@@ -338,17 +339,17 @@ export function QuizSystem({
           </Button>
 
           {currentQuestion === questions.length - 1 ? (
-            <Button
+            <AppButton
               onClick={handleSubmit}
               disabled={selectedAnswers.some((a, i) => a === null && i <= currentQuestion)}
               className="flex-1"
             >
               Submit Quiz
-            </Button>
+            </AppButton>
           ) : (
-            <Button onClick={handleNext} className="flex-1">
+            <AppButton onClick={handleNext} className="flex-1">
               Next
-            </Button>
+            </AppButton>
           )}
         </div>
 

@@ -1,22 +1,16 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
+import { AppButton } from '@/components/ui/app-button'
+import { CourseListItem, type CourseListItemData } from '@/components/course/course-list-item'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useState } from 'react'
 import { Star } from 'lucide-react'
 
-interface Lesson {
-  id: number
-  title: string
-  duration: number
-  completed: boolean
-  locked: boolean
-}
-
 interface CourseModule {
   id: number
   title: string
-  lessons: Lesson[]
+  lessons: CourseListItemData[]
 }
 
 export function CoursePlayer() {
@@ -199,7 +193,7 @@ export function CoursePlayer() {
               <p className="mt-2 text-2xl font-semibold text-primary">
                 {Math.round(progressPercentage)}%
               </p>
-              <Button className="mt-4 w-full">Tiếp tục học</Button>
+              <AppButton className="mt-4 w-full">Tiếp tục học</AppButton>
             </div>
           </div>
         </div>
@@ -238,7 +232,7 @@ export function CoursePlayer() {
                   placeholder="Ghi chú nhanh trong lúc học..."
                   className="w-full h-32 p-3 border border-border rounded-lg bg-background text-foreground resize-none focus:outline-none focus:ring-2 focus:ring-primary"
                 />
-                <Button>Lưu ghi chú</Button>
+                <AppButton>Lưu ghi chú</AppButton>
               </div>
             </TabsContent>
             <TabsContent value="resources" className="space-y-4 mt-4">
@@ -267,12 +261,12 @@ export function CoursePlayer() {
             >
               Bài trước
             </Button>
-            <Button
+            <AppButton
               className="flex-1"
               onClick={handleCompleteLesson}
             >
               {currentLessonData?.completed ? 'Tiếp tục' : 'Hoàn thành'} & Bài tiếp theo
-            </Button>
+            </AppButton>
           </div>
         </div>
 
@@ -361,53 +355,12 @@ export function CoursePlayer() {
                   <h3 className="font-semibold text-sm mb-3">{module.title}</h3>
                   <div className="space-y-2">
                     {module.lessons.map((lesson) => (
-                      <button
+                      <CourseListItem
                         key={lesson.id}
-                        onClick={() => {
-                          setCurrentLesson(lesson.id)
-                        }}
-                        disabled={lesson.locked}
-                        className={`w-full text-left p-2 rounded-lg text-sm transition-colors ${currentLesson === lesson.id
-                            ? 'bg-primary text-primary-foreground'
-                            : lesson.locked
-                              ? 'text-muted-foreground bg-muted/50 cursor-not-allowed'
-                              : 'hover:bg-muted'
-                          }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          {lesson.completed ? (
-                            <svg
-                              className="h-4 w-4 flex-shrink-0"
-                              fill="currentColor"
-                              viewBox="0 0 20 20"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                          ) : lesson.locked ? (
-                            <svg
-                              className="h-4 w-4 flex-shrink-0"
-                              fill="currentColor"
-                              viewBox="0 0 20 20"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                          ) : (
-                            <div className="h-4 w-4 rounded-full border-2 border-muted-foreground" />
-                          )}
-                          <span className="flex-1 line-clamp-2">{lesson.title}</span>
-                        </div>
-                        <div className="mt-1 ml-6 text-xs text-muted-foreground">
-                          {lesson.duration}m
-                        </div>
-                      </button>
+                        lesson={lesson}
+                        isActive={currentLesson === lesson.id}
+                        onSelect={setCurrentLesson}
+                      />
                     ))}
                   </div>
                 </div>

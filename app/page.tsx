@@ -1,7 +1,8 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { CourseCard } from '@/components/course/course-card'
+import { AppButton } from '@/components/ui/app-button'
+import { CourseCardItem } from '@/components/course/course-card-item'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
@@ -269,9 +270,9 @@ export default function HomePage() {
             </p>
             
             <div className="banner-buttons mt-8 grid gap-3 sm:flex sm:flex-wrap">
-              <Button size="lg" className="px-7 w-full sm:w-auto">
+              <AppButton size="lg" className="px-7 w-full sm:w-auto">
                 Khám Phá Khóa Học
-              </Button>
+              </AppButton>
               <Button size="lg" variant="outline" className="px-7 w-full sm:w-auto bg-transparent text-white border-white/40 hover:border-white">
                 Xem Lộ Trình
               </Button>
@@ -295,9 +296,9 @@ export default function HomePage() {
               Mình tự quay video, tự dạy và tự xây lộ trình học. Bạn học ngữ pháp, giao tiếp, viết và luyện thi theo cách dễ hiểu, gọn và thực tế.
             </p>
             <div className="hero-buttons mt-10 grid w-full gap-4 lg:flex lg:flex-wrap lg:justify-start">
-              <Button size="lg" className="px-8 w-full sm:w-auto">
+              <AppButton size="lg" className="px-8 w-full sm:w-auto">
                 Bắt Đầu Học Ngay
-              </Button>
+              </AppButton>
               <Button size="lg" variant="outline" className="px-8 w-full sm:w-auto bg-transparent">
                 Xem Khóa Học
               </Button>
@@ -350,8 +351,8 @@ export default function HomePage() {
             <p className="mt-2 text-white/70">Nội dung tự quay – tự dạy, tập trung vào hiệu quả thực tế</p>
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {mockCourses.map((course) => (
-              <CourseCard
+              {mockCourses.map((course) => (
+              <CourseCardItem
                 key={course.id}
                 title={course.title}
                 image={course.image || "/placeholder.svg"}
@@ -363,9 +364,9 @@ export default function HomePage() {
                 href={`/courses/${course.id}`}
                 actions={
                   <>
-                    <Button asChild className="flex-1 rounded-full">
+                    <AppButton asChild className="flex-1 rounded-full">
                       <Link href={`/courses/${course.id}`}>Xem Chi Tiết</Link>
-                    </Button>
+                    </AppButton>
                     <Button
                       variant="outline"
                       size="icon"
@@ -519,9 +520,9 @@ export default function HomePage() {
           <h2 className="text-4xl font-bold mb-4 reveal-item">Sẵn Sàng Học Theo Cách Dễ Hiểu?</h2>
           <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto reveal-item">Tự học nhưng không cô đơn — mình sẽ theo sát từng bước</p>
           <div className="flex flex-wrap gap-4 justify-center">
-            <Button size="lg" className="px-8 reveal-item">
+            <AppButton size="lg" className="px-8 reveal-item">
               Khám Phá Khóa Học
-            </Button>
+            </AppButton>
             <Button size="lg" variant="outline" className="px-8 bg-transparent reveal-item">
               Xem Câu Hỏi Thường Gặp
             </Button>

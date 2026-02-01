@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { ShoppingCart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { AppButton } from '@/components/ui/app-button'
 
 export default function CartPage() {
   return (
@@ -15,9 +16,9 @@ export default function CartPage() {
             Hãy đăng nhập hoặc tạo tài khoản để lưu khoá học và tiếp tục thanh toán.
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <Button asChild className="h-11 rounded-full px-8">
+            <AppButton asChild className="h-11 rounded-full px-8">
               <Link href="/login">Đăng nhập</Link>
-            </Button>
+            </AppButton>
             <Button asChild variant="outline" className="h-11 rounded-full px-8 bg-transparent">
               <Link href="/register">Tạo tài khoản</Link>
             </Button>

@@ -1,10 +1,10 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
+import { AppButton } from '@/components/ui/app-button'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 
-type CourseCardProps = {
+export type CourseCardProps = {
   title: string
   image: string
   imageAlt?: string
@@ -112,9 +112,9 @@ export function CourseCard({
           {actions ? (
             actions
           ) : href ? (
-            <Button asChild className="flex-1 rounded-full">
+            <AppButton asChild className="flex-1 rounded-full">
               <Link href={href}>{actionLabel}</Link>
-            </Button>
+            </AppButton>
           ) : null}
         </div>
       </div>

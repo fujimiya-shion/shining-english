@@ -1,8 +1,9 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
+import { AppButton } from '@/components/ui/app-button'
 import { Input } from '@/components/ui/input'
-import { CourseCard } from '@/components/course/course-card'
+import { CourseCardItem } from '@/components/course/course-card-item'
 import { Search } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 
@@ -102,10 +103,10 @@ export default function CoursesPage() {
           </div>
           <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
             <Input placeholder="Tìm khóa học..." className="h-10 w-full sm:w-72" />
-            <Button size="icon" className="h-10 w-10 rounded-full">
+            <AppButton size="icon" className="h-10 w-10 rounded-full">
               <Search className="h-4 w-4 text-white" />
               <span className="sr-only">Tìm kiếm</span>
-            </Button>
+            </AppButton>
           </div>
         </div>
 
@@ -223,7 +224,7 @@ export default function CoursesPage() {
 
             <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
               {courses.map((course) => (
-                <CourseCard
+                <CourseCardItem
                   key={course.id}
                   title={course.title}
                   image={course.image}
@@ -237,9 +238,9 @@ export default function CoursesPage() {
                   actionLabel="Xem Chi Tiết"
                   actions={
                     <>
-                      <Button asChild className="flex-1 rounded-full">
+                      <AppButton asChild className="flex-1 rounded-full">
                         <Link href={`/courses/${course.id}`}>Xem Chi Tiết</Link>
-                      </Button>
+                      </AppButton>
                       <Button
                         variant="outline"
                         size="icon"
@@ -267,7 +268,7 @@ export default function CoursesPage() {
                 <Button variant="outline" size="sm">
                   Trước
                 </Button>
-                <Button size="sm">1</Button>
+                <AppButton size="sm">1</AppButton>
                 <Button variant="outline" size="sm">
                   2
                 </Button>

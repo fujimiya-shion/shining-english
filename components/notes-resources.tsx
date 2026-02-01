@@ -1,6 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
+import { AppButton } from '@/components/ui/app-button'
 import { Card } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useState } from 'react'
@@ -156,12 +157,12 @@ export function NotesResources() {
         <Card className="p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold">Your Notes</h2>
-            <Button
+            <AppButton
               size="sm"
               onClick={() => setShowNoteForm(!showNoteForm)}
             >
               {showNoteForm ? 'Cancel' : 'New Note'}
-            </Button>
+            </AppButton>
           </div>
 
           {showNoteForm && (
@@ -214,9 +215,9 @@ export function NotesResources() {
                 >
                   Cancel
                 </Button>
-                <Button onClick={handleAddNote} disabled={!newNote || !newNoteTitle}>
+                <AppButton onClick={handleAddNote} disabled={!newNote || !newNoteTitle}>
                   Save Note
-                </Button>
+                </AppButton>
               </div>
             </div>
           )}
