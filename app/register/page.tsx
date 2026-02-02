@@ -71,11 +71,11 @@ export default function RegisterPage() {
               <label className="flex items-start gap-2 text-sm text-muted-foreground">
                 <input type="checkbox" className="mt-1 h-4 w-4 rounded border-border" />
                 Tôi đồng ý với{' '}
-                <Link href="#" className="text-primary hover:underline">
+                <Link href="/terms" className="text-primary hover:underline">
                   điều khoản sử dụng
                 </Link>{' '}
                 và{' '}
-                <Link href="#" className="text-primary hover:underline">
+                <Link href="/privacy" className="text-primary hover:underline">
                   chính sách bảo mật
                 </Link>
                 .
