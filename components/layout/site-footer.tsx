@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export function SiteFooter() {
   return (
     <footer className="border-t border-border bg-foreground/95 text-background">
@@ -23,8 +25,8 @@ export function SiteFooter() {
           <div>
             <h4 className="font-semibold mb-4">Pháp Lý</h4>
             <ul className="space-y-2 text-sm text-background/70">
-              <li><a href="#" className="hover:text-background transition-colors">Bảo Mật</a></li>
-              <li><a href="#" className="hover:text-background transition-colors">Điều Khoản</a></li>
+              <li><Link href="/privacy" className="hover:text-background transition-colors">Bảo Mật</Link></li>
+              <li><Link href="/terms" className="hover:text-background transition-colors">Điều Khoản</Link></li>
               <li><a href="#" className="hover:text-background transition-colors">Cookie</a></li>
             </ul>
           </div>
