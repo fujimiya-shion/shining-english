@@ -24,13 +24,11 @@ type NavItem = {
 }
 
 const navItems: NavItem[] = [
-  { label: 'Trang Chủ', icon: Home, href: '/' },
-  { label: 'Khóa Học', icon: BookOpen, href: '/courses' },
-  { label: 'Lộ Trình', icon: Map, href: '/notes' },
-  { label: 'Về Shining English', icon: Info, href: '/about', showFrom: 'lg' },
-  { label: 'Học Viên', icon: Users2, href: '/dashboard', showFrom: 'lg' },
-  { label: 'Blog', icon: NotebookPen, href: '/blogs', showFrom: 'xl' },
-  { label: 'Liên Hệ', icon: Phone, href: '/contact', showFrom: 'xl' },
+  { label: 'Trang chủ', icon: Home, href: '/' },
+  { label: 'Giới thiệu', icon: Info, href: '/about' },
+  { label: 'Khóa học', icon: BookOpen, href: '/courses' },
+  { label: 'Miễn phí', icon: NotebookPen, href: '/free' },
+  { label: 'Liên hệ', icon: Phone, href: '/contact' },
 ]
 
 type SiteHeaderProps = {
