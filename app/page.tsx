@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { AppButton } from '@/components/ui/app-button'
 import { CourseCardItem } from '@/components/course/course-card-item'
 import { BannerStarfield } from '@/components/banner/banner-starfield'
+import { HeroAbstract } from '@/components/hero/hero-abstract'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
@@ -379,15 +380,9 @@ export default function HomePage() {
             </div>
           </div>
           <div className="hero-stats relative">
-            <div className="hero-float relative aspect-[4/3] overflow-hidden rounded-2xl border border-border bg-muted shadow-xl">
-              <Image
-                src="https://images.unsplash.com/photo-1758874384070-d8f494b5abcf?fm=jpg&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=60&w=3000"
-                alt="Lớp học trực tuyến với giáo viên qua video"
-                fill
-                sizes="(min-width: 1024px) 50vw, 100vw"
-                className="object-cover"
-              />
-              <div className="hero-glow absolute inset-0 bg-gradient-to-tr from-black/55 via-black/10 to-transparent"></div>
+            <div className="hero-float relative aspect-[4/3] overflow-hidden rounded-2xl border border-[color:var(--brand-900)]/25 bg-white shadow-[0_24px_55px_-26px_rgba(15,23,42,0.65)]">
+              <HeroAbstract />
+              <div className="hero-glow absolute inset-0 bg-gradient-to-tr from-[color:var(--brand-950)]/45 via-transparent to-transparent"></div>
               <div className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-[color:var(--brand-900)] shadow-sm">
                 15 phút/bài
               </div>
@@ -430,7 +425,7 @@ export default function HomePage() {
                 rating={course.rating}
                 students={course.students}
                 price={course.price}
-                metaNote="Chứng chỉ hoàn thành"
+                metaNote="Có phản hồi trực tiếp"
                 href={`/courses/${course.id}`}
                 actions={
                   <>

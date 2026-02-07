@@ -232,7 +232,7 @@ export default function CoursesPage() {
                   rating={course.rating}
                   students={course.students}
                   price={course.price}
-                  metaNote="Chứng chỉ hoàn thành"
+                  metaNote="Có phản hồi trực tiếp"
                   href={`/courses/${course.id}`}
                   className="shadow-[0_18px_50px_-45px_rgba(15,43,82,0.35)]"
                   actionLabel="Xem Chi Tiết"
