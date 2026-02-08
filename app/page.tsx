@@ -17,6 +17,7 @@ import {
   Award,
   MessageCircle,
   Rocket,
+  ShoppingCart,
 } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 
@@ -440,13 +441,7 @@ export default function HomePage() {
                       aria-label="Thêm vào giỏ"
                     >
                       <span className="sr-only">Thêm Vào Giỏ</span>
-                      <Image
-                        src="https://img.icons8.com/ios/50/add-shopping-cart--v1.png"
-                        alt=""
-                        width={20}
-                        height={20}
-                        className="h-5 w-5"
-                      />
+                      <ShoppingCart className="h-5 w-5" aria-hidden="true" />
                     </Button>
                   </>
                 }

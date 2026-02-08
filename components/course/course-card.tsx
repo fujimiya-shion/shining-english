@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { BookOpen, Clock3, Lightbulb, Users } from 'lucide-react'
 import { AppButton } from '@/components/ui/app-button'
 import { Card } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
@@ -119,12 +120,18 @@ export function CourseCard({
           <div className="absolute bottom-4 left-4 flex items-center gap-2">
             {lessons ? (
               <div className="rounded-full bg-white/90 px-3 py-1 text-[11px] font-semibold text-[color:var(--brand-900)] ring-1 ring-black/5 backdrop-blur">
-                📚 {lessons} bài
+                <span className="inline-flex items-center gap-1.5">
+                  <BookOpen className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+                  {lessons} bài
+                </span>
               </div>
             ) : null}
             {duration ? (
               <div className="rounded-full bg-white/90 px-3 py-1 text-[11px] font-semibold text-[color:var(--brand-900)] ring-1 ring-black/5 backdrop-blur">
-                ⏱️ {duration}
+                <span className="inline-flex items-center gap-1.5">
+                  <Clock3 className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+                  {duration}
+                </span>
               </div>
             ) : null}
           </div>
@@ -141,12 +148,14 @@ export function CourseCard({
           <div className="mt-2 flex flex-wrap items-center gap-2 text-[13px] text-[color:var(--brand-700)]">
             {students ? (
               <span className="inline-flex items-center gap-1 rounded-full bg-muted/60 px-3 py-1 ring-1 ring-black/5">
-                👥 {typeof students === 'number' ? students.toLocaleString('vi-VN') : students} học viên
+                <Users className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+                {typeof students === 'number' ? students.toLocaleString('vi-VN') : students} học viên
               </span>
             ) : null}
             {metaNote ? (
               <span className="inline-flex items-center gap-1 rounded-full bg-muted/60 px-3 py-1 ring-1 ring-black/5">
-                💡 {metaNote}
+                <Lightbulb className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+                {metaNote}
               </span>
             ) : null}
           </div>
