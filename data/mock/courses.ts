@@ -1,0 +1,38 @@
+export const mockCourses = [
+    {
+        id: 1,
+        title: 'Nắm Vững Ngữ Pháp Tiếng Anh',
+        category: 'Ngữ Pháp',
+        price: 790000,
+        image: 'https://cdn.pixabay.com/photo/2020/05/04/19/43/computer-5130405_640.jpg',
+        rating: 4.8,
+        students: 2453,
+    },
+    {
+        id: 2,
+        title: 'Tiếng Anh Giao Tiếp Nâng Cao',
+        category: 'Giao Tiếp',
+        price: 890000,
+        image: 'https://cdn.pixabay.com/photo/2020/04/18/16/21/online-5059831_1280.jpg',
+        rating: 4.9,
+        students: 3102,
+    },
+    {
+        id: 3,
+        title: 'Viết Tiếng Anh Chuyên Nghiệp',
+        category: 'Viết Văn',
+        price: 990000,
+        image: 'https://cdn.pixabay.com/photo/2021/04/29/16/48/webinar-6216973_1280.jpg',
+        rating: 4.7,
+        students: 1876,
+    },
+    {
+        id: 4,
+        title: 'Luyện Thi IELTS & TOEFL',
+        category: 'Thi Cử',
+        price: 690000,
+        image: 'https://images.unsplash.com/photo-1758874384070-d8f494b5abcf?fm=jpg&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=60&w=3000',
+        rating: 4.6,
+        students: 4521,
+    },
+];
