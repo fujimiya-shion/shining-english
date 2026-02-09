@@ -8,10 +8,10 @@ export const CTASection = () => {
                 <h2 className="text-4xl font-bold mb-4 reveal-item">Sẵn Sàng Học Theo Cách Dễ Hiểu?</h2>
                 <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto reveal-item">Tự học nhưng không cô đơn — mình sẽ theo sát từng bước</p>
                 <div className="flex flex-wrap gap-4 justify-center">
-                    <AppButton size="lg" className="px-8 reveal-item">
+                    <AppButton size="lg" className="px-8 reveal-item w-full md:w-fit">
                         Khám Phá Khóa Học
                     </AppButton>
-                    <Button size="lg" variant="outline" className="px-8 bg-transparent reveal-item">
+                    <Button size="lg" variant="outline" className="px-8 bg-transparent reveal-item w-full md:w-fit">
                         Xem Câu Hỏi Thường Gặp
                     </Button>
                 </div>

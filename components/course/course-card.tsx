@@ -57,7 +57,7 @@ export function CourseCard({
     <Card
       className={cn(
         // Education-y: sáng, vui, bo tròn hơn, shadow mềm, ring nhẹ, hover “pop”
-        'group relative overflow-hidden rounded-[26px] border border-border/60 bg-white p-0 shadow-[0_14px_40px_-28px_rgba(0,0,0,0.55)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_28px_70px_-38px_rgba(0,0,0,0.65)] hover:border-[color:color-mix(in_oklab,var(--primary)_35%,transparent)]',
+        'group relative flex h-full flex-col overflow-hidden rounded-[26px] border border-border/60 bg-white p-0 shadow-[0_14px_40px_-28px_rgba(0,0,0,0.55)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_28px_70px_-38px_rgba(0,0,0,0.65)] hover:border-[color:color-mix(in_oklab,var(--primary)_35%,transparent)]',
         className
       )}
     >
@@ -138,7 +138,7 @@ export function CourseCard({
         )}
       </div>
 
-      <div className="flex-1 p-5 pt-0 flex flex-col">
+      <div className="flex-1 p-5 pt-0 flex flex-col min-h-[260px] sm:min-h-[280px]">
         <h3 className="text-[17px] font-extrabold leading-snug text-[color:var(--brand-950)] line-clamp-2 transition-colors group-hover:text-[color:var(--brand-900)]">
           {title}
         </h3>
