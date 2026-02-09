@@ -15,14 +15,14 @@ export const BannerSection = () => {
                 <div className="pointer-events-none absolute -right-16 top-10 h-48 w-48 rounded-full border border-white/15 bg-white/5 blur-[1px]"></div>
                 <div className="pointer-events-none absolute right-24 bottom-10 h-16 w-16 rounded-full border-2 border-dashed border-white/25"></div>
             </div>
-            <div className="pointer-events-none absolute right-0 bottom-0 z-0 sm:hidden">
+            <div className="pointer-events-none absolute -right-10 -top-6 z-0 sm:hidden">
                 <Image
                     src="/images/app_logo.svg"
                     alt=""
-                    width={260}
-                    height={260}
+                    width={420}
+                    height={420}
                     aria-hidden="true"
-                    className="h-52 w-52 opacity-35 drop-shadow-[0_18px_40px_rgba(0,0,0,0.6)]"
+                    className="h-80 w-80 opacity-35 drop-shadow-[0_20px_50px_rgba(0,0,0,0.55)]"
                 />
             </div>
             <div className="relative z-10 mx-auto max-w-7xl px-4 pb-12 pt-20 sm:px-6 sm:pb-16 sm:pt-24 lg:px-8 xl:pt-20 xl:pb-24 2xl:pt-16">

@@ -44,7 +44,7 @@ export function BlogCardItem({ post }: BlogCardItemProps) {
             {post.readTime}
           </span>
         </div>
-        <h3 className="mt-3 text-lg font-semibold text-[color:var(--brand-900)]">
+        <h3 className="mt-3 text-lg font-semibold text-[color:var(--brand-900)] line-clamp-2">
           {post.title}
         </h3>
         <p className="mt-2 text-sm text-muted-foreground line-clamp-3">{post.excerpt}</p>

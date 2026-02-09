@@ -70,11 +70,11 @@ export const FeaturedCoursesSection = ({
         </div>
         <div className="space-y-6">
           <div className="overflow-hidden lg:hidden" ref={emblaRef}>
-            <div className="flex gap-4">
+            <div className="flex items-stretch gap-4">
               {courses.map((course) => (
                 <div
                   key={course.id}
-                  className="min-w-0 shrink-0 basis-[calc(50%-0.5rem)] sm:basis-[55%] md:basis-[40%]"
+                  className="min-w-[14.5rem] shrink-0 basis-[calc(50%-0.5rem)] sm:min-w-[16rem] sm:basis-[55%] md:min-w-[17rem] md:basis-[40%] h-full"
                 >
                   <CourseCardItem
                     title={course.title}
@@ -85,6 +85,7 @@ export const FeaturedCoursesSection = ({
                     price={course.price}
                     metaNote="Có phản hồi trực tiếp"
                     href={`/courses/${course.id}`}
+                    className="h-full"
                     actions={
                       <>
                         <AppButton asChild className="flex-1 rounded-full">
@@ -107,20 +108,21 @@ export const FeaturedCoursesSection = ({
               ))}
             </div>
           </div>
-          <div className="hidden gap-6 lg:grid lg:grid-cols-4">
-            {courses.map((course) => (
-              <CourseCardItem
-                key={course.id}
-                title={course.title}
-                image={course.image || "/placeholder.svg"}
-                category={course.category}
-                rating={course.rating}
-                students={course.students}
-                price={course.price}
-                metaNote="Có phản hồi trực tiếp"
-                href={`/courses/${course.id}`}
-                actions={
-                  <>
+            <div className="hidden gap-6 lg:grid lg:grid-cols-4 items-stretch">
+              {courses.map((course) => (
+                <CourseCardItem
+                  key={course.id}
+                  title={course.title}
+                  image={course.image || "/placeholder.svg"}
+                  category={course.category}
+                  rating={course.rating}
+                  students={course.students}
+                  price={course.price}
+                  metaNote="Có phản hồi trực tiếp"
+                  href={`/courses/${course.id}`}
+                  className="h-full"
+                  actions={
+                    <>
                     <AppButton asChild className="flex-1 rounded-full">
                       <Link href={`/courses/${course.id}`}>Xem Chi Tiết</Link>
                     </AppButton>
