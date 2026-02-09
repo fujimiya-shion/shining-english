@@ -9,7 +9,7 @@ import {
     TestimonialsSection, 
     WhyChooseSection 
 } from '@/components/section/home'
-import { mockCourses } from '@/data/mock/courses'
+import { mockCourses } from '@/data/mock'
 import gsap from 'gsap'
 import { useEffect, useState } from 'react'
 

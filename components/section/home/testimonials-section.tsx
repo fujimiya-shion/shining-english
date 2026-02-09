@@ -3,7 +3,7 @@
 import Image from "next/image";
 
 import { Card } from "@/components/ui/card";
-import { testimonials } from "@/data/mock/testimotials";
+import { testimonials } from "@/data/mock";
 
 export const TestimonialsSection = () => {
     return (
