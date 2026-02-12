@@ -26,13 +26,17 @@ export function BannerStarfield() {
           <stop offset="55%" stopColor="rgba(124,58,237,0.2)" />
           <stop offset="100%" stopColor="rgba(15,23,42,0)" />
         </radialGradient>
+        <filter id="banner-star-glow" x="-35%" y="-35%" width="170%" height="170%">
+          <feDropShadow dx="0" dy="0" stdDeviation="1.8" floodColor="rgba(226,232,255,0.85)" />
+          <feDropShadow dx="0" dy="0" stdDeviation="3.4" floodColor="rgba(186,230,253,0.7)" />
+        </filter>
       </defs>
 
       <rect width="1200" height="520" fill="url(#banner-sky)" />
       <rect width="1200" height="520" fill="url(#banner-glow-left)" />
       <rect width="1200" height="520" fill="url(#banner-glow-right)" />
 
-      <g>
+      <g opacity="1" filter="url(#banner-star-glow)">
         <circle className="banner-star" cx="120" cy="90" r="1.6" fill="rgba(255,255,255,0.85)" />
         <circle className="banner-star" cx="210" cy="160" r="1" fill="rgba(255,255,255,0.6)" />
         <circle className="banner-star" cx="300" cy="120" r="1.4" fill="rgba(255,255,255,0.75)" />

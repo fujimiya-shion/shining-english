@@ -161,3 +161,141 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .banner-star {
+    animation: banner-twinkle 3.8s ease-in-out infinite;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .banner-star:nth-child(3n) {
+    animation-duration: 4.6s;
+    animation-delay: -1.2s;
+  }
+
+  .banner-star:nth-child(4n) {
+    animation-duration: 5.2s;
+    animation-delay: -2.4s;
+  }
+
+  .banner-star:nth-child(5n) {
+    animation-duration: 6s;
+    animation-delay: -3.1s;
+  }
+
+  .app-button-glossy {
+    isolation: isolate;
+    overflow: hidden;
+    position: relative;
+    background: transparent !important;
+    color: var(--primary) !important;
+    box-shadow: none !important;
+    border: 1px solid var(--primary);
+  }
+
+  .app-button-glossy[data-variant="fillGradient"] {
+    background: linear-gradient(135deg, #f2a900 0%, #f6bf3a 45%, #f8cf61 100%) !important;
+    border: 2px solid #ffffff;
+    color: #03106b !important;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .app-button-glossy[data-variant="outlineGradient"] {
+    border-color: var(--primary);
+  }
+
+  .app-button-glossy::before {
+    animation: button-border-shine 6s linear infinite;
+    background: linear-gradient(
+      120deg,
+      rgba(255, 214, 102, 0.95),
+      rgba(255, 242, 176, 0.45) 30%,
+      rgba(255, 214, 102, 0.95) 55%,
+      rgba(255, 242, 176, 0.6) 75%,
+      rgba(255, 214, 102, 0.9)
+    );
+    background-size: 220% 220%;
+    border-radius: inherit;
+    content: "";
+    inset: 0;
+    opacity: 1;
+    padding: 1px;
+    pointer-events: none;
+    position: absolute;
+    z-index: 0;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+
+  .app-button-glossy::after {
+    animation: button-sheen 5.5s ease-in-out infinite;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.5),
+      rgba(255, 214, 102, 0.35),
+      transparent
+    );
+    content: "";
+    inset: -40% 0;
+    opacity: 0.3;
+    pointer-events: none;
+    position: absolute;
+    transform: translateX(-120%);
+    z-index: 0;
+  }
+
+  .app-button-glossy > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .app-button-glossy::marker {
+    content: "";
+  }
+}
+
+@keyframes banner-twinkle {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.45);
+  }
+}
+
+@keyframes button-border-shine {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes button-sheen {
+  0% {
+    transform: translateX(-120%);
+  }
+  60% {
+    transform: translateX(120%);
+  }
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .banner-star,
+  .app-button-glossy::before,
+  .app-button-glossy::after {
+    animation: none !important;
+  }
+}

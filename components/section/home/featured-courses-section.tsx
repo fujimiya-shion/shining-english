@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ShoppingCart } from "lucide-react";
 
 import { CourseCardItem } from "@/components/course/course-card-item";
+import { BannerStarfield } from "@/components/banner/banner-starfield";
 import { AppButton } from "@/components/ui/app-button";
 import { Button } from "@/components/ui/button";
 
@@ -58,10 +59,14 @@ export const FeaturedCoursesSection = ({
 
   return (
     <section
-      className="bg-[linear-gradient(135deg,var(--brand-925)_0%,var(--brand-850)_60%,var(--brand-750)_100%)] border-t border-border text-white"
+      className="relative overflow-hidden border-t border-border text-white"
       data-animate="stagger"
     >
-      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <div className="absolute inset-0">
+        <BannerStarfield />
+        <div className="absolute inset-0 bg-linear-to-br from-(--brand-950)/70 via-(--brand-925)/45 to-(--brand-750)/25"></div>
+      </div>
+      <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="mb-12 reveal-item text-center lg:text-left">
           <h2 className="text-3xl font-bold">Khóa Học Mình Tự Làm</h2>
           <p className="mt-2 text-white/70">

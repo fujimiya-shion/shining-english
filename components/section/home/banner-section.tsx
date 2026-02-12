@@ -49,7 +49,7 @@ export const BannerSection = () => {
                         </p>
 
                         <div className="banner-buttons mt-8 grid gap-3 sm:flex sm:flex-wrap">
-                            <AppButton size="lg" className="px-7 w-full sm:w-auto">
+                            <AppButton size="lg" variant="fillGradient" className="px-7 w-full sm:w-auto">
                                 Khám Phá Khóa Học
                             </AppButton>
                             <Button size="lg" variant="outline" className="px-7 w-full sm:w-auto bg-transparent text-white border-white/40 hover:border-white">
