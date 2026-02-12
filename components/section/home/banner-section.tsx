@@ -38,36 +38,36 @@ export const BannerSection = () => {
                     </div>
                     <div className="w-full text-white text-left">
                         <p className="banner-kicker text-xs uppercase tracking-[0.2em] text-(--sky-200) sm:text-sm">
-                            Series mới mỗi tuần
+                            More Than English
                         </p>
                         <h2 className="banner-title mt-4 text-3xl font-bold leading-tight max-w-7xl ml-0 sm:mt-5 sm:text-4xl lg:text-6xl">
-                            Học tiếng Anh theo video ngắn, dễ hiểu, thực tế
+                            More Than English. <span className="text-white">Find Your Shine.</span>
                         </h2>
 
                         <p className="banner-subtitle mt-4 text-sm text-(--sky-220) max-w-3xl ml-0 sm:mt-5 sm:text-lg lg:text-xl">
-                            Hệ thống bài học do một người tự quay và giảng dạy, tập trung vào lỗi thường gặp.
+                            Thay đổi cách bạn nhìn về tiếng Anh — và về chính mình.
                         </p>
 
                         <div className="banner-buttons mt-8 grid gap-3 sm:flex sm:flex-wrap">
                             <AppButton size="lg" variant="fillGradient" className="px-7 w-full sm:w-auto">
-                                Khám Phá Khóa Học
+                                Trải nghiệm miễn phí
                             </AppButton>
                             <Button size="lg" variant="outline" className="px-7 w-full sm:w-auto bg-transparent text-white border-white/40 hover:border-white">
-                                Xem Lộ Trình
+                                Khám phá khóa học
                             </Button>
                         </div>
                         <div className="mt-6 flex flex-wrap gap-3 text-xs text-(--sky-200)">
                             <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1">
                                 <BookOpen className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
-                                Lộ trình rõ ràng
+                                Xây dựng sự tự tin từ gốc.
                             </span>
                             <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1">
                                 <Clock className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
-                                Học 10-15 phút/ngày
+                                30 phút mỗi ngày.
                             </span>
                             <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1">
                                 <Award className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
-                                Theo dõi tiến bộ
+                                Để bạn dùng được tiếng Anh trong đời sống.
                             </span>
                         </div>
                     </div>

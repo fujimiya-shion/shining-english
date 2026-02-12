@@ -10,20 +10,20 @@ export const HeroSection = () => {
                 <div className="text-center lg:text-left w-full">
                     <div className="hero-kicker inline-flex items-center gap-2 rounded-full border border-(--brand-700) bg-(--brand-900)/85 px-4 py-1 text-xs font-medium text-(--sky-200) shadow-sm mx-auto lg:mx-0">
                         <span className="h-2 w-2 rounded-full bg-primary"></span>
-                        Nền tảng học tiếng Anh do một người trực tiếp xây dựng
+                        More Than English
                     </div>
                     <h1 className="hero-title mt-4 text-[30px] sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight max-w-88 sm:max-w-none mx-auto lg:mx-0">
-                        Nói Tiếng Anh <span className="text-primary">Tự Tin</span> & Lưu Loát
+                        More Than English. <span className="text-primary">Find Your Shine.</span>
                     </h1>
                     <p className="hero-subtitle mt-6 text-lg text-muted-foreground leading-relaxed max-w-lg mx-auto lg:mx-0">
-                        Mình tự quay video, tự dạy và tự xây lộ trình học. Bạn học ngữ pháp, giao tiếp, viết và luyện thi theo cách dễ hiểu, gọn và thực tế.
+                        Thay đổi cách bạn nhìn về tiếng Anh — và về chính mình.
                     </p>
                     <div className="hero-buttons mt-10 grid w-full gap-4 lg:flex lg:flex-wrap lg:justify-start">
                         <AppButton size="lg" className="px-8 w-full sm:w-auto">
-                            Bắt Đầu Học Ngay
+                            Trải nghiệm miễn phí
                         </AppButton>
                         <Button size="lg" variant="outline" className="px-8 w-full sm:w-auto bg-transparent">
-                            Xem Khóa Học
+                            Khám phá khóa học
                         </Button>
                     </div>
                     <div className="hero-stats mt-12 flex gap-8 justify-center lg:justify-start">
