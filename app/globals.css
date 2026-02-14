@@ -113,7 +113,7 @@
 }
 
 @theme inline {
-  --font-sans: var(--font-francois-one);
+  --font-sans: var(--font-gilroy);
   --font-mono: var(--font-roboto-mono);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -196,10 +196,24 @@
 
   .app-button-glossy[data-variant="fillGradient"] {
     background: linear-gradient(135deg, #f2a900 0%, #f6bf3a 45%, #f8cf61 100%) !important;
-    border: 2px solid #ffffff;
+    border: 1px solid #ffffff;
     color: #03106b !important;
     text-transform: uppercase;
     letter-spacing: 0.08em;
+    overflow: visible;
+  }
+
+  .app-button-glossy[data-variant="fillGradient"]::after {
+    background: radial-gradient(
+      55% 120% at 50% 100%,
+      rgba(255, 255, 255, 0.9) 0%,
+      rgba(255, 255, 255, 0.55) 28%,
+      rgba(255, 214, 102, 0.35) 52%,
+      rgba(255, 214, 102, 0) 68%
+    );
+    inset: auto 10% -55% 10%;
+    opacity: 0.85;
+    transform: none;
   }
 
   .app-button-glossy[data-variant="outlineGradient"] {
@@ -230,6 +244,29 @@
     mask-composite: exclude;
   }
 
+  .app-button-glossy[data-variant="fillGradient"]::before {
+    animation: none;
+    background: radial-gradient(circle, #ffffff 0%, rgba(255, 255, 255, 0.3) 60%, rgba(255, 255, 255, 0) 72%);
+    border-radius: 999px;
+    /* bottom: -8px; */
+    box-shadow:
+      0 0 12px 4px rgba(255, 255, 255, 0.7),
+      0 0 26px 10px rgba(255, 255, 255, 0.4);
+    height: 6px;
+    width: 6px;
+    left: 25%;
+    opacity: 0.75;
+    background-color: #FFF;
+    /* bottom: -2px; */
+    z-index: 999;
+    padding: 0;
+    position: absolute;
+    top: auto;
+    transform: translate(-50%, 50%);
+    -webkit-mask: none;
+    mask-composite: unset;
+  }
+
   .app-button-glossy::after {
     animation: button-sheen 5.5s ease-in-out infinite;
     background: linear-gradient(
@@ -246,6 +283,10 @@
     position: absolute;
     transform: translateX(-120%);
     z-index: 0;
+  }
+
+  .app-button-glossy[data-variant="fillGradient"]::after {
+    animation: button-sheen 5.5s ease-in-out infinite;
   }
 
   .app-button-glossy > * {

@@ -53,11 +53,7 @@ export default function HomePage() {
             },
             '-=0.6'
         )
-        bannerTimeline.fromTo(
-            '.nav-item',
-            { opacity: 0, y: -10 },
-            { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out', stagger: 0.05 }
-        )
+        // Header animation disabled per request
 
         if (document.querySelector('.hero-kicker')) {
             const heroTimeline = gsap.timeline({ delay: 0.1 })
