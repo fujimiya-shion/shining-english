@@ -25,6 +25,8 @@ jobs:
               ? pr.body
               : '(No PR description)';
 
+            let descriptionHtml = description.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
             if (isSync) {
               // Collect commit messages for the PR update
               const { data: commits } = await github.rest.pulls.listCommits({
@@ -39,6 +41,8 @@ jobs:
                 ? messages.join('\n\n---\n\n')
                 : '(No commit messages found)';
 
+              descriptionHtml = `<pre style=\"white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;\">${description.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>`;
+
               if (messages.length > 0) {
                 const latestMessage = messages[messages.length - 1];
                 subject = `Cập nhật mới: ${latestMessage}`;
@@ -48,6 +52,15 @@ jobs:
             const prUrl = pr.html_url;
             const actor = context.actor;
 
+            if (!isSync) {
+              const { data: rendered } = await github.rest.markdown.render({
+                text: description,
+                mode: 'gfm',
+                context: `${context.repo.owner}/${context.repo.repo}`,
+              });
+              descriptionHtml = rendered;
+            }
+
             const html = `
               <div style="font-family: Arial, sans-serif; line-height: 1.5;">
                 <h2>${subject}</h2>
@@ -55,9 +68,7 @@ jobs:
                 <p><strong>Author:</strong> ${actor}</p>
                 <p><strong>PR:</strong> #${pr.number}</p>
                 <hr />
-                <pre style="white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;">
-                  ${description.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
-                </pre>
+                <div>${descriptionHtml}</div>
                 <p>
                   <a href="${prUrl}" style="display: inline-block; padding: 10px 16px; background: #1f6feb; color: #fff; text-decoration: none; border-radius: 6px;">Open PR</a>
                 </p>
