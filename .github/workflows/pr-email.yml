@@ -37,14 +37,12 @@ jobs:
               });
 
               const messages = commits.map((c) => c.commit.message.trim()).filter(Boolean);
-              description = messages.length > 0
-                ? messages.join('\n\n---\n\n')
-                : '(No commit messages found)';
+              const latestMessage = messages.length > 0 ? messages[messages.length - 1] : '';
 
+              description = latestMessage || '(No commit messages found)';
               descriptionHtml = `<pre style=\"white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;\">${description.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</pre>`;
 
-              if (messages.length > 0) {
-                const latestMessage = messages[messages.length - 1];
+              if (latestMessage) {
                 subject = `Cập nhật mới: ${latestMessage}`;
               }
             }
