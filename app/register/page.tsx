@@ -132,7 +132,7 @@ export default function RegisterPage() {
               {[
                 'Bài học ngắn gọn, dễ áp dụng',
                 'Nhắc nhở lịch học linh hoạt',
-                'Chứng chỉ hoàn thành sau mỗi khóa',
+                'Có phản hồi trực tiếp',
               ].map((item) => (
                 <div
                   key={item}

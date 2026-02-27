@@ -1,7 +1,7 @@
 import React from "react"
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
-import { Roboto_Mono } from 'next/font/google'
+import { Francois_One, Roboto_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { SiteHeader } from '@/components/layout/site-header'
 import { SiteFooter } from '@/components/layout/site-footer'
@@ -33,9 +33,15 @@ const gilroy = localFont({
 })
 
 const robotoMono = Roboto_Mono({ subsets: ['vietnamese'], variable: '--font-roboto-mono' })
+const francoisOne = Francois_One({
+  subsets: ['latin'],
+  weight: '400',
+  variable: '--font-francois-one',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
-  title: 'Shining English - Học Tiếng Anh Online Tự Tin & Lưu Loát',
+  title: 'More Than English. Find Your Shine.',
   description: 'Nền tảng học tiếng Anh hiệu quả với các khóa học từ cơ bản đến nâng cao, luyện thi IELTS/TOEFL, và giao tiếp chuyên nghiệp',
   generator: 'v0.app',
   icons: {
@@ -64,7 +70,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${gilroy.variable} ${robotoMono.variable} font-sans antialiased min-h-screen flex flex-col`}>
+      <body
+        className={`${gilroy.variable} ${robotoMono.variable} ${francoisOne.variable} font-sans antialiased min-h-screen flex flex-col`}
+      >
         <SiteHeader />
         <main className="flex-1">{children}</main>
         <SiteFooter />
