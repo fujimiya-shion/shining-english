@@ -1,0 +1,80 @@
+name: PR Email Notifications
+
+on:
+  pull_request:
+    types: [opened, reopened, edited, synchronize]
+    branches: [main, develop]
+
+jobs:
+  email:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build email content
+        id: build
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const isSync = context.payload.action === 'synchronize';
+
+            let subject = isSync
+              ? `Cập nhật mới: ${pr.title}`
+              : `Có tính năng mới: ${pr.title}`;
+
+            let description = pr.body && pr.body.trim().length > 0
+              ? pr.body
+              : '(No PR description)';
+
+            if (isSync) {
+              // Collect commit messages for the PR update
+              const { data: commits } = await github.rest.pulls.listCommits({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+                per_page: 100,
+              });
+
+              const messages = commits.map((c) => c.commit.message.trim()).filter(Boolean);
+              description = messages.length > 0
+                ? messages.join('\n\n---\n\n')
+                : '(No commit messages found)';
+
+              if (messages.length > 0) {
+                const latestMessage = messages[messages.length - 1];
+                subject = `Cập nhật mới: ${latestMessage}`;
+              }
+            }
+
+            const prUrl = pr.html_url;
+            const actor = context.actor;
+
+            const html = `
+              <div style="font-family: Arial, sans-serif; line-height: 1.5;">
+                <h2>${subject}</h2>
+                <p><strong>Repository:</strong> ${context.repo.owner}/${context.repo.repo}</p>
+                <p><strong>Author:</strong> ${actor}</p>
+                <p><strong>PR:</strong> #${pr.number}</p>
+                <hr />
+                <pre style="white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;">
+                  ${description.replace(/</g, '&lt;').replace(/>/g, '&gt;')}
+                </pre>
+                <p>
+                  <a href="${prUrl}" style="display: inline-block; padding: 10px 16px; background: #1f6feb; color: #fff; text-decoration: none; border-radius: 6px;">Open PR</a>
+                </p>
+              </div>
+            `;
+
+            core.setOutput('subject', subject);
+            core.setOutput('html', html);
+
+      - name: Send email
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.SMTP_SERVER }}
+          server_port: ${{ secrets.SMTP_PORT }}
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: ${{ steps.build.outputs.subject }}
+          html_body: ${{ steps.build.outputs.html }}
+          to: ${{ secrets.EMAILS_TO }}
+          from: ${{ secrets.EMAIL_FROM }}
