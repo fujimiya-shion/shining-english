@@ -8,8 +8,11 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { getCurrentUser } from '@/shared/server/current-user'
 
-export default function ProfilePage() {
+export default async function ProfilePage() {
+  const currentUser = await getCurrentUser()
+
   return (
     <main className="min-h-full bg-[radial-gradient(1200px_circle_at_top_left,var(--sky-110)_0%,var(--sky-60)_50%,var(--white)_100%)] px-4 py-12">
       <div className="mx-auto w-full max-w-4xl">
@@ -22,9 +25,15 @@ export default function ProfilePage() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="rounded-2xl border border-border/70 bg-[color:var(--sky-70)] p-4">
-              <p className="text-sm text-muted-foreground">
-                Thông tin hồ sơ sẽ hiển thị ở đây sau khi bạn hoàn thiện.
-              </p>
+              {currentUser.authenticated ? (
+                <p className="text-sm text-[color:var(--brand-900)]">
+                  Phiên đăng nhập hợp lệ. Dữ liệu hồ sơ đã được lấy từ backend qua server-side proxy.
+                </p>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Bạn chưa đăng nhập hoặc token đã hết hạn.
+                </p>
+              )}
             </div>
             <div className="flex flex-wrap gap-3">
               <AppButton type="button" className="h-11 rounded-full">
