@@ -1,4 +1,8 @@
+'use client'
+
+import { FormEvent, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { AppButton } from '@/components/ui/app-button'
 import { Input } from '@/components/ui/input'
@@ -11,6 +15,42 @@ import {
 } from '@/components/ui/card'
 
 export default function LoginPage() {
+  const router = useRouter()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+
+  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setErrorMessage(null)
+    setIsSubmitting(true)
+
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      })
+
+      const payload = (await response.json()) as { message?: string }
+
+      if (!response.ok) {
+        setErrorMessage(payload.message ?? 'Đăng nhập thất bại')
+        return
+      }
+
+      router.push('/dashboard')
+      router.refresh()
+    } catch {
+      setErrorMessage('Không thể kết nối máy chủ, vui lòng thử lại.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   return (
     <main className="relative min-h-full overflow-hidden bg-[radial-gradient(1200px_circle_at_top_left,var(--sky-110)_0%,var(--sky-60)_50%,var(--white)_100%)] py-12 lg:py-16">
       <div className="pointer-events-none absolute -left-24 top-10 h-64 w-64 rounded-full bg-[color:var(--sky-300)]/30 blur-3xl"></div>
@@ -82,18 +122,32 @@ export default function LoginPage() {
               </span>
             </div>
 
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={onSubmit}>
               <div className="space-y-2">
                 <label className="text-sm font-medium" htmlFor="login-email">
                   Email
                 </label>
-                <Input id="login-email" type="email" placeholder="you@email.com" />
+                <Input
+                  id="login-email"
+                  type="email"
+                  placeholder="you@email.com"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium" htmlFor="login-password">
                   Mật khẩu
                 </label>
-                <Input id="login-password" type="password" placeholder="••••••••" />
+                <Input
+                  id="login-password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  required
+                />
               </div>
               <div className="flex items-center justify-between text-sm">
                 <label className="flex items-center gap-2 text-muted-foreground">
@@ -104,8 +158,13 @@ export default function LoginPage() {
                   Quên mật khẩu?
                 </Link>
               </div>
-              <AppButton className="h-11 w-full rounded-full" type="button">
-                Đăng nhập
+              {errorMessage && (
+                <p className="text-sm text-red-600" role="alert">
+                  {errorMessage}
+                </p>
+              )}
+              <AppButton className="h-11 w-full rounded-full" type="submit" disabled={isSubmitting}>
+                {isSubmitting ? 'Đang đăng nhập...' : 'Đăng nhập'}
               </AppButton>
             </form>
 
