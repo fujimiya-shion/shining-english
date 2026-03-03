@@ -1,6 +1,6 @@
 import { User } from "@/data/models/user.model";
 import { BaseRepository } from "../base.repository";
-import { IUserRepository } from "./user_repository.interface";
+import { IUserRepository } from "./user.repository.interface";
 import { AppEndpoints } from "@/shared/constants/app-endpoints";
 import { ObjectResponse } from "@/shared/responses/object-response";
 

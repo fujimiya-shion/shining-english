@@ -2,7 +2,7 @@ import { User } from "@/data/models/user.model";
 import { resolveServer } from "@/shared/ioc/server-container";
 import { IOC_TOKENS } from "@/shared/ioc/tokens";
 import { ObjectResponse } from "@/shared/responses/object-response";
-import { IUserRepository } from "@/data/repositories/remote/user/user_repository.interface";
+import { IUserRepository } from "@/data/repositories/remote/user/user.repository.interface";
 
 export type AuthUserResult = {
   authenticated: boolean;

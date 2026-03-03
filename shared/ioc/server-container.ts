@@ -1,8 +1,8 @@
 import "server-only";
 
 import { ServerBackendHttpClient } from "@/infra/http/server-backend-http.client";
-import { UserRepository } from "@/data/repositories/remote/user/user_repository";
-import { IUserRepository } from "@/data/repositories/remote/user/user_repository.interface";
+import { UserRepository } from "@/data/repositories/remote/user/user.repository";
+import { IUserRepository } from "@/data/repositories/remote/user/user.repository.interface";
 import { IoCContainer } from "./ioc-container";
 import { IOC_TOKENS, IoCToken } from "./tokens";
 
