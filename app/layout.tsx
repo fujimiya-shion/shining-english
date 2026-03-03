@@ -5,6 +5,8 @@ import { Francois_One, Roboto_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { SiteHeader } from '@/components/layout/site-header'
 import { SiteFooter } from '@/components/layout/site-footer'
+import { IoCBootstrapClient } from '@/components/providers/ioc-bootstrap.client'
+import { ensureServerBindings } from '@/shared/ioc/server-container'
 import './globals.css'
 
 const gilroy = localFont({
@@ -68,11 +70,14 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  ensureServerBindings()
+
   return (
     <html lang="en">
       <body
         className={`${gilroy.variable} ${robotoMono.variable} ${francoisOne.variable} font-sans antialiased min-h-screen flex flex-col`}
       >
+        <IoCBootstrapClient />
         <SiteHeader />
         <main className="flex-1">{children}</main>
         <SiteFooter />

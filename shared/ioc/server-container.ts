@@ -17,7 +17,11 @@ function buildServerContainer(): IoCContainer {
   return container;
 }
 
-export function resolveServer<T>(token: IoCToken): T {
+export function ensureServerBindings(): void {
   serverContainer ??= buildServerContainer();
-  return serverContainer.resolve<T>(token);
+}
+
+export function resolveServer<T>(token: IoCToken): T {
+  ensureServerBindings();
+  return serverContainer!.resolve<T>(token);
 }

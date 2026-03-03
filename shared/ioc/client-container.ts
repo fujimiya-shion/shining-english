@@ -15,7 +15,11 @@ function buildClientContainer(): IoCContainer {
   return container;
 }
 
-export function resolveClient<T>(token: IoCToken): T {
+export function ensureClientBindings(): void {
   clientContainer ??= buildClientContainer();
-  return clientContainer.resolve<T>(token);
+}
+
+export function resolveClient<T>(token: IoCToken): T {
+  ensureClientBindings();
+  return clientContainer!.resolve<T>(token);
 }
