@@ -1,11 +1,12 @@
+import "reflect-metadata"
 import React from "react"
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import { Francois_One, Roboto_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
-import { SiteHeader } from '@/components/layout/site-header'
-import { SiteFooter } from '@/components/layout/site-footer'
-import { IoCBootstrapClient } from '@/components/providers/ioc-bootstrap.client'
+import { SiteHeader } from '@/shared/components/ui/layout/site-header'
+import { SiteFooter } from '@/shared/components/ui/layout/site-footer'
+import { IoCBootstrapClient } from '@/shared/components/providers/ioc-bootstrap.client'
 import { ensureServerBindings } from '@/shared/ioc/server-container'
 import './globals.css'
 

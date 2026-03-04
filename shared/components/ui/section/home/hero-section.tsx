@@ -1,6 +1,6 @@
-import { HeroAbstract } from "@/components/hero/hero-abstract";
-import { AppButton } from "@/components/ui/app-button";
-import { Button } from "@/components/ui/button";
+import { HeroAbstract } from "@/shared/components/ui/hero/hero-abstract";
+import { AppButton } from "@/shared/components/ui/app-button";
+import { Button } from "@/shared/components/ui/button";
 import { Rocket } from "lucide-react";
 
 export const HeroSection = () => {

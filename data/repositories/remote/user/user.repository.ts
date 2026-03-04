@@ -2,7 +2,9 @@ import { User } from "@/data/models/user.model";
 import { BaseRepository } from "../base.repository";
 import { IUserRepository } from "./user.repository.interface";
 import { AppEndpoints } from "@/shared/constants/app-endpoints";
-import { ObjectResponse } from "@/shared/responses/object-response";
+import { ObjectResponse } from "@/data/dtos/common/object-response";
+import { ApiException } from "@/data/types/api-exception";
+import { ApiResult } from "@/data/types/api-result";
 
 export class UserRepository extends BaseRepository implements IUserRepository {
   async register(
@@ -10,15 +12,17 @@ export class UserRepository extends BaseRepository implements IUserRepository {
     email: string,
     phone: string,
     password: string,
-  ): Promise<ObjectResponse<unknown>> {
-    const raw = await this.post<Record<string, unknown>>(AppEndpoints.auth.register, {
-      name,
-      email,
-      phone,
-      password,
+  ): Promise<ApiResult<ObjectResponse<unknown>, ApiException>> {
+    return this.post({
+      url: AppEndpoints.auth.register,
+      body: {
+        name,
+        email,
+        phone,
+        password,
+      },
+      map: (raw) => ObjectResponse.fromApiJson(raw as Record<string, unknown>),
     });
-
-    return ObjectResponse.fromApiJson(raw);
   }
 
   async login(
@@ -29,42 +33,47 @@ export class UserRepository extends BaseRepository implements IUserRepository {
     platform?: string,
     ipAddress?: string,
     userAgent?: string,
-  ): Promise<ObjectResponse<unknown>> {
-    const raw = await this.post<Record<string, unknown>>(AppEndpoints.auth.login, {
-      email,
-      password,
-      device_identifier: deviceIdentifier,
-      device_name: deviceName,
-      platform,
-      ip_address: ipAddress,
-      user_agent: userAgent,
+  ): Promise<ApiResult<ObjectResponse<unknown>, ApiException>> {
+    return this.post({
+      url: AppEndpoints.auth.login,
+      body: {
+        email,
+        password,
+        device_identifier: deviceIdentifier,
+        device_name: deviceName,
+        platform,
+        ip_address: ipAddress,
+        user_agent: userAgent,
+      },
+      map: (raw) => ObjectResponse.fromApiJson(raw as Record<string, unknown>),
     });
-
-    return ObjectResponse.fromApiJson(raw);
   }
 
-  async getProfile(): Promise<ObjectResponse<User>> {
-    const raw = await this.get<Record<string, unknown>>(AppEndpoints.auth.me);
-    return ObjectResponse.fromApiJson(raw, User);
+  async getProfile(): Promise<ApiResult<ObjectResponse<User>, ApiException>> {
+    return this.get({
+      url: AppEndpoints.auth.me,
+      map: (raw) => ObjectResponse.fromApiJson(raw as Record<string, unknown>, User),
+    });
   }
 
   async updateProfile(
     data: FormData | Record<string, unknown>,
-  ): Promise<ObjectResponse<User>> {
-    const raw = await this.post<Record<string, unknown>, FormData | Record<string, unknown>>(
-      AppEndpoints.user.update,
-      data,
-    );
-
-    return ObjectResponse.fromApiJson(raw, User);
+  ): Promise<ApiResult<ObjectResponse<User>, ApiException>> {
+    return this.post({
+      url: AppEndpoints.user.update,
+      body: data,
+      map: (raw) => ObjectResponse.fromApiJson(raw as Record<string, unknown>, User),
+    });
   }
 
-  async logout(): Promise<ObjectResponse<unknown>> {
-    const raw = await this.post<Record<string, unknown>>(AppEndpoints.auth.logout);
-    return ObjectResponse.fromApiJson(raw);
+  async logout(): Promise<ApiResult<ObjectResponse<unknown>, ApiException>> {
+    return this.post({
+      url: AppEndpoints.auth.logout,
+      map: (raw) => ObjectResponse.fromApiJson(raw as Record<string, unknown>),
+    });
   }
 
-  async me(): Promise<ObjectResponse<User>> {
+  async me(): Promise<ApiResult<ObjectResponse<User>, ApiException>> {
     return this.getProfile();
   }
 }

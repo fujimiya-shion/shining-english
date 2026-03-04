@@ -1,9 +1,9 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import { AppButton } from '@/components/ui/app-button'
-import { Card } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
+import { Button } from '@/shared/components/ui/button'
+import { AppButton } from '@/shared/components/ui/app-button'
+import { Card } from '@/shared/components/ui/card'
+import { Input } from '@/shared/components/ui/input'
 import Image from 'next/image'
 import { useState } from 'react'
 

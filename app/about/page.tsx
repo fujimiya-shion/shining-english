@@ -1,13 +1,13 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { AppButton } from '@/components/ui/app-button'
-import { Card } from '@/components/ui/card'
+import { AppButton } from '@/shared/components/ui/app-button'
+import { Card } from '@/shared/components/ui/card'
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/components/ui/accordion'
+} from '@/shared/components/ui/accordion'
 import {
   Rocket,
   Sparkles,

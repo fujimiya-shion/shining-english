@@ -16,10 +16,10 @@ import {
   MessageCircle,
   CalendarCheck,
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { AppButton } from '@/components/ui/app-button'
-import { Card } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Button } from '@/shared/components/ui/button'
+import { AppButton } from '@/shared/components/ui/app-button'
+import { Card } from '@/shared/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs'
 
 interface EnrolledCourse {
   id: number

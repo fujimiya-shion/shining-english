@@ -8,4 +8,8 @@ export const AppEndpoints = {
   user: {
     update: "/user/update",
   },
+
+  course: {
+    index: "/courses",
+  }
 } as const;

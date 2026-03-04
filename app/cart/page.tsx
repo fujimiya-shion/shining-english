@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { ShoppingCart } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { AppButton } from '@/components/ui/app-button'
+import { Button } from '@/shared/components/ui/button'
+import { AppButton } from '@/shared/components/ui/app-button'
 
 export default function CartPage() {
   return (

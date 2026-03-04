@@ -1,6 +1,6 @@
 'use client'
 
-import { QuizSystem } from '@/components/quiz-system'
+import { QuizSystem } from '@/shared/components/ui/quiz-system'
 
 export default function QuizPage() {
   return (

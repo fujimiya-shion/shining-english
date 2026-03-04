@@ -1,13 +1,13 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { BookOpen, Clock3, Lightbulb, Users } from 'lucide-react'
-import { AppButton } from '@/components/ui/app-button'
-import { Card } from '@/components/ui/card'
+import { AppButton } from '@/shared/components/ui/app-button'
+import { Card } from '@/shared/components/ui/card'
 import { cn } from '@/lib/utils'
 
 export type CourseCardProps = {
   title: string
-  image: string
+  image?: string
   imageAlt?: string
   category?: string
   level?: string
@@ -40,6 +40,10 @@ export function CourseCard({
   actions,
   className,
 }: CourseCardProps) {
+  const hasImage = !!image
+  const isLocalImage =
+    hasImage &&
+    (image.startsWith('http://localhost') || image.startsWith('https://localhost'))
   const metaParts: string[] = []
   if (lessons) metaParts.push(`${lessons} bài`)
   if (duration) metaParts.push(duration)
@@ -68,13 +72,18 @@ export function CourseCard({
 
       <div className="relative">
         <div className="relative aspect-[4/3] overflow-hidden rounded-t-[26px] bg-muted">
-          <Image
-            src={image}
-            alt={imageAlt || title}
-            fill
-            sizes="(min-width: 1024px) 25vw, (min-width: 768px) 50vw, 100vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-[1.06]"
-          />
+          {hasImage ? (
+            <Image
+              src={image}
+              alt={imageAlt || title}
+              fill
+              unoptimized={isLocalImage}
+              sizes="(min-width: 1024px) 25vw, (min-width: 768px) 50vw, 100vw"
+              className="object-cover transition-transform duration-500 group-hover:scale-[1.06]"
+            />
+          ) : (
+            <div className="absolute inset-0 animate-pulse bg-gradient-to-br from-muted/60 via-muted to-muted/40" />
+          )}
 
           {/* pattern overlay (education vibe) */}
           <div className="pointer-events-none absolute inset-0 opacity-70 mix-blend-soft-light">

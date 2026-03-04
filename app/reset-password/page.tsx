@@ -1,13 +1,13 @@
 import Link from 'next/link'
-import { AppButton } from '@/components/ui/app-button'
-import { Input } from '@/components/ui/input'
+import { AppButton } from '@/shared/components/ui/app-button'
+import { Input } from '@/shared/components/ui/input'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
+} from '@/shared/components/ui/card'
 
 export default function ResetPasswordPage() {
   return (

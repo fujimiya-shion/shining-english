@@ -1,6 +1,6 @@
 'use client'
 
-import { Checkout } from '@/components/checkout'
+import { Checkout } from '@/shared/components/ui/checkout'
 import { useState } from 'react'
 
 export default function CheckoutPage() {

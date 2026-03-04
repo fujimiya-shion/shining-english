@@ -1,14 +1,14 @@
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { AppButton } from '@/components/ui/app-button'
-import { Input } from '@/components/ui/input'
+import { Button } from '@/shared/components/ui/button'
+import { AppButton } from '@/shared/components/ui/app-button'
+import { Input } from '@/shared/components/ui/input'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
+} from '@/shared/components/ui/card'
 
 export default function RegisterPage() {
   return (

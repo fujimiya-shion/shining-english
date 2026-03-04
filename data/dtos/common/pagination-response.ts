@@ -34,11 +34,20 @@ export class PaginationResponse<T> extends ObjectResponse<T[]> {
   ): PaginationResponse<T> {
     const parsedList = mapToModelList(json.data, modelClass);
 
-    const page = asInt(json.page, 1);
-    const perPage = asInt(json.per_page ?? json.perPage, parsedList.length);
-    const total = asInt(json.total, parsedList.length);
+    const meta = json.meta;
+    const metaObj = meta && typeof meta === "object" ? (meta as Record<string, unknown>) : {};
 
-    let pageCount = asInt(json.page_count ?? json.pageCount, 0);
+    const page = asInt(metaObj.page ?? json.page, 1);
+    const perPage = asInt(
+      metaObj.per_page ?? metaObj.perPage ?? json.per_page ?? json.perPage,
+      parsedList.length,
+    );
+    const total = asInt(metaObj.total ?? json.total, parsedList.length);
+
+    let pageCount = asInt(
+      metaObj.page_count ?? metaObj.pageCount ?? json.page_count ?? json.pageCount,
+      0,
+    );
     if (pageCount <= 0 && perPage > 0) {
       pageCount = Math.ceil(total / perPage);
       if (pageCount === 0) {

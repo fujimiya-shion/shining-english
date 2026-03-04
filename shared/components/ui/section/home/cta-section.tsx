@@ -1,5 +1,5 @@
-import { AppButton } from "@/components/ui/app-button";
-import { Button } from "@/components/ui/button";
+import { AppButton } from "@/shared/components/ui/app-button";
+import { Button } from "@/shared/components/ui/button";
 
 export const CTASection = () => {
     return (

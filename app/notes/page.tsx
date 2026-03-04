@@ -1,6 +1,6 @@
 'use client'
 
-import { NotesResources } from '@/components/notes-resources'
+import { NotesResources } from '@/shared/components/ui/notes-resources'
 
 export default function NotesPage() {
   return (

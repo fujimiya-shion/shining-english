@@ -1,9 +1,9 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import { AppButton } from '@/components/ui/app-button'
-import { CourseListItem, type CourseListItemData } from '@/components/course/course-list-item'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Button } from '@/shared/components/ui/button'
+import { AppButton } from '@/shared/components/ui/app-button'
+import { CourseListItem, type CourseListItemData } from '@/shared/components/ui/course/course-list-item'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs'
 import { useState } from 'react'
 import { Star } from 'lucide-react'
 

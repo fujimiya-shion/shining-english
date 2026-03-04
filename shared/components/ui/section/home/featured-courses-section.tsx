@@ -5,10 +5,10 @@ import useEmblaCarousel from "embla-carousel-react";
 import Link from "next/link";
 import { ShoppingCart } from "lucide-react";
 
-import { CourseCardItem } from "@/components/course/course-card-item";
-import { BannerStarfield } from "@/components/banner/banner-starfield";
-import { AppButton } from "@/components/ui/app-button";
-import { Button } from "@/components/ui/button";
+import { CourseCardItem } from "@/shared/components/ui/course/course-card-item";
+import { BannerStarfield } from "@/shared/components/ui/banner/banner-starfield";
+import { AppButton } from "@/shared/components/ui/app-button";
+import { Button } from "@/shared/components/ui/button";
 
 type FeaturedCourse = {
   id: number;

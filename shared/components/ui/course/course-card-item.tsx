@@ -1,4 +1,4 @@
-import { CourseCard, type CourseCardProps } from '@/components/course/course-card'
+import { CourseCard, type CourseCardProps } from '@/shared/components/ui/course/course-card'
 
 export type { CourseCardProps }
 

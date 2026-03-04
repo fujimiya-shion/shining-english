@@ -1,8 +1,8 @@
 "use client";
 
-import { BannerStarfield } from "@/components/banner/banner-starfield";
-import { AppButton } from "@/components/ui/app-button";
-import { Button } from "@/components/ui/button";
+import { BannerStarfield } from "@/shared/components/ui/banner/banner-starfield";
+import { AppButton } from "@/shared/components/ui/app-button";
+import { Button } from "@/shared/components/ui/button";
 import { Award, BookOpen, Clock } from "lucide-react";
 import Image from "next/image";
 
