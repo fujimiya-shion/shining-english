@@ -1,8 +1,8 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Calendar, Clock, ChevronLeft } from 'lucide-react'
-import { AppButton } from '@/components/ui/app-button'
-import { Card } from '@/components/ui/card'
+import { AppButton } from '@/shared/components/ui/app-button'
+import { Card } from '@/shared/components/ui/card'
 
 const mockPost = {
   title: 'Lộ trình tự học giao tiếp 12 tuần cho người bận rộn',

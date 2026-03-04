@@ -1,13 +1,13 @@
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { AppButton } from '@/components/ui/app-button'
+import { Button } from '@/shared/components/ui/button'
+import { AppButton } from '@/shared/components/ui/app-button'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
+} from '@/shared/components/ui/card'
 
 export default function PaymentFailPage() {
   return (

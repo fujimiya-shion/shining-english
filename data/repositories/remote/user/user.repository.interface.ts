@@ -1,5 +1,7 @@
 import { User } from "@/data/models/user.model";
-import { ObjectResponse } from "@/shared/responses/object-response";
+import { ObjectResponse } from "@/data/dtos/common/object-response";
+import { ApiResult } from "@/data/types/api-result";
+import { ApiException } from "@/data/types/api-exception";
 
 export interface IUserRepository {
   register(
@@ -7,7 +9,7 @@ export interface IUserRepository {
     email: string,
     phone: string,
     password: string,
-  ): Promise<ObjectResponse<unknown>>;
+  ): Promise<ApiResult<ObjectResponse<unknown>, ApiException>>;
 
   login(
     email: string,
@@ -17,15 +19,15 @@ export interface IUserRepository {
     platform?: string,
     ipAddress?: string,
     userAgent?: string,
-  ): Promise<ObjectResponse<unknown>>;
+  ): Promise<ApiResult<ObjectResponse<unknown>, ApiException>>;
 
-  getProfile(): Promise<ObjectResponse<User>>;
+  getProfile(): Promise<ApiResult<ObjectResponse<User>, ApiException>>;
 
   updateProfile(
     data: FormData | Record<string, unknown>,
-  ): Promise<ObjectResponse<User>>;
+  ): Promise<ApiResult<ObjectResponse<User>, ApiException>>;
 
-  logout(): Promise<ObjectResponse<unknown>>;
+  logout(): Promise<ApiResult<ObjectResponse<unknown>, ApiException>>;
 
-  me(): Promise<ObjectResponse<User>>;
+  me(): Promise<ApiResult<ObjectResponse<User>, ApiException>>;
 }

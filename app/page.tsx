@@ -8,7 +8,7 @@ import {
     QuickStatsSection, 
     TestimonialsSection, 
     WhyChooseSection 
-} from '@/components/section/home'
+} from '@/shared/components/ui/section/home'
 import { mockCourses } from '@/data/mock'
 import gsap from 'gsap'
 import { useEffect, useState } from 'react'

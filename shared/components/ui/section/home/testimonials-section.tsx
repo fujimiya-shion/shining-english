@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Image from "next/image";
 
-import { Card } from "@/components/ui/card";
+import { Card } from "@/shared/components/ui/card";
 import { testimonials } from "@/data/mock";
 
 export const TestimonialsSection = () => {

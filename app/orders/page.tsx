@@ -1,13 +1,13 @@
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { AppButton } from '@/components/ui/app-button'
+import { Button } from '@/shared/components/ui/button'
+import { AppButton } from '@/shared/components/ui/app-button'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
+} from '@/shared/components/ui/card'
 
 const sampleOrders = [
   { id: 'SE-2401', status: 'Hoàn tất', amount: '890.000đ', date: '02/01/2026' },

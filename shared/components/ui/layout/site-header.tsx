@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { AppButton } from '@/components/ui/app-button'
+import { AppButton } from '@/shared/components/ui/app-button'
 import {
   BookOpen,
   Home,

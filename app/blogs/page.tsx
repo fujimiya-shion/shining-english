@@ -1,8 +1,8 @@
 import { BookOpenText } from 'lucide-react'
-import { AppButton } from '@/components/ui/app-button'
-import { Card } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { BlogCardItem, type BlogCardItemData } from '@/components/blog/blog-card-item'
+import { AppButton } from '@/shared/components/ui/app-button'
+import { Card } from '@/shared/components/ui/card'
+import { Input } from '@/shared/components/ui/input'
+import { BlogCardItem, type BlogCardItemData } from '@/shared/components/ui/blog/blog-card-item'
 
 const blogPosts: BlogCardItemData[] = [
   {

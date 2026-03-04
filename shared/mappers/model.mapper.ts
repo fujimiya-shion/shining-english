@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import { ClassConstructor, plainToInstance } from "class-transformer";
 
 type PlainObject = Record<string, unknown>;

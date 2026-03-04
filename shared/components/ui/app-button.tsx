@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { Button, buttonVariants } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/shared/components/ui/button'
 import type { VariantProps } from 'class-variance-authority'
 
 import { cn } from '@/lib/utils'

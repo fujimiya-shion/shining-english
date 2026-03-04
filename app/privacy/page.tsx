@@ -1,6 +1,6 @@
 import Link from 'next/link'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { AppButton } from '@/components/ui/app-button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card'
+import { AppButton } from '@/shared/components/ui/app-button'
 
 export default function PrivacyPage() {
   return (

@@ -1,4 +1,4 @@
-import { CoursePlayer } from '@/components/course/course-player'
+import { CoursePlayer } from '@/shared/components/ui/course/course-player'
 
 export default function CoursePage() {
   return (

@@ -3,6 +3,8 @@ import { UserRepository } from "@/data/repositories/remote/user/user.repository"
 import { IUserRepository } from "@/data/repositories/remote/user/user.repository.interface";
 import { IoCContainer } from "./ioc-container";
 import { IOC_TOKENS, IoCToken } from "./tokens";
+import { ICourseRepository } from "@/data/repositories/remote/course/course.repository.interface";
+import { CourseRepository } from "@/data/repositories/remote/course/course.repository";
 
 let clientContainer: IoCContainer | null = null;
 
@@ -12,6 +14,11 @@ function buildClientContainer(): IoCContainer {
     IOC_TOKENS.USER_REPOSITORY,
     () => new UserRepository(new BrowserProxyHttpClient()),
   );
+
+  container.bind<ICourseRepository>(
+    IOC_TOKENS.COURSE_REPOSITORY,
+    () => new CourseRepository(new BrowserProxyHttpClient()),
+  )
   return container;
 }
 

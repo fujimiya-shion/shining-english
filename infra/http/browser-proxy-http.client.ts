@@ -44,11 +44,14 @@ export class BrowserProxyHttpClient implements HttpClient {
       ...config.headers,
     };
 
+    
     if (!isFormData(rawBody)) {
       headers["Content-Type"] = headers["Content-Type"] ?? "application/json";
     }
+    
+    const proxyUrl = buildProxyUrl(config.url, config.query);
 
-    const response = await fetch(buildProxyUrl(config.url, config.query), {
+    const response = await fetch(proxyUrl, {
       method: config.method ?? "GET",
       headers,
       body: buildBody(rawBody),

@@ -1,8 +1,8 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { BookOpen, Clock3, Lightbulb, Users } from 'lucide-react'
-import { AppButton } from '@/components/ui/app-button'
-import { Card } from '@/components/ui/card'
+import { AppButton } from '@/shared/components/ui/app-button'
+import { Card } from '@/shared/components/ui/card'
 import { cn } from '@/lib/utils'
 
 export type CourseCardProps = {
@@ -40,6 +40,8 @@ export function CourseCard({
   actions,
   className,
 }: CourseCardProps) {
+  const isLocalImage =
+    image.startsWith('http://localhost') || image.startsWith('https://localhost')
   const metaParts: string[] = []
   if (lessons) metaParts.push(`${lessons} bài`)
   if (duration) metaParts.push(duration)
@@ -72,6 +74,7 @@ export function CourseCard({
             src={image}
             alt={imageAlt || title}
             fill
+            unoptimized={isLocalImage}
             sizes="(min-width: 1024px) 25vw, (min-width: 768px) 50vw, 100vw"
             className="object-cover transition-transform duration-500 group-hover:scale-[1.06]"
           />
