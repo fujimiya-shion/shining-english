@@ -40,7 +40,6 @@ async function handleRequest(
   context: RouteContext,
   method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE",
 ): Promise<NextResponse> {
-  console.log("GO TO HERE");
   const resolvedParams = await Promise.resolve(context.params);
   const pathSegments = resolvedParams?.path ?? [];
   if (pathSegments.length === 0) {
