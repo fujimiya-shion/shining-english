@@ -60,6 +60,7 @@ export const useCourseStore = create<CourseStoreState>((set, get) => ({
         apiResult.when({
             success: (response) => {
                 set({
+                    status: AppStatus.done,
                     courses: response.data,
                     page: response.page,
                     pageCount: response.pageCount,
