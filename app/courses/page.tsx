@@ -9,31 +9,150 @@ import { CourseCardItem } from '@/shared/components/ui/course/course-card-item'
 import { Search } from 'lucide-react'
 import { Card, CardContent } from '@/shared/components/ui/card'
 import { useCourseStore } from './stores/course/course.store'
-import { useEffect } from 'react';
+import { useCourseFilterStore } from './stores/course/course-filter.store'
+import { useEffect, useMemo, useState } from 'react';
 import { AppStatus } from '@/shared/enums/app-status';
 import { Toaster, toast } from 'react-hot-toast';
 import { AppUtils } from '@/shared/utils/app-utils';
+import { CourseFilterRequest } from '@/data/dtos/course.dto';
 
-const filters = {
-    levels: ['Beginner', 'Intermediate', 'Advanced'],
-    topics: ['Giao tiếp', 'Ngữ pháp', 'Phát âm', 'IELTS', 'Writing', 'Speaking'],
-    duration: ['< 4 tuần', '4-8 tuần', '> 8 tuần'],
-    price: ['< 700k', '700k - 900k', '> 900k'],
+const durationFilters = ['< 4 tuần', '4-8 tuần', '> 8 tuần'];
+
+function formatPricePlaceholder(value: number | null | undefined, fallback: string): string {
+    if (value === null || value === undefined) {
+        return fallback;
+    }
+
+    return `${value.toLocaleString('vi-VN')}đ`;
 }
 
 export default function CoursesPage() {
 
-    const { courses, initial, status } = useCourseStore();
+    const {
+        courses,
+        initial: initialCourses,
+        status: coursesStatus,
+        page,
+        pageCount,
+        setPage,
+        fetchCourses,
+        filterCourses,
+    } = useCourseStore();
+    const { filterProps, initial: initialFilterProps, status: filterStatus } = useCourseFilterStore();
+    const categories = filterProps?.categories ?? [];
+    const levels = filterProps?.levels ?? [];
+    const [selectedCategoryId, setSelectedCategoryId] = useState<number | undefined>(undefined);
+    const [selectedLevelId, setSelectedLevelId] = useState<number | undefined>(undefined);
+    const [priceMinInput, setPriceMinInput] = useState<string>('');
+    const [priceMaxInput, setPriceMaxInput] = useState<string>('');
+    const activeCategory = categories.find((item) => item.id === selectedCategoryId);
+    const activeLevel = levels.find((item) => item.value === selectedLevelId);
+    const selectedFilters = [
+            activeCategory?.name,
+            activeLevel?.label,
+    ].filter((item): item is string => !!item);
+
+    const hasAnyFilters = useMemo(() => {
+        return selectedCategoryId !== undefined
+            || selectedLevelId !== undefined
+            || priceMinInput.trim() !== ''
+            || priceMaxInput.trim() !== '';
+    }, [selectedCategoryId, selectedLevelId, priceMinInput, priceMaxInput]);
+
+    const parseOptionalNumber = (value: string): number | undefined => {
+        const trimmed = value.trim();
+        if (trimmed === '') {
+            return undefined;
+        }
+
+        const parsed = Number.parseInt(trimmed, 10);
+        if (Number.isNaN(parsed)) {
+            return undefined;
+        }
+
+        return parsed;
+    };
+
+    const applyFilters = async (
+        overrides?: {
+            categoryId?: number;
+            levelId?: number;
+            priceMin?: string;
+            priceMax?: string;
+            page?: number;
+        },
+    ) => {
+        const categoryId = overrides && 'categoryId' in overrides
+            ? overrides.categoryId
+            : selectedCategoryId;
+        const levelId = overrides && 'levelId' in overrides
+            ? overrides.levelId
+            : selectedLevelId;
+        const priceMinRaw = overrides && 'priceMin' in overrides
+            ? (overrides.priceMin ?? '')
+            : priceMinInput;
+        const priceMaxRaw = overrides && 'priceMax' in overrides
+            ? (overrides.priceMax ?? '')
+            : priceMaxInput;
+        const targetPage = overrides?.page ?? page;
+        const priceMin = parseOptionalNumber(priceMinRaw);
+        const priceMax = parseOptionalNumber(priceMaxRaw);
+
+        if (
+            categoryId === undefined
+            && levelId === undefined
+            && priceMin === undefined
+            && priceMax === undefined
+        ) {
+            setPage(targetPage);
+            await fetchCourses();
+            return;
+        }
+
+        setPage(targetPage);
+        await filterCourses(
+            new CourseFilterRequest(
+                categoryId,
+                undefined,
+                levelId,
+                priceMin,
+                priceMax,
+                undefined,
+                targetPage,
+            ),
+        );
+    };
+
+    const visiblePages = useMemo(() => {
+        if (pageCount <= 5) {
+            return Array.from({ length: pageCount }, (_, index) => index + 1);
+        }
+
+        const start = Math.max(1, page - 2);
+        const end = Math.min(pageCount, start + 4);
+        const normalizedStart = Math.max(1, end - 4);
+        const length = end - normalizedStart + 1;
+        return Array.from({ length }, (_, index) => normalizedStart + index);
+    }, [page, pageCount]);
+
+    const handlePageChange = async (nextPage: number) => {
+        if (nextPage < 1 || nextPage > pageCount || nextPage === page) {
+            return;
+        }
+
+        await applyFilters({ page: nextPage });
+    };
 
     useEffect(() => {
-        initial();
+        initialCourses();
+        initialFilterProps();
     }, []);
 
     useEffect(() => {
-        if (status === AppStatus.error) {
+        if (coursesStatus === AppStatus.error || filterStatus === AppStatus.error) {
             toast.error('Không thể tải danh sách khóa học. Vui lòng thử lại.');
         }
-    }, [status]);
+    }, [coursesStatus, filterStatus]);
 
     return (
         <main className="min-h-full bg-[radial-gradient(1200px_circle_at_top_left,var(--sky-90)_0%,var(--sky-50)_52%,var(--white)_100%)] py-10">
@@ -57,9 +176,9 @@ export default function CoursesPage() {
                 </div>
 
                 <div className="mt-8 flex flex-wrap gap-2 lg:hidden">
-                    {filters.topics.map((topic) => (
-                        <Button key={topic} variant="outline" size="sm" className="rounded-full">
-                            {topic}
+                    {categories.map((category, index) => (
+                        <Button key={category.id ?? index} variant="outline" size="sm" className="rounded-full">
+                            {category.name ?? ''}
                         </Button>
                     ))}
                 </div>
@@ -74,7 +193,19 @@ export default function CoursesPage() {
                                             <p className="text-sm font-semibold text-[color:var(--brand-900)]">Bộ lọc</p>
                                             <p className="text-xs text-muted-foreground">Chọn để thu gọn kết quả</p>
                                         </div>
-                                        <Button variant="ghost" size="sm" className="text-xs">
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="text-xs"
+                                            onClick={async () => {
+                                                setSelectedCategoryId(undefined);
+                                                setSelectedLevelId(undefined);
+                                                setPriceMinInput('');
+                                                setPriceMaxInput('');
+                                                setPage(1);
+                                                await fetchCourses();
+                                            }}
+                                        >
                                             Xoá lọc
                                         </Button>
                                     </div>
@@ -84,7 +215,7 @@ export default function CoursesPage() {
                                             Đang chọn
                                         </p>
                                         <div className="mt-3 flex flex-wrap gap-2">
-                                            {['Giao tiếp', 'Beginner', '4-8 tuần'].map((item) => (
+                                            {selectedFilters.map((item) => (
                                                 <span
                                                     key={item}
                                                     className="rounded-full bg-white px-3 py-1 text-xs font-medium text-[color:var(--brand-900)] shadow-sm"
@@ -98,13 +229,24 @@ export default function CoursesPage() {
                                     <div className="rounded-2xl border border-border/70 bg-white p-4">
                                         <p className="text-sm font-semibold">Trình độ</p>
                                         <div className="mt-3 space-y-2">
-                                            {filters.levels.map((level) => (
-                                                <label key={level} className="flex items-center justify-between text-sm text-muted-foreground">
+                                            {levels.map((levelItem, index) => (
+                                                <label key={levelItem.label ?? index} className="flex items-center justify-between text-sm text-muted-foreground">
                                                     <span className="flex items-center gap-2">
-                                                        <input type="checkbox" className="h-4 w-4 rounded border-border" />
-                                                        {level}
+                                                        <input
+                                                            type="checkbox"
+                                                            className="h-4 w-4 rounded border-border"
+                                                            checked={selectedLevelId === levelItem.value}
+                                                            onChange={async () => {
+                                                                const nextLevelId = selectedLevelId === levelItem.value
+                                                                    ? undefined
+                                                                    : levelItem.value;
+                                                                setSelectedLevelId(nextLevelId);
+                                                                await applyFilters({ levelId: nextLevelId, page: 1 });
+                                                            }}
+                                                        />
+                                                        {levelItem.label ?? ''}
                                                     </span>
-                                                    <span className="text-xs text-muted-foreground/70">12</span>
+                                                    <span className="text-xs text-muted-foreground/70">{levelItem.count ?? 0}</span>
                                                 </label>
                                             ))}
                                         </div>
@@ -113,13 +255,24 @@ export default function CoursesPage() {
                                     <div className="rounded-2xl border border-border/70 bg-white p-4">
                                         <p className="text-sm font-semibold">Chủ đề</p>
                                         <div className="mt-3 flex flex-wrap gap-2">
-                                            {filters.topics.map((topic) => (
-                                                <span
-                                                    key={topic}
-                                                    className="rounded-full border border-border/80 bg-white px-3 py-1 text-xs text-muted-foreground hover:border-primary/60 hover:text-primary transition-colors"
+                                            {categories.map((category, index) => (
+                                                <button
+                                                    key={category.id ?? index}
+                                                    type="button"
+                                                    onClick={async () => {
+                                                        const nextCategoryId = selectedCategoryId === category.id
+                                                            ? undefined
+                                                            : category.id;
+                                                        setSelectedCategoryId(nextCategoryId);
+                                                        await applyFilters({ categoryId: nextCategoryId, page: 1 });
+                                                    }}
+                                                    className={`rounded-full border px-3 py-1 text-xs transition-colors ${selectedCategoryId === category.id
+                                                        ? 'border-primary/60 text-primary bg-primary/5'
+                                                        : 'border-border/80 bg-white text-muted-foreground hover:border-primary/60 hover:text-primary'
+                                                        }`}
                                                 >
-                                                    {topic}
-                                                </span>
+                                                    {category.name ?? ''}
+                                                </button>
                                             ))}
                                         </div>
                                     </div>
@@ -127,7 +280,7 @@ export default function CoursesPage() {
                                     <div className="rounded-2xl border border-border/70 bg-white p-4">
                                         <p className="text-sm font-semibold">Thời lượng</p>
                                         <div className="mt-3 space-y-2">
-                                            {filters.duration.map((item) => (
+                                            {durationFilters.map((item) => (
                                                 <label key={item} className="flex items-center justify-between text-sm text-muted-foreground">
                                                     <span className="flex items-center gap-2">
                                                         <input type="checkbox" className="h-4 w-4 rounded border-border" />
@@ -142,8 +295,24 @@ export default function CoursesPage() {
                                     <div className="rounded-2xl border border-border/70 bg-white p-4">
                                         <p className="text-sm font-semibold">Mức giá</p>
                                         <div className="mt-3 grid grid-cols-2 gap-3">
-                                            <Input placeholder="Từ 500k" className="h-9 text-xs" />
-                                            <Input placeholder="Đến 1.2M" className="h-9 text-xs" />
+                                            <Input
+                                                placeholder={formatPricePlaceholder(filterProps?.price?.min, "Từ giá thấp")}
+                                                value={priceMinInput}
+                                                onChange={(event) => setPriceMinInput(event.target.value)}
+                                                onBlur={async () => {
+                                                    await applyFilters({ page: 1 });
+                                                }}
+                                                className="h-9 text-xs"
+                                            />
+                                            <Input
+                                                placeholder={formatPricePlaceholder(filterProps?.price?.max, "Đến giá cao")}
+                                                value={priceMaxInput}
+                                                onChange={(event) => setPriceMaxInput(event.target.value)}
+                                                onBlur={async () => {
+                                                    await applyFilters({ page: 1 });
+                                                }}
+                                                className="h-9 text-xs"
+                                            />
                                         </div>
                                         <div className="mt-3 h-1.5 rounded-full bg-muted">
                                             <div className="h-1.5 w-2/3 rounded-full bg-primary/70"></div>
@@ -156,7 +325,7 @@ export default function CoursesPage() {
 
                     <section className="space-y-6">
                         <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border/70 bg-white/90 px-4 py-3 text-sm text-muted-foreground">
-                            <span>Hiển thị 1-6 trong 24 khoá học</span>
+                            <span>Hiển thị {courses.length} khoá học {hasAnyFilters ? '(đã lọc)' : ''}</span>
                             <div className="flex items-center gap-2">
                                 <span>Sắp xếp:</span>
                                 <Button variant="outline" size="sm" className="rounded-full">
@@ -208,19 +377,42 @@ export default function CoursesPage() {
                         </div>
 
                         <div className="flex flex-col items-center justify-between gap-3 rounded-2xl border border-border/70 bg-white/90 px-4 py-4 text-sm text-muted-foreground sm:flex-row">
-                            <span>Trang 1 / 4</span>
+                            <span>Trang {page} / {pageCount}</span>
                             <div className="flex items-center gap-2">
-                                <Button variant="outline" size="sm">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={async () => {
+                                        await handlePageChange(page - 1);
+                                    }}
+                                    disabled={page <= 1}
+                                >
                                     Trước
                                 </Button>
-                                <AppButton size="sm">1</AppButton>
-                                <Button variant="outline" size="sm">
-                                    2
-                                </Button>
-                                <Button variant="outline" size="sm">
-                                    3
-                                </Button>
-                                <Button variant="outline" size="sm">
+                                {visiblePages.map((pageNumber) => (
+                                    pageNumber === page ? (
+                                        <AppButton key={pageNumber} size="sm">{pageNumber}</AppButton>
+                                    ) : (
+                                        <Button
+                                            key={pageNumber}
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={async () => {
+                                                await handlePageChange(pageNumber);
+                                            }}
+                                        >
+                                            {pageNumber}
+                                        </Button>
+                                    )
+                                ))}
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={async () => {
+                                        await handlePageChange(page + 1);
+                                    }}
+                                    disabled={page >= pageCount}
+                                >
                                     Sau
                                 </Button>
                             </div>

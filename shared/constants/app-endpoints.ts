@@ -11,5 +11,7 @@ export const AppEndpoints = {
 
   course: {
     index: "/courses",
+    filter: "/courses/filter",
+    filterProps: "/courses/filter-props",
   }
 } as const;
