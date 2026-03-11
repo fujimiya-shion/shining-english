@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/shared/components/ui/button'
 import { AppButton } from '@/shared/components/ui/app-button'
+import { AppCheckBox } from '@/shared/components/ui/app-checkbox'
 import { Input } from '@/shared/components/ui/input'
 import { CourseCardItem } from '@/shared/components/ui/course/course-card-item'
 import { Search } from 'lucide-react'
@@ -26,6 +27,14 @@ function formatPricePlaceholder(value: number | null | undefined, fallback: stri
     return `${value.toLocaleString('vi-VN')}đ`;
 }
 
+function sanitizeNumberInput(value: string): string {
+    return value.replace(/[^\d]/g, '');
+}
+
+function clamp(value: number, min: number, max: number): number {
+    return Math.min(Math.max(value, min), max);
+}
+
 export default function CoursesPage() {
 
     const {
@@ -42,25 +51,30 @@ export default function CoursesPage() {
     const categories = filterProps?.categories ?? [];
     const levels = filterProps?.levels ?? [];
     const [selectedCategoryId, setSelectedCategoryId] = useState<number | undefined>(undefined);
-    const [selectedLevelId, setSelectedLevelId] = useState<number | undefined>(undefined);
+    const [selectedLevelIds, setSelectedLevelIds] = useState<number[]>([]);
     const [priceMinInput, setPriceMinInput] = useState<string>('');
     const [priceMaxInput, setPriceMaxInput] = useState<string>('');
+    const priceBoundMin = filterProps?.price?.min ?? 0;
+    const rawPriceBoundMax = filterProps?.price?.max ?? 0;
+    const priceBoundMax = rawPriceBoundMax > priceBoundMin ? rawPriceBoundMax : priceBoundMin + 1;
     const activeCategory = categories.find((item) => item.id === selectedCategoryId);
-    const activeLevel = levels.find((item) => item.value === selectedLevelId);
+    const activeLevels = levels.filter(
+        (item) => item.value !== undefined && selectedLevelIds.includes(item.value),
+    );
     const selectedFilters = [
             activeCategory?.name,
-            activeLevel?.label,
+            ...activeLevels.map((item) => item.label),
     ].filter((item): item is string => !!item);
 
     const hasAnyFilters = useMemo(() => {
         return selectedCategoryId !== undefined
-            || selectedLevelId !== undefined
+            || selectedLevelIds.length > 0
             || priceMinInput.trim() !== ''
             || priceMaxInput.trim() !== '';
-    }, [selectedCategoryId, selectedLevelId, priceMinInput, priceMaxInput]);
+    }, [selectedCategoryId, selectedLevelIds, priceMinInput, priceMaxInput]);
 
     const parseOptionalNumber = (value: string): number | undefined => {
-        const trimmed = value.trim();
+        const trimmed = sanitizeNumberInput(value.trim());
         if (trimmed === '') {
             return undefined;
         }
@@ -73,10 +87,25 @@ export default function CoursesPage() {
         return parsed;
     };
 
+    const parsedMinPrice = parseOptionalNumber(priceMinInput);
+    const parsedMaxPrice = parseOptionalNumber(priceMaxInput);
+    const sliderMinValue = clamp(
+        parsedMinPrice ?? priceBoundMin,
+        priceBoundMin,
+        parsedMaxPrice ?? priceBoundMax,
+    );
+    const sliderMaxValue = clamp(
+        parsedMaxPrice ?? priceBoundMax,
+        sliderMinValue,
+        priceBoundMax,
+    );
+    const sliderLeftPercent = ((sliderMinValue - priceBoundMin) / (priceBoundMax - priceBoundMin)) * 100;
+    const sliderWidthPercent = ((sliderMaxValue - sliderMinValue) / (priceBoundMax - priceBoundMin)) * 100;
+
     const applyFilters = async (
         overrides?: {
             categoryId?: number;
-            levelId?: number;
+            levelIds?: number[];
             priceMin?: string;
             priceMax?: string;
             page?: number;
@@ -85,9 +114,9 @@ export default function CoursesPage() {
         const categoryId = overrides && 'categoryId' in overrides
             ? overrides.categoryId
             : selectedCategoryId;
-        const levelId = overrides && 'levelId' in overrides
-            ? overrides.levelId
-            : selectedLevelId;
+        const levelIds = overrides && 'levelIds' in overrides
+            ? (overrides.levelIds ?? [])
+            : selectedLevelIds;
         const priceMinRaw = overrides && 'priceMin' in overrides
             ? (overrides.priceMin ?? '')
             : priceMinInput;
@@ -100,7 +129,7 @@ export default function CoursesPage() {
 
         if (
             categoryId === undefined
-            && levelId === undefined
+            && levelIds.length === 0
             && priceMin === undefined
             && priceMax === undefined
         ) {
@@ -114,7 +143,7 @@ export default function CoursesPage() {
             new CourseFilterRequest(
                 categoryId,
                 undefined,
-                levelId,
+                levelIds[0],
                 priceMin,
                 priceMax,
                 undefined,
@@ -199,7 +228,7 @@ export default function CoursesPage() {
                                             className="text-xs"
                                             onClick={async () => {
                                                 setSelectedCategoryId(undefined);
-                                                setSelectedLevelId(undefined);
+                                                setSelectedLevelIds([]);
                                                 setPriceMinInput('');
                                                 setPriceMaxInput('');
                                                 setPage(1);
@@ -232,16 +261,18 @@ export default function CoursesPage() {
                                             {levels.map((levelItem, index) => (
                                                 <label key={levelItem.label ?? index} className="flex items-center justify-between text-sm text-muted-foreground">
                                                     <span className="flex items-center gap-2">
-                                                        <input
-                                                            type="checkbox"
-                                                            className="h-4 w-4 rounded border-border"
-                                                            checked={selectedLevelId === levelItem.value}
-                                                            onChange={async () => {
-                                                                const nextLevelId = selectedLevelId === levelItem.value
-                                                                    ? undefined
-                                                                    : levelItem.value;
-                                                                setSelectedLevelId(nextLevelId);
-                                                                await applyFilters({ levelId: nextLevelId, page: 1 });
+                                                        <AppCheckBox
+                                                            checked={levelItem.value !== undefined && selectedLevelIds.includes(levelItem.value)}
+                                                            onCheckedChange={async () => {
+                                                                if (levelItem.value === undefined) {
+                                                                    return;
+                                                                }
+
+                                                                const nextLevelIds = selectedLevelIds.includes(levelItem.value)
+                                                                    ? selectedLevelIds.filter((id) => id !== levelItem.value)
+                                                                    : [...selectedLevelIds, levelItem.value];
+                                                                setSelectedLevelIds(nextLevelIds);
+                                                                await applyFilters({ levelIds: nextLevelIds, page: 1 });
                                                             }}
                                                         />
                                                         {levelItem.label ?? ''}
@@ -283,7 +314,7 @@ export default function CoursesPage() {
                                             {durationFilters.map((item) => (
                                                 <label key={item} className="flex items-center justify-between text-sm text-muted-foreground">
                                                     <span className="flex items-center gap-2">
-                                                        <input type="checkbox" className="h-4 w-4 rounded border-border" />
+                                                        <AppCheckBox />
                                                         {item}
                                                     </span>
                                                     <span className="text-xs text-muted-foreground/70">6</span>
@@ -298,24 +329,77 @@ export default function CoursesPage() {
                                             <Input
                                                 placeholder={formatPricePlaceholder(filterProps?.price?.min, "Từ giá thấp")}
                                                 value={priceMinInput}
-                                                onChange={(event) => setPriceMinInput(event.target.value)}
+                                                onChange={(event) => setPriceMinInput(sanitizeNumberInput(event.target.value))}
                                                 onBlur={async () => {
                                                     await applyFilters({ page: 1 });
+                                                }}
+                                                onKeyDown={async (event) => {
+                                                    if (event.key === 'Enter') {
+                                                        await applyFilters({ page: 1 });
+                                                    }
                                                 }}
                                                 className="h-9 text-xs"
                                             />
                                             <Input
                                                 placeholder={formatPricePlaceholder(filterProps?.price?.max, "Đến giá cao")}
                                                 value={priceMaxInput}
-                                                onChange={(event) => setPriceMaxInput(event.target.value)}
+                                                onChange={(event) => setPriceMaxInput(sanitizeNumberInput(event.target.value))}
                                                 onBlur={async () => {
                                                     await applyFilters({ page: 1 });
+                                                }}
+                                                onKeyDown={async (event) => {
+                                                    if (event.key === 'Enter') {
+                                                        await applyFilters({ page: 1 });
+                                                    }
                                                 }}
                                                 className="h-9 text-xs"
                                             />
                                         </div>
-                                        <div className="mt-3 h-1.5 rounded-full bg-muted">
-                                            <div className="h-1.5 w-2/3 rounded-full bg-primary/70"></div>
+                                        <div className="relative mt-3 h-6">
+                                            <div className="absolute left-0 right-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-muted"></div>
+                                            <div
+                                                className="absolute top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-primary/70"
+                                                style={{
+                                                    left: `${sliderLeftPercent}%`,
+                                                    width: `${sliderWidthPercent}%`,
+                                                }}
+                                            ></div>
+                                            <input
+                                                type="range"
+                                                min={priceBoundMin}
+                                                max={priceBoundMax}
+                                                value={sliderMinValue}
+                                                onChange={(event) => {
+                                                    const nextValue = Number.parseInt(event.target.value, 10);
+                                                    const nextMin = Math.min(nextValue, sliderMaxValue);
+                                                    setPriceMinInput(String(nextMin));
+                                                }}
+                                                onMouseUp={async () => {
+                                                    await applyFilters({ page: 1 });
+                                                }}
+                                                onTouchEnd={async () => {
+                                                    await applyFilters({ page: 1 });
+                                                }}
+                                                className="pointer-events-none absolute left-0 top-0 h-6 w-full appearance-none bg-transparent [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border [&::-webkit-slider-thumb]:border-primary/70 [&::-webkit-slider-thumb]:bg-white"
+                                            />
+                                            <input
+                                                type="range"
+                                                min={priceBoundMin}
+                                                max={priceBoundMax}
+                                                value={sliderMaxValue}
+                                                onChange={(event) => {
+                                                    const nextValue = Number.parseInt(event.target.value, 10);
+                                                    const nextMax = Math.max(nextValue, sliderMinValue);
+                                                    setPriceMaxInput(String(nextMax));
+                                                }}
+                                                onMouseUp={async () => {
+                                                    await applyFilters({ page: 1 });
+                                                }}
+                                                onTouchEnd={async () => {
+                                                    await applyFilters({ page: 1 });
+                                                }}
+                                                className="pointer-events-none absolute left-0 top-0 h-6 w-full appearance-none bg-transparent [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border [&::-webkit-slider-thumb]:border-primary/70 [&::-webkit-slider-thumb]:bg-white"
+                                            />
                                         </div>
                                     </div>
                                 </CardContent>

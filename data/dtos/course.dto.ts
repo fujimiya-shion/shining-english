@@ -12,12 +12,6 @@ export class CourseFilterCategoryResponse {
   course_count?: number;
 }
 
-export class CourseFilterStatusResponse {
-  value?: boolean;
-  label?: string;
-  count?: number;
-}
-
 export class CourseFilterLevelResponse {
   value?: number;
   label?: string;
@@ -36,9 +30,6 @@ export class CourseFilterResponse {
 
   @Type(() => CourseFilterRangeResponse)
   learned?: CourseFilterRangeResponse;
-
-  @Type(() => CourseFilterStatusResponse)
-  statuses?: CourseFilterStatusResponse[];
 
   @Type(() => CourseFilterLevelResponse)
   levels?: CourseFilterLevelResponse[];
