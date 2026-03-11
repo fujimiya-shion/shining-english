@@ -21,6 +21,15 @@ function buildCourseDescription(course: Course): string {
 const getCourseBySlug = cache(async (slug: string): Promise<Course | null> => {
   const repository = resolveServer<ICourseRepository>(IOC_TOKENS.COURSE_REPOSITORY)
   const result = await repository.getBySlug(slug)
+
+  if (result.exception) {
+    if (result.exception.httpStatus === 404) {
+      return null
+    }
+
+    throw result.exception
+  }
+
   return result.response?.data ?? null
 })
 
