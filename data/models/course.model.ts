@@ -1,5 +1,6 @@
 import { Expose, Type } from "class-transformer";
 import { BaseModel } from "./base.model";
+import { CourseReview, SerializedCourseReview } from "./course-review.model";
 import { Serializable } from "./serializable.model";
 import { Lesson, SerializedLesson } from "./lesson.model";
 
@@ -21,6 +22,7 @@ export type SerializedCourse = {
     id?: number | string;
     name?: string;
   };
+  reviews: SerializedCourseReview[];
   lessons: SerializedLesson[];
 };
 
@@ -61,6 +63,9 @@ export class Course extends BaseModel implements Serializable<SerializedCourse> 
   @Type(() => Lesson)
   lessons?: Lesson[];
 
+  @Type(() => CourseReview)
+  reviews?: CourseReview[];
+
   serialize(): SerializedCourse {
     return {
       id: this.id,
@@ -84,6 +89,7 @@ export class Course extends BaseModel implements Serializable<SerializedCourse> 
             name: this.level.name,
           }
         : undefined,
+      reviews: (this.reviews ?? []).map((review) => review.serialize()),
       lessons: (this.lessons ?? []).map((lesson) => lesson.serialize()),
     };
   }

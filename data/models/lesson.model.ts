@@ -1,5 +1,6 @@
-import { Expose } from "class-transformer";
+import { Expose, Type } from "class-transformer";
 import { BaseModel } from "./base.model";
+import { LessonComment, SerializedLessonComment } from "./lesson-comment.model";
 import { Serializable } from "./serializable.model";
 
 export type SerializedLesson = {
@@ -11,6 +12,7 @@ export type SerializedLesson = {
   description?: string;
   durationMinutes?: number;
   hasQuiz?: boolean;
+  comments: SerializedLessonComment[];
 };
 
 export class Lesson extends BaseModel implements Serializable<SerializedLesson> {
@@ -40,6 +42,9 @@ export class Lesson extends BaseModel implements Serializable<SerializedLesson> 
   @Expose({ name: "has_quiz" })
   hasQuiz?: boolean;
 
+  @Type(() => LessonComment)
+  comments?: LessonComment[];
+
   serialize(): SerializedLesson {
     return {
       id: this.id,
@@ -50,6 +55,7 @@ export class Lesson extends BaseModel implements Serializable<SerializedLesson> 
       description: this.description,
       durationMinutes: this.durationMinutes,
       hasQuiz: this.hasQuiz,
+      comments: (this.comments ?? []).map((comment) => comment.serialize()),
     };
   }
 }

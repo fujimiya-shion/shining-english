@@ -14,12 +14,62 @@ interface CourseModule {
   lessons: CourseListItemData[]
 }
 
+interface CourseReviewItem {
+  id: number | string
+  name: string
+  rating: number
+  content: string
+  time: string
+}
+
+interface LessonCommentItem {
+  id: number | string
+  name: string
+  content: string
+  time: string
+}
+
 type CourseLearningPlayerClientProps = {
   course: SerializedCourse
 }
 
 function stripHtml(value: string): string {
   return value.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+}
+
+function formatRelativeTime(value?: string): string {
+  if (!value) {
+    return 'Vừa xong'
+  }
+
+  const time = new Date(value)
+  if (Number.isNaN(time.getTime())) {
+    return 'Vừa xong'
+  }
+
+  const diffMs = Date.now() - time.getTime()
+  const minute = 60_000
+  const hour = 60 * minute
+  const day = 24 * hour
+  const month = 30 * day
+
+  if (diffMs < hour) {
+    const minutes = Math.max(1, Math.floor(diffMs / minute))
+    return `${minutes} phút trước`
+  }
+
+  if (diffMs < day) {
+    const hours = Math.floor(diffMs / hour)
+    return `${hours} giờ trước`
+  }
+
+  if (diffMs < month) {
+    const days = Math.floor(diffMs / day)
+    return `${days} ngày trước`
+  }
+
+  const months = Math.floor(diffMs / month)
+  return `${months} tháng trước`
 }
 
 export function CourseLearningPlayerClient({ course }: CourseLearningPlayerClientProps) {
@@ -31,6 +81,7 @@ export function CourseLearningPlayerClient({ course }: CourseLearningPlayerClien
         group: lesson.groupName?.trim() || 'Danh sách bài học',
         description: lesson.description ? stripHtml(lesson.description) : '',
         duration: lesson.durationMinutes,
+        comments: lesson.comments ?? [],
       })),
     [course.lessons]
   )
@@ -89,7 +140,7 @@ export function CourseLearningPlayerClient({ course }: CourseLearningPlayerClien
     instructor: 'Shining English',
     level: course.level?.name ?? 'Tiếng Anh tổng quát',
     rating: course.rating ?? 0,
-    reviewCount: 2453,
+    reviewCount: course.reviews?.length ?? 0,
     students: course.learned ?? 0,
     totalLessons: lessonSources.length,
     totalHours: Number((totalDurationMinutes / 60).toFixed(1)),
@@ -113,50 +164,28 @@ export function CourseLearningPlayerClient({ course }: CourseLearningPlayerClien
     ? (allLessons.filter((l) => l.completed).length / allLessons.length) * 100
     : 0
 
-  const reviews = [
-    {
-      id: 1,
-      name: 'Hà Linh',
-      rating: 5,
-      time: '2 tuần trước',
-      content: 'Bài giảng dễ hiểu, lộ trình rõ ràng. Mình học đều 20 phút mỗi ngày là thấy tiến bộ.',
-    },
-    {
-      id: 2,
-      name: 'Minh Khánh',
-      rating: 4,
-      time: '1 tháng trước',
-      content: 'Ví dụ thực tế, nói đúng lỗi thường gặp nên sửa rất nhanh. Mong thêm phần bài tập nói.',
-    },
-    {
-      id: 3,
-      name: 'Thanh Hương',
-      rating: 5,
-      time: '3 tháng trước',
-      content: 'Học nhẹ nhàng nhưng hiệu quả. Đáng tiền và đáng thời gian.',
-    },
-  ]
+  const reviews = useMemo<CourseReviewItem[]>(
+    () =>
+      (course.reviews ?? []).map((review, index) => ({
+        id: review.id ?? `review-${index}`,
+        name: review.name?.trim() || 'Học viên',
+        rating: review.rating ?? 0,
+        content: review.content?.trim() || 'Đánh giá đang được cập nhật.',
+        time: formatRelativeTime(review.createdAt),
+      })),
+    [course.reviews]
+  )
 
-  const comments = [
-    {
-      id: 1,
-      name: 'Ngọc Anh',
-      time: '3 giờ trước',
-      content: 'Phần “Sentence Structure” có file bài tập không ạ?',
-    },
-    {
-      id: 2,
-      name: 'Tuấn Vũ',
-      time: 'Hôm qua',
-      content: 'Em bị rối phần thì hiện tại hoàn thành, có tip học nhanh không thầy?',
-    },
-    {
-      id: 3,
-      name: 'Mai Phương',
-      time: '2 ngày trước',
-      content: 'Mình follow đúng lộ trình, tuần này nói tự tin hơn thật.',
-    },
-  ]
+  const comments = useMemo<LessonCommentItem[]>(
+    () =>
+      (currentLessonDetail?.comments ?? []).map((comment, index) => ({
+        id: comment.id ?? `comment-${index}`,
+        name: comment.name?.trim() || 'Học viên',
+        content: comment.content?.trim() || 'Bình luận đang được cập nhật.',
+        time: formatRelativeTime(comment.createdAt),
+      })),
+    [currentLessonDetail?.comments]
+  )
 
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }).map((_, index) => (
@@ -346,6 +375,11 @@ export function CourseLearningPlayerClient({ course }: CourseLearningPlayerClien
                 <p className="mt-3 text-sm text-muted-foreground">{review.content}</p>
               </div>
             ))}
+            {reviews.length === 0 ? (
+              <div className="rounded-xl border border-border/60 bg-background p-4 text-sm text-muted-foreground">
+                Chưa có đánh giá cho khóa học này.
+              </div>
+            ) : null}
           </div>
         </div>
 
@@ -375,6 +409,11 @@ export function CourseLearningPlayerClient({ course }: CourseLearningPlayerClien
                 <p className="mt-3 text-sm text-muted-foreground">{comment.content}</p>
               </div>
             ))}
+            {comments.length === 0 ? (
+              <div className="rounded-xl border border-border/60 bg-background p-4 text-sm text-muted-foreground">
+                Bài học này chưa có thảo luận.
+              </div>
+            ) : null}
           </div>
         </div>
       </div>
