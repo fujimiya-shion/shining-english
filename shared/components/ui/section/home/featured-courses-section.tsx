@@ -4,24 +4,15 @@ import { useCallback, useEffect, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import Link from "next/link";
 import { ShoppingCart } from "lucide-react";
+import { Course } from "@/data/models/course.model";
 
 import { CourseCardItem } from "@/shared/components/ui/course/course-card-item";
 import { BannerStarfield } from "@/shared/components/ui/banner/banner-starfield";
 import { AppButton } from "@/shared/components/ui/app-button";
 import { Button } from "@/shared/components/ui/button";
 
-type FeaturedCourse = {
-  id: number;
-  title: string;
-  category: string;
-  price: number;
-  image?: string;
-  rating: number;
-  students: number;
-};
-
 type FeaturedCoursesSectionProps = {
-  courses: FeaturedCourse[];
+  courses: Course[];
   onAddToCart: (courseId: number) => void;
 };
 
@@ -82,25 +73,28 @@ export const FeaturedCoursesSection = ({
                   className="min-w-[14.5rem] shrink-0 basis-[calc(50%-0.5rem)] sm:min-w-[16rem] sm:basis-[55%] md:min-w-[17rem] md:basis-[40%] h-full"
                 >
                   <CourseCardItem
-                    title={course.title}
-                    image={course.image || "/placeholder.svg"}
-                    category={course.category}
+                    title={course.name ?? ''}
+                    image={course.thumbnail || "/placeholder.svg"}
                     rating={course.rating}
-                    students={course.students}
+                    students={course.learned}
                     price={course.price}
                     metaNote="Có phản hồi trực tiếp"
-                    href={`/courses/${course.id}`}
+                    href={`/courses/${course.slug ?? course.id}`}
                     className="h-full"
                     actions={
                       <>
                         <AppButton asChild className="flex-1 rounded-full">
-                          <Link href={`/courses/${course.id}`}>Xem Chi Tiết</Link>
+                          <Link href={`/courses/${course.slug ?? course.id}`}>Xem Chi Tiết</Link>
                         </AppButton>
                         <Button
                           variant="outline"
                           size="icon"
                           className="group rounded-full bg-background hover:bg-background hover:text-foreground hover:border-primary/60"
-                          onClick={() => onAddToCart(course.id)}
+                          onClick={() => {
+                            if (typeof course.id === "number") {
+                              onAddToCart(course.id);
+                            }
+                          }}
                           aria-label="Thêm vào giỏ"
                         >
                           <span className="sr-only">Thêm Vào Giỏ</span>
@@ -117,25 +111,28 @@ export const FeaturedCoursesSection = ({
               {courses.map((course) => (
                 <CourseCardItem
                   key={course.id}
-                  title={course.title}
-                  image={course.image || "/placeholder.svg"}
-                  category={course.category}
+                  title={course.name ?? ''}
+                  image={course.thumbnail || "/placeholder.svg"}
                   rating={course.rating}
-                  students={course.students}
+                  students={course.learned}
                   price={course.price}
                   metaNote="Có phản hồi trực tiếp"
-                  href={`/courses/${course.id}`}
+                  href={`/courses/${course.slug ?? course.id}`}
                   className="h-full"
                   actions={
                     <>
                     <AppButton asChild className="flex-1 rounded-full">
-                      <Link href={`/courses/${course.id}`}>Xem Chi Tiết</Link>
+                      <Link href={`/courses/${course.slug ?? course.id}`}>Xem Chi Tiết</Link>
                     </AppButton>
                     <Button
                       variant="outline"
                       size="icon"
                       className="group rounded-full bg-background hover:bg-background hover:text-foreground hover:border-primary/60"
-                      onClick={() => onAddToCart(course.id)}
+                      onClick={() => {
+                        if (typeof course.id === "number") {
+                          onAddToCart(course.id);
+                        }
+                      }}
                       aria-label="Thêm vào giỏ"
                     >
                       <span className="sr-only">Thêm Vào Giỏ</span>

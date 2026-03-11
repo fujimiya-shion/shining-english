@@ -431,13 +431,13 @@ export default function CoursesPage() {
                                     students={course.learned}
                                     price={course.price}
                                     metaNote="Có phản hồi trực tiếp"
-                                    href={`/courses/${course.id}`}
+                                    href={`/courses/${course.slug ?? course.id}`}
                                     className="shadow-[0_18px_50px_-45px_rgba(15,43,82,0.35)]"
                                     actionLabel="Xem Chi Tiết"
                                     actions={
                                         <>
                                             <AppButton asChild className="flex-1 rounded-full">
-                                                <Link href={`/courses/${course.id}`}>Xem Chi Tiết</Link>
+                                                <Link href={`/courses/${course.slug ?? course.id}`}>Xem Chi Tiết</Link>
                                             </AppButton>
                                             <Button
                                                 variant="outline"

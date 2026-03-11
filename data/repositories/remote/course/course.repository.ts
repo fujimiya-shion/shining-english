@@ -20,6 +20,17 @@ export class CourseRepository extends BaseRepository implements ICourseRepositor
     });
   }
 
+  async getBySlug(slug: string): Promise<ApiResult<ObjectResponse<Course>, ApiException>> {
+    return this.get({
+      url: AppEndpoints.course.detail(slug),
+      map: (raw) =>
+        ObjectResponse.fromApiJson<Course>(
+          raw as Record<string, unknown>,
+          Course,
+        ),
+    });
+  }
+
   async filter(
     request?: CourseFilterRequest,
   ): Promise<ApiResult<PaginationResponse<Course>, ApiException>> {

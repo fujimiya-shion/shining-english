@@ -6,6 +6,7 @@ import { CourseListItem, type CourseListItemData } from '@/shared/components/ui/
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs'
 import { useState } from 'react'
 import { Star } from 'lucide-react'
+import { SerializedCourse } from '@/data/models/course.model'
 
 interface CourseModule {
   id: number
@@ -13,18 +14,27 @@ interface CourseModule {
   lessons: CourseListItemData[]
 }
 
-export function CoursePlayer() {
+type CourseLearningPlayerClientProps = {
+  course: SerializedCourse
+}
+
+function stripHtml(value: string): string {
+  return value.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+}
+
+export function CourseLearningPlayerClient({ course }: CourseLearningPlayerClientProps) {
   const [currentLesson, setCurrentLesson] = useState(1)
   const [notes, setNotes] = useState('')
+  const normalizedDescription = course.description ? stripHtml(course.description) : ''
 
   const courseMeta = {
-    title: 'Nắm Vững Ngữ Pháp Tiếng Anh',
-    subtitle: 'Lộ trình ngắn gọn, dễ hiểu, phù hợp tự học',
+    title: course.name ?? 'Khóa học tiếng Anh',
+    subtitle: normalizedDescription || 'Lộ trình ngắn gọn, dễ hiểu, phù hợp tự học',
     instructor: 'Shining English',
-    level: 'Beginner → Intermediate',
-    rating: 4.8,
+    level: 'Tiếng Anh tổng quát',
+    rating: course.rating ?? 0,
     reviewCount: 2453,
-    students: 10243,
+    students: course.learned ?? 0,
     totalLessons: 24,
     totalHours: 6.5,
   }

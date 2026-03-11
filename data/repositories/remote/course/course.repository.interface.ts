@@ -8,6 +8,7 @@ import { CourseFilterRequest, CourseFilterResponse } from "@/data/dtos/course.dt
 
 export interface ICourseRepository {
   getAll(request?: CommonRequest): Promise<ApiResult<PaginationResponse<Course>, ApiException>>;
+  getBySlug(slug: string): Promise<ApiResult<ObjectResponse<Course>, ApiException>>;
   filter(
     request?: CourseFilterRequest,
   ): Promise<ApiResult<PaginationResponse<Course>, ApiException>>;
