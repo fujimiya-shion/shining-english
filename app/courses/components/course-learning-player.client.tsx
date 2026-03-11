@@ -4,7 +4,7 @@ import { Button } from '@/shared/components/ui/button'
 import { AppButton } from '@/shared/components/ui/app-button'
 import { CourseListItem, type CourseListItemData } from '@/shared/components/ui/course/course-list-item'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Star } from 'lucide-react'
 import { SerializedCourse } from '@/data/models/course.model'
 
@@ -23,16 +23,65 @@ function stripHtml(value: string): string {
 }
 
 export function CourseLearningPlayerClient({ course }: CourseLearningPlayerClientProps) {
-  const lessons: CourseListItemData[] = (course.lessons ?? []).map((lesson, index) => ({
-    id: Number(lesson.id ?? index + 1),
-    title: lesson.name ?? `Bài học ${index + 1}`,
-    duration: undefined,
-    completed: false,
-    locked: false,
-  }))
-  const [currentLesson, setCurrentLesson] = useState(lessons[0]?.id ?? 0)
+  const lessonSources = useMemo(
+    () =>
+      (course.lessons ?? []).map((lesson, index) => ({
+        id: Number(lesson.id ?? index + 1),
+        title: lesson.name ?? `Bài học ${index + 1}`,
+        group: lesson.groupName?.trim() || 'Danh sách bài học',
+        description: lesson.description ? stripHtml(lesson.description) : '',
+        duration: lesson.durationMinutes,
+      })),
+    [course.lessons]
+  )
+
+  const [currentLesson, setCurrentLesson] = useState(lessonSources[0]?.id ?? 0)
+  const [completedLessonIds, setCompletedLessonIds] = useState<number[]>([])
   const [notes, setNotes] = useState('')
   const normalizedDescription = course.description ? stripHtml(course.description) : ''
+
+  const lessonMap = useMemo(() => {
+    const map = new Map<number, (typeof lessonSources)[number]>()
+    for (const lesson of lessonSources) {
+      map.set(lesson.id, lesson)
+    }
+
+    return map
+  }, [lessonSources])
+
+  const modules = useMemo<CourseModule[]>(() => {
+    const grouped = new Map<string, CourseListItemData[]>()
+
+    for (const lesson of lessonSources) {
+      if (!grouped.has(lesson.group)) {
+        grouped.set(lesson.group, [])
+      }
+
+      grouped.get(lesson.group)?.push({
+        id: lesson.id,
+        title: lesson.title,
+        duration: lesson.duration,
+        completed: completedLessonIds.includes(lesson.id),
+        locked: false,
+      })
+    }
+
+    return Array.from(grouped.entries()).map(([title, lessons], index) => ({
+      id: index + 1,
+      title,
+      lessons,
+    }))
+  }, [lessonSources, completedLessonIds])
+
+  const allLessons = modules.flatMap((m) => m.lessons)
+  const lessonIds = allLessons.map((l) => l.id)
+  const currentLessonIndex = lessonIds.findIndex((id) => id === currentLesson)
+  const currentLessonData = allLessons.find((l) => l.id === currentLesson)
+  const currentLessonDetail = currentLesson ? lessonMap.get(currentLesson) : undefined
+
+  const totalDurationMinutes = lessonSources.reduce((total, lesson) => {
+    return total + (lesson.duration ?? 0)
+  }, 0)
 
   const courseMeta = {
     title: course.name ?? 'Khóa học tiếng Anh',
@@ -42,27 +91,16 @@ export function CourseLearningPlayerClient({ course }: CourseLearningPlayerClien
     rating: course.rating ?? 0,
     reviewCount: 2453,
     students: course.learned ?? 0,
-    totalLessons: lessons.length,
-    totalHours: 0,
+    totalLessons: lessonSources.length,
+    totalHours: Number((totalDurationMinutes / 60).toFixed(1)),
   }
 
-  const modules: CourseModule[] = [
-    {
-      id: 1,
-      title: course.category?.name ?? 'Danh sách bài học',
-      lessons,
-    },
-  ]
-
-  const currentLessonData = modules
-    .flatMap((m) => m.lessons)
-    .find((l) => l.id === currentLesson)
-  const lessonIds = modules.flatMap((m) => m.lessons).map((l) => l.id)
-  const currentLessonIndex = lessonIds.findIndex((id) => id === currentLesson)
-
   const handleCompleteLesson = () => {
-    const nextLesson = modules
-      .flatMap((m) => m.lessons)
+    if (currentLesson > 0 && !completedLessonIds.includes(currentLesson)) {
+      setCompletedLessonIds((prev) => [...prev, currentLesson])
+    }
+
+    const nextLesson = allLessons
       .slice(currentLessonIndex + 1)
       .find((l) => !l.locked)
 
@@ -71,7 +109,6 @@ export function CourseLearningPlayerClient({ course }: CourseLearningPlayerClien
     }
   }
 
-  const allLessons = modules.flatMap((m) => m.lessons)
   const progressPercentage = allLessons.length
     ? (allLessons.filter((l) => l.completed).length / allLessons.length) * 100
     : 0
@@ -227,7 +264,9 @@ export function CourseLearningPlayerClient({ course }: CourseLearningPlayerClien
             </TabsList>
             <TabsContent value="overview" className="space-y-4 mt-4">
               <div className="text-sm text-muted-foreground whitespace-pre-line">
-                {normalizedDescription || 'Nội dung tổng quan của khóa học đang được cập nhật.'}
+                {currentLessonDetail?.description ||
+                  normalizedDescription ||
+                  'Nội dung tổng quan của khóa học đang được cập nhật.'}
               </div>
             </TabsContent>
             <TabsContent value="notes" className="space-y-4 mt-4">

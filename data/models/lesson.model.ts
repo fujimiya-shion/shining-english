@@ -7,6 +7,9 @@ export type SerializedLesson = {
   name?: string;
   slug?: string;
   videoUrl?: string;
+  groupName?: string;
+  description?: string;
+  durationMinutes?: number;
   hasQuiz?: boolean;
 };
 
@@ -19,6 +22,14 @@ export class Lesson extends BaseModel implements Serializable<SerializedLesson> 
 
   @Expose({ name: "video_url" })
   videoUrl?: string;
+
+  @Expose({ name: "group_name" })
+  groupName?: string;
+
+  description?: string;
+
+  @Expose({ name: "duration_minutes" })
+  durationMinutes?: number;
 
   @Expose({ name: "star_reward_video" })
   starRewardVideo?: number;
@@ -35,6 +46,9 @@ export class Lesson extends BaseModel implements Serializable<SerializedLesson> 
       name: this.name,
       slug: this.slug,
       videoUrl: this.videoUrl,
+      groupName: this.groupName,
+      description: this.description,
+      durationMinutes: this.durationMinutes,
       hasQuiz: this.hasQuiz,
     };
   }
