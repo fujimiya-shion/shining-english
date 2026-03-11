@@ -5,6 +5,7 @@ import { resolveClient } from "@/shared/ioc/client-container";
 import { IOC_TOKENS } from "@/shared/ioc/tokens";
 import { ICourseRepository } from "@/data/repositories/remote/course/course.repository.interface";
 import { CommonRequest } from "@/data/dtos/common/common-request";
+import { CourseFilterRequest } from "@/data/dtos/course.dto";
 
 export interface CourseStoreProps {
     status: AppStatus;
@@ -22,6 +23,7 @@ export interface CourseStoreState extends CourseStoreProps {
     reset: () => void;
     initial: () => Promise<void>;
     fetchCourses: () => Promise<void>;
+    filterCourses: (request: CourseFilterRequest) => Promise<void>;
 }
 
 export const initState: CourseStoreProps = {
@@ -56,6 +58,32 @@ export const useCourseStore = create<CourseStoreState>((set, get) => ({
         const apiResult = await courseRepo.getAll(
             new CommonRequest(get().page),
         );
+
+        apiResult.when({
+            success: (response) => {
+                set({
+                    status: AppStatus.done,
+                    courses: response.data,
+                    page: response.page,
+                    pageCount: response.pageCount,
+                });
+            },
+            error: () => {
+                set({ status: AppStatus.error });
+            },
+        });
+    },
+
+    filterCourses: async (request) => {
+        if (get().status === AppStatus.loading) {
+            return;
+        }
+
+        set({ status: AppStatus.loading });
+        const courseRepo = resolveClient<ICourseRepository>(
+            IOC_TOKENS.COURSE_REPOSITORY,
+        );
+        const apiResult = await courseRepo.filter(request);
 
         apiResult.when({
             success: (response) => {
