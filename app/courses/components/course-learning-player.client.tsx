@@ -23,7 +23,14 @@ function stripHtml(value: string): string {
 }
 
 export function CourseLearningPlayerClient({ course }: CourseLearningPlayerClientProps) {
-  const [currentLesson, setCurrentLesson] = useState(1)
+  const lessons: CourseListItemData[] = (course.lessons ?? []).map((lesson, index) => ({
+    id: Number(lesson.id ?? index + 1),
+    title: lesson.name ?? `Bài học ${index + 1}`,
+    duration: undefined,
+    completed: false,
+    locked: false,
+  }))
+  const [currentLesson, setCurrentLesson] = useState(lessons[0]?.id ?? 0)
   const [notes, setNotes] = useState('')
   const normalizedDescription = course.description ? stripHtml(course.description) : ''
 
@@ -31,54 +38,43 @@ export function CourseLearningPlayerClient({ course }: CourseLearningPlayerClien
     title: course.name ?? 'Khóa học tiếng Anh',
     subtitle: normalizedDescription || 'Lộ trình ngắn gọn, dễ hiểu, phù hợp tự học',
     instructor: 'Shining English',
-    level: 'Tiếng Anh tổng quát',
+    level: course.level?.name ?? 'Tiếng Anh tổng quát',
     rating: course.rating ?? 0,
     reviewCount: 2453,
     students: course.learned ?? 0,
-    totalLessons: 24,
-    totalHours: 6.5,
+    totalLessons: lessons.length,
+    totalHours: 0,
   }
 
   const modules: CourseModule[] = [
     {
       id: 1,
-      title: 'Fundamentals of English',
-      lessons: [
-        { id: 1, title: 'Welcome & Course Overview', duration: 12, completed: true, locked: false },
-        { id: 2, title: 'Parts of Speech Basics', duration: 18, completed: true, locked: false },
-        { id: 3, title: 'Sentence Structure Essentials', duration: 25, completed: false, locked: false },
-      ],
-    },
-    {
-      id: 2,
-      title: 'Grammar in Depth',
-      lessons: [
-        { id: 4, title: 'Verb Tenses & Conjugation', duration: 30, completed: false, locked: false },
-        { id: 5, title: 'Articles, Prepositions & Pronouns', duration: 35, completed: false, locked: true },
-        { id: 6, title: 'Common Grammar Mistakes', duration: 20, completed: false, locked: true },
-      ],
+      title: course.category?.name ?? 'Danh sách bài học',
+      lessons,
     },
   ]
 
   const currentLessonData = modules
     .flatMap((m) => m.lessons)
     .find((l) => l.id === currentLesson)
+  const lessonIds = modules.flatMap((m) => m.lessons).map((l) => l.id)
+  const currentLessonIndex = lessonIds.findIndex((id) => id === currentLesson)
 
   const handleCompleteLesson = () => {
-    // Mark lesson as completed
     const nextLesson = modules
       .flatMap((m) => m.lessons)
-      .find((l) => l.id > currentLesson && !l.locked)
+      .slice(currentLessonIndex + 1)
+      .find((l) => !l.locked)
 
     if (nextLesson) {
       setCurrentLesson(nextLesson.id)
     }
   }
 
-  const progressPercentage =
-    (modules.flatMap((m) => m.lessons).filter((l) => l.completed).length /
-      modules.flatMap((m) => m.lessons).length) *
-    100
+  const allLessons = modules.flatMap((m) => m.lessons)
+  const progressPercentage = allLessons.length
+    ? (allLessons.filter((l) => l.completed).length / allLessons.length) * 100
+    : 0
 
   const reviews = [
     {
@@ -166,7 +162,7 @@ export function CourseLearningPlayerClient({ course }: CourseLearningPlayerClien
                 </svg>
               </div>
               <p className="mt-4 text-white/90">
-                Video bài học: {currentLessonData?.title}
+                Video bài học: {currentLessonData?.title ?? 'Đang cập nhật'}
               </p>
             </div>
           </div>
@@ -187,8 +183,12 @@ export function CourseLearningPlayerClient({ course }: CourseLearningPlayerClien
                 <span>Giảng viên: {courseMeta.instructor}</span>
                 <span>•</span>
                 <span>{courseMeta.totalLessons} bài học</span>
-                <span>•</span>
-                <span>{courseMeta.totalHours} giờ học</span>
+                {courseMeta.totalHours > 0 ? (
+                  <>
+                    <span>•</span>
+                    <span>{courseMeta.totalHours} giờ học</span>
+                  </>
+                ) : null}
               </div>
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1">{renderStars(courseMeta.rating)}</div>
@@ -211,10 +211,12 @@ export function CourseLearningPlayerClient({ course }: CourseLearningPlayerClien
         {/* Lesson Info */}
         <div className="space-y-4">
           <div>
-            <h2 className="text-2xl font-bold">{currentLessonData?.title}</h2>
-            <p className="text-muted-foreground mt-1">
-              Thời lượng: {currentLessonData?.duration} phút
-            </p>
+            <h2 className="text-2xl font-bold">{currentLessonData?.title ?? courseMeta.title}</h2>
+            {typeof currentLessonData?.duration === 'number' && currentLessonData.duration > 0 ? (
+              <p className="text-muted-foreground mt-1">
+                Thời lượng: {currentLessonData.duration} phút
+              </p>
+            ) : null}
           </div>
 
           <Tabs defaultValue="overview" className="w-full">
@@ -224,14 +226,8 @@ export function CourseLearningPlayerClient({ course }: CourseLearningPlayerClien
               <TabsTrigger value="resources">Tài liệu</TabsTrigger>
             </TabsList>
             <TabsContent value="overview" className="space-y-4 mt-4">
-              <div>
-                <h3 className="font-semibold mb-2">Bạn sẽ học được</h3>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li>• Nắm vững cấu trúc ngữ pháp cốt lõi</li>
-                  <li>• Áp dụng vào nói và viết theo ngữ cảnh thực tế</li>
-                  <li>• Hiểu lỗi sai phổ biến và cách sửa</li>
-                  <li>• Tự tin hơn khi giao tiếp tiếng Anh</li>
-                </ul>
+              <div className="text-sm text-muted-foreground whitespace-pre-line">
+                {normalizedDescription || 'Nội dung tổng quan của khóa học đang được cập nhật.'}
               </div>
             </TabsContent>
             <TabsContent value="notes" className="space-y-4 mt-4">
@@ -267,7 +263,13 @@ export function CourseLearningPlayerClient({ course }: CourseLearningPlayerClien
             <Button
               variant="outline"
               className="flex-1 bg-transparent"
-              disabled={currentLesson === 1}
+              disabled={currentLessonIndex <= 0}
+              onClick={() => {
+                const prevLessonId = lessonIds[currentLessonIndex - 1]
+                if (typeof prevLessonId === 'number') {
+                  setCurrentLesson(prevLessonId)
+                }
+              }}
             >
               Bài trước
             </Button>

@@ -3,7 +3,7 @@ import { CheckCircle2, Lock, Circle } from 'lucide-react'
 export type CourseListItemData = {
   id: number
   title: string
-  duration: number
+  duration?: number
   completed: boolean
   locked: boolean
 }
@@ -39,9 +39,11 @@ export function CourseListItem({ lesson, isActive, onSelect }: CourseListItemPro
         {icon}
         <span className="flex-1 line-clamp-2">{lesson.title}</span>
       </div>
-      <div className="mt-1 ml-6 text-xs text-muted-foreground">
-        {lesson.duration}m
-      </div>
+      {typeof lesson.duration === 'number' && lesson.duration > 0 ? (
+        <div className="mt-1 ml-6 text-xs text-muted-foreground">
+          {lesson.duration}m
+        </div>
+      ) : null}
     </button>
   )
 }
