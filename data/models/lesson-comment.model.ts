@@ -1,19 +1,37 @@
-import { Expose } from 'class-transformer'
+import { Expose, Type } from 'class-transformer'
 import { BaseModel } from './base.model'
 import { Serializable } from './serializable.model'
 
-export type SerializedLessonComment = {
+type SerializedCommentUser = {
   id?: number | string
   name?: string
+  avatar?: string
+}
+
+export type SerializedLessonComment = {
+  id?: number | string
+  userId?: number
+  user?: SerializedCommentUser
   content?: string
   createdAt?: string
+}
+
+class CommentUser {
+  id?: number | string
+  name?: string
+  avatar?: string
 }
 
 export class LessonComment extends BaseModel implements Serializable<SerializedLessonComment> {
   @Expose({ name: 'lesson_id' })
   lessonId?: number
 
-  name?: string
+  @Expose({ name: 'user_id' })
+  userId?: number
+
+  @Type(() => CommentUser)
+  user?: CommentUser
+
   content?: string
 
   serialize(): SerializedLessonComment {
@@ -26,7 +44,14 @@ export class LessonComment extends BaseModel implements Serializable<SerializedL
 
     return {
       id: this.id,
-      name: this.name,
+      userId: this.userId,
+      user: this.user
+        ? {
+            id: this.user.id,
+            name: this.user.name,
+            avatar: this.user.avatar,
+          }
+        : undefined,
       content: this.content,
       createdAt,
     }

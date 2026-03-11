@@ -168,7 +168,7 @@ export function CourseLearningPlayerClient({ course }: CourseLearningPlayerClien
     () =>
       (course.reviews ?? []).map((review, index) => ({
         id: review.id ?? `review-${index}`,
-        name: review.name?.trim() || 'Học viên',
+        name: review.user?.name?.trim() || 'Học viên',
         rating: review.rating ?? 0,
         content: review.content?.trim() || 'Đánh giá đang được cập nhật.',
         time: formatRelativeTime(review.createdAt),
@@ -180,7 +180,7 @@ export function CourseLearningPlayerClient({ course }: CourseLearningPlayerClien
     () =>
       (currentLessonDetail?.comments ?? []).map((comment, index) => ({
         id: comment.id ?? `comment-${index}`,
-        name: comment.name?.trim() || 'Học viên',
+        name: comment.user?.name?.trim() || 'Học viên',
         content: comment.content?.trim() || 'Bình luận đang được cập nhật.',
         time: formatRelativeTime(comment.createdAt),
       })),

@@ -1,19 +1,38 @@
 import { BaseModel } from './base.model'
-import { Expose } from 'class-transformer'
+import { Expose, Type } from 'class-transformer'
 import { Serializable } from './serializable.model'
+
+type SerializedReviewUser = {
+  id?: number | string
+  name?: string
+  avatar?: string
+}
 
 export type SerializedCourseReview = {
   id?: number | string
-  name?: string
+  userId?: number
+  user?: SerializedReviewUser
   rating?: number
   content?: string
   createdAt?: string
 }
 
+class ReviewUser {
+  id?: number | string
+  name?: string
+  avatar?: string
+}
+
 export class CourseReview extends BaseModel implements Serializable<SerializedCourseReview> {
   @Expose({ name: 'course_id' })
   courseId?: number
-  name?: string
+
+  @Expose({ name: 'user_id' })
+  userId?: number
+
+  @Type(() => ReviewUser)
+  user?: ReviewUser
+
   rating?: number
   content?: string
 
@@ -27,7 +46,14 @@ export class CourseReview extends BaseModel implements Serializable<SerializedCo
 
     return {
       id: this.id,
-      name: this.name,
+      userId: this.userId,
+      user: this.user
+        ? {
+            id: this.user.id,
+            name: this.user.name,
+            avatar: this.user.avatar,
+          }
+        : undefined,
       rating: this.rating,
       content: this.content,
       createdAt,
