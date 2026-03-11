@@ -264,9 +264,7 @@ export function CourseLearningPlayerClient({ course }: CourseLearningPlayerClien
             </TabsList>
             <TabsContent value="overview" className="space-y-4 mt-4">
               <div className="text-sm text-muted-foreground whitespace-pre-line">
-                {currentLessonDetail?.description ||
-                  normalizedDescription ||
-                  'Nội dung tổng quan của khóa học đang được cập nhật.'}
+                {currentLessonDetail?.description || 'Nội dung tổng quan của bài học đang được cập nhật.'}
               </div>
             </TabsContent>
             <TabsContent value="notes" className="space-y-4 mt-4">
