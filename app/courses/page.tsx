@@ -15,7 +15,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { AppStatus } from '@/shared/enums/app-status';
 import { Toaster, toast } from 'react-hot-toast';
 import { AppUtils } from '@/shared/utils/app-utils';
-import { CourseFilterRequest } from '@/data/dtos/course.dto';
+import { CourseFilterRequest } from '@/data/dtos/course/course.dto';
 
 const durationFilters = ['< 4 tuần', '4-8 tuần', '> 8 tuần'];
 
@@ -422,42 +422,54 @@ export default function CoursesPage() {
                         </div>
 
                         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-                            {courses.map((course) => (
-                                <CourseCardItem
-                                    key={course.id}
-                                    title={course.name ?? ''}
-                                    image={AppUtils.getStorageUrl(course.thumbnail)}
-                                    rating={course.rating}
-                                    students={course.learned}
-                                    price={course.price}
-                                    metaNote="Có phản hồi trực tiếp"
-                                    href={`/courses/${course.id}`}
-                                    className="shadow-[0_18px_50px_-45px_rgba(15,43,82,0.35)]"
-                                    actionLabel="Xem Chi Tiết"
-                                    actions={
-                                        <>
-                                            <AppButton asChild className="flex-1 rounded-full">
-                                                <Link href={`/courses/${course.id}`}>Xem Chi Tiết</Link>
-                                            </AppButton>
-                                            <Button
-                                                variant="outline"
-                                                size="icon"
-                                                className="group rounded-full bg-background hover:bg-background hover:text-foreground hover:border-primary/60"
-                                                aria-label="Thêm vào giỏ"
-                                            >
-                                                <span className="sr-only">Thêm Vào Giỏ</span>
-                                                <Image
-                                                    src="https://img.icons8.com/ios/50/add-shopping-cart--v1.png"
-                                                    alt=""
-                                                    width={20}
-                                                    height={20}
-                                                    className="h-5 w-5"
-                                                />
-                                            </Button>
-                                        </>
-                                    }
-                                />
-                            ))}
+                            {courses.map((course) => {
+                                const detailHref = course.slug ? `/courses/${course.slug}` : undefined
+
+                                return (
+                                    <CourseCardItem
+                                        key={course.id}
+                                        title={course.name ?? ''}
+                                        image={AppUtils.getStorageUrl(course.thumbnail)}
+                                        rating={course.rating}
+                                        students={course.learned}
+                                        price={course.price}
+                                        metaNote="Có phản hồi trực tiếp"
+                                        href={detailHref}
+                                        className="shadow-[0_18px_50px_-45px_rgba(15,43,82,0.35)]"
+                                        actionLabel="Xem Chi Tiết"
+                                        actions={
+                                            <>
+                                                <AppButton
+                                                    asChild
+                                                    className="flex-1 rounded-full"
+                                                    disabled={!detailHref}
+                                                >
+                                                    {detailHref ? (
+                                                        <Link href={detailHref}>Xem Chi Tiết</Link>
+                                                    ) : (
+                                                        <span>Xem Chi Tiết</span>
+                                                    )}
+                                                </AppButton>
+                                                <Button
+                                                    variant="outline"
+                                                    size="icon"
+                                                    className="group rounded-full bg-background hover:bg-background hover:text-foreground hover:border-primary/60"
+                                                    aria-label="Thêm vào giỏ"
+                                                >
+                                                    <span className="sr-only">Thêm Vào Giỏ</span>
+                                                    <Image
+                                                        src="https://img.icons8.com/ios/50/add-shopping-cart--v1.png"
+                                                        alt=""
+                                                        width={20}
+                                                        height={20}
+                                                        className="h-5 w-5"
+                                                    />
+                                                </Button>
+                                            </>
+                                        }
+                                    />
+                                )
+                            })}
                         </div>
 
                         <div className="flex flex-col items-center justify-between gap-3 rounded-2xl border border-border/70 bg-white/90 px-4 py-4 text-sm text-muted-foreground sm:flex-row">

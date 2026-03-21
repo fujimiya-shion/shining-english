@@ -4,8 +4,9 @@ import { Button } from '@/shared/components/ui/button'
 import { AppButton } from '@/shared/components/ui/app-button'
 import { CourseListItem, type CourseListItemData } from '@/shared/components/ui/course/course-list-item'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs'
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Star } from 'lucide-react'
+import { SerializedCourse } from '@/data/models/course.model'
 
 interface CourseModule {
   id: number
@@ -13,107 +14,209 @@ interface CourseModule {
   lessons: CourseListItemData[]
 }
 
-export function CoursePlayer() {
-  const [currentLesson, setCurrentLesson] = useState(1)
-  const [notes, setNotes] = useState('')
+interface CourseReviewItem {
+  id: number | string
+  name: string
+  rating: number
+  content: string
+  time: string
+}
 
-  const courseMeta = {
-    title: 'Nắm Vững Ngữ Pháp Tiếng Anh',
-    subtitle: 'Lộ trình ngắn gọn, dễ hiểu, phù hợp tự học',
-    instructor: 'Shining English',
-    level: 'Beginner → Intermediate',
-    rating: 4.8,
-    reviewCount: 2453,
-    students: 10243,
-    totalLessons: 24,
-    totalHours: 6.5,
+interface LessonCommentItem {
+  id: number | string
+  name: string
+  content: string
+  time: string
+}
+
+type CourseLearningPlayerClientProps = {
+  course: SerializedCourse
+}
+
+function stripHtml(value: string): string {
+  return value.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+}
+
+function resolveLessonVideoUrl(lessonId?: number | string, value?: string): string {
+  if (!lessonId || !value) {
+    return ''
   }
 
-  const modules: CourseModule[] = [
-    {
-      id: 1,
-      title: 'Fundamentals of English',
-      lessons: [
-        { id: 1, title: 'Welcome & Course Overview', duration: 12, completed: true, locked: false },
-        { id: 2, title: 'Parts of Speech Basics', duration: 18, completed: true, locked: false },
-        { id: 3, title: 'Sentence Structure Essentials', duration: 25, completed: false, locked: false },
-      ],
-    },
-    {
-      id: 2,
-      title: 'Grammar in Depth',
-      lessons: [
-        { id: 4, title: 'Verb Tenses & Conjugation', duration: 30, completed: false, locked: false },
-        { id: 5, title: 'Articles, Prepositions & Pronouns', duration: 35, completed: false, locked: true },
-        { id: 6, title: 'Common Grammar Mistakes', duration: 20, completed: false, locked: true },
-      ],
-    },
-  ]
+  return `/api/proxy/lessons/${lessonId}/video`
+}
 
-  const currentLessonData = modules
-    .flatMap((m) => m.lessons)
-    .find((l) => l.id === currentLesson)
+function formatRelativeTime(value?: string): string {
+  if (!value) {
+    return 'Vừa xong'
+  }
+
+  const time = new Date(value)
+  if (Number.isNaN(time.getTime())) {
+    return 'Vừa xong'
+  }
+
+  const diffMs = Date.now() - time.getTime()
+  const minute = 60_000
+  const hour = 60 * minute
+  const day = 24 * hour
+  const month = 30 * day
+
+  if (diffMs < hour) {
+    const minutes = Math.max(1, Math.floor(diffMs / minute))
+    return `${minutes} phút trước`
+  }
+
+  if (diffMs < day) {
+    const hours = Math.floor(diffMs / hour)
+    return `${hours} giờ trước`
+  }
+
+  if (diffMs < month) {
+    const days = Math.floor(diffMs / day)
+    return `${days} ngày trước`
+  }
+
+  const months = Math.floor(diffMs / month)
+  return `${months} tháng trước`
+}
+
+export function CourseLearningPlayerClient({ course }: CourseLearningPlayerClientProps) {
+  const lessonSources = useMemo(
+    () =>
+      (course.lessons ?? []).map((lesson, index) => ({
+        id: Number(lesson.id ?? index + 1),
+        title: lesson.name ?? `Bài học ${index + 1}`,
+        group: lesson.groupName?.trim() || 'Danh sách bài học',
+        description: lesson.description ? stripHtml(lesson.description) : '',
+        videoUrl: resolveLessonVideoUrl(lesson.id, lesson.videoUrl),
+        duration: lesson.durationMinutes,
+        comments: lesson.comments ?? [],
+      })),
+    [course.lessons]
+  )
+
+  const initialLessonId = useMemo(() => {
+    return lessonSources.find((lesson) => lesson.videoUrl)?.id ?? lessonSources[0]?.id ?? 0
+  }, [lessonSources])
+
+  const [currentLesson, setCurrentLesson] = useState(initialLessonId)
+  const [completedLessonIds, setCompletedLessonIds] = useState<number[]>([])
+  const [unavailableVideoIds, setUnavailableVideoIds] = useState<number[]>([])
+  const [notes, setNotes] = useState('')
+  const normalizedDescription = course.description ? stripHtml(course.description) : ''
+
+  const lessonMap = useMemo(() => {
+    const map = new Map<number, (typeof lessonSources)[number]>()
+    for (const lesson of lessonSources) {
+      map.set(lesson.id, lesson)
+    }
+
+    return map
+  }, [lessonSources])
+
+  useEffect(() => {
+    if (lessonSources.length === 0) {
+      if (currentLesson !== 0) {
+        setCurrentLesson(0)
+      }
+      return
+    }
+
+    if (!lessonMap.has(currentLesson)) {
+      setCurrentLesson(initialLessonId)
+    }
+  }, [currentLesson, initialLessonId, lessonMap, lessonSources.length])
+
+  const modules = useMemo<CourseModule[]>(() => {
+    const grouped = new Map<string, CourseListItemData[]>()
+
+    for (const lesson of lessonSources) {
+      if (!grouped.has(lesson.group)) {
+        grouped.set(lesson.group, [])
+      }
+
+      grouped.get(lesson.group)?.push({
+        id: lesson.id,
+        title: lesson.title,
+        duration: lesson.duration,
+        completed: completedLessonIds.includes(lesson.id),
+        locked: false,
+      })
+    }
+
+    return Array.from(grouped.entries()).map(([title, lessons], index) => ({
+      id: index + 1,
+      title,
+      lessons,
+    }))
+  }, [lessonSources, completedLessonIds])
+
+  const allLessons = modules.flatMap((m) => m.lessons)
+  const lessonIds = allLessons.map((l) => l.id)
+  const currentLessonIndex = lessonIds.findIndex((id) => id === currentLesson)
+  const currentLessonData = allLessons.find((l) => l.id === currentLesson)
+  const currentLessonDetail = currentLesson ? lessonMap.get(currentLesson) : undefined
+  const currentLessonVideoUrl = currentLessonDetail?.videoUrl ?? ''
+  const shouldShowVideo = Boolean(
+    currentLessonVideoUrl && !unavailableVideoIds.includes(currentLesson)
+  )
+
+  const totalDurationMinutes = lessonSources.reduce((total, lesson) => {
+    return total + (lesson.duration ?? 0)
+  }, 0)
+
+  const courseMeta = {
+    title: course.name ?? 'Khóa học tiếng Anh',
+    subtitle: normalizedDescription || 'Lộ trình ngắn gọn, dễ hiểu, phù hợp tự học',
+    instructor: 'Shining English',
+    level: course.level?.name ?? 'Tiếng Anh tổng quát',
+    rating: course.rating ?? 0,
+    reviewCount: course.reviews?.length ?? 0,
+    students: course.learned ?? 0,
+    totalLessons: lessonSources.length,
+    totalHours: Number((totalDurationMinutes / 60).toFixed(1)),
+  }
 
   const handleCompleteLesson = () => {
-    // Mark lesson as completed
-    const nextLesson = modules
-      .flatMap((m) => m.lessons)
-      .find((l) => l.id > currentLesson && !l.locked)
+    if (currentLesson > 0 && !completedLessonIds.includes(currentLesson)) {
+      setCompletedLessonIds((prev) => [...prev, currentLesson])
+    }
+
+    const nextLesson = allLessons
+      .slice(currentLessonIndex + 1)
+      .find((l) => !l.locked)
 
     if (nextLesson) {
       setCurrentLesson(nextLesson.id)
     }
   }
 
-  const progressPercentage =
-    (modules.flatMap((m) => m.lessons).filter((l) => l.completed).length /
-      modules.flatMap((m) => m.lessons).length) *
-    100
+  const progressPercentage = allLessons.length
+    ? (allLessons.filter((l) => l.completed).length / allLessons.length) * 100
+    : 0
 
-  const reviews = [
-    {
-      id: 1,
-      name: 'Hà Linh',
-      rating: 5,
-      time: '2 tuần trước',
-      content: 'Bài giảng dễ hiểu, lộ trình rõ ràng. Mình học đều 20 phút mỗi ngày là thấy tiến bộ.',
-    },
-    {
-      id: 2,
-      name: 'Minh Khánh',
-      rating: 4,
-      time: '1 tháng trước',
-      content: 'Ví dụ thực tế, nói đúng lỗi thường gặp nên sửa rất nhanh. Mong thêm phần bài tập nói.',
-    },
-    {
-      id: 3,
-      name: 'Thanh Hương',
-      rating: 5,
-      time: '3 tháng trước',
-      content: 'Học nhẹ nhàng nhưng hiệu quả. Đáng tiền và đáng thời gian.',
-    },
-  ]
+  const reviews = useMemo<CourseReviewItem[]>(
+    () =>
+      (course.reviews ?? []).map((review, index) => ({
+        id: review.id ?? `review-${index}`,
+        name: review.user?.name?.trim() || 'Học viên',
+        rating: review.rating ?? 0,
+        content: review.content?.trim() || 'Đánh giá đang được cập nhật.',
+        time: formatRelativeTime(review.createdAt),
+      })),
+    [course.reviews]
+  )
 
-  const comments = [
-    {
-      id: 1,
-      name: 'Ngọc Anh',
-      time: '3 giờ trước',
-      content: 'Phần “Sentence Structure” có file bài tập không ạ?',
-    },
-    {
-      id: 2,
-      name: 'Tuấn Vũ',
-      time: 'Hôm qua',
-      content: 'Em bị rối phần thì hiện tại hoàn thành, có tip học nhanh không thầy?',
-    },
-    {
-      id: 3,
-      name: 'Mai Phương',
-      time: '2 ngày trước',
-      content: 'Mình follow đúng lộ trình, tuần này nói tự tin hơn thật.',
-    },
-  ]
+  const comments = useMemo<LessonCommentItem[]>(
+    () =>
+      (currentLessonDetail?.comments ?? []).map((comment, index) => ({
+        id: comment.id ?? `comment-${index}`,
+        name: comment.user?.name?.trim() || 'Học viên',
+        content: comment.content?.trim() || 'Bình luận đang được cập nhật.',
+        time: formatRelativeTime(comment.createdAt),
+      })),
+    [currentLessonDetail?.comments]
+  )
 
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }).map((_, index) => (
@@ -132,33 +235,55 @@ export function CoursePlayer() {
         {/* Video Player */}
         <div className="overflow-hidden rounded-2xl border border-border/60 bg-muted/40">
           <div className="relative aspect-video bg-primary/10 flex items-center justify-center">
-            <div className="absolute inset-0 bg-gradient-to-tr from-black/35 via-black/10 to-transparent"></div>
-            <div className="relative text-center">
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border border-white/40 bg-white/10 backdrop-blur">
-                <svg
-                  className="h-8 w-8 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              </div>
-              <p className="mt-4 text-white/90">
-                Video bài học: {currentLessonData?.title}
-              </p>
-            </div>
+            {shouldShowVideo ? (
+              <video
+                key={currentLesson}
+                className="h-full w-full"
+                controls
+                controlsList="nodownload"
+                preload="metadata"
+                src={currentLessonVideoUrl}
+                onError={() => {
+                  setUnavailableVideoIds((prev) =>
+                    prev.includes(currentLesson) ? prev : [...prev, currentLesson]
+                  )
+                }}
+              >
+                Trình duyệt của bạn không hỗ trợ phát video.
+              </video>
+            ) : (
+              <>
+                <div className="absolute inset-0 bg-gradient-to-tr from-black/35 via-black/10 to-transparent"></div>
+                <div className="relative text-center">
+                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border border-white/40 bg-white/10 backdrop-blur">
+                    <svg
+                      className="h-8 w-8 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.5}
+                        d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.5}
+                        d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </div>
+                  <p className="mt-4 text-white/90">
+                    {currentLessonVideoUrl
+                      ? `Không tải được video: ${currentLessonData?.title ?? 'Đang cập nhật'}`
+                      : `Video bài học: ${currentLessonData?.title ?? 'Đang cập nhật'}`}
+                  </p>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -177,8 +302,12 @@ export function CoursePlayer() {
                 <span>Giảng viên: {courseMeta.instructor}</span>
                 <span>•</span>
                 <span>{courseMeta.totalLessons} bài học</span>
-                <span>•</span>
-                <span>{courseMeta.totalHours} giờ học</span>
+                {courseMeta.totalHours > 0 ? (
+                  <>
+                    <span>•</span>
+                    <span>{courseMeta.totalHours} giờ học</span>
+                  </>
+                ) : null}
               </div>
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1">{renderStars(courseMeta.rating)}</div>
@@ -201,10 +330,12 @@ export function CoursePlayer() {
         {/* Lesson Info */}
         <div className="space-y-4">
           <div>
-            <h2 className="text-2xl font-bold">{currentLessonData?.title}</h2>
-            <p className="text-muted-foreground mt-1">
-              Thời lượng: {currentLessonData?.duration} phút
-            </p>
+            <h2 className="text-2xl font-bold">{currentLessonData?.title ?? courseMeta.title}</h2>
+            {typeof currentLessonData?.duration === 'number' && currentLessonData.duration > 0 ? (
+              <p className="text-muted-foreground mt-1">
+                Thời lượng: {currentLessonData.duration} phút
+              </p>
+            ) : null}
           </div>
 
           <Tabs defaultValue="overview" className="w-full">
@@ -214,14 +345,8 @@ export function CoursePlayer() {
               <TabsTrigger value="resources">Tài liệu</TabsTrigger>
             </TabsList>
             <TabsContent value="overview" className="space-y-4 mt-4">
-              <div>
-                <h3 className="font-semibold mb-2">Bạn sẽ học được</h3>
-                <ul className="space-y-2 text-sm text-muted-foreground">
-                  <li>• Nắm vững cấu trúc ngữ pháp cốt lõi</li>
-                  <li>• Áp dụng vào nói và viết theo ngữ cảnh thực tế</li>
-                  <li>• Hiểu lỗi sai phổ biến và cách sửa</li>
-                  <li>• Tự tin hơn khi giao tiếp tiếng Anh</li>
-                </ul>
+              <div className="text-sm text-muted-foreground whitespace-pre-line">
+                {currentLessonDetail?.description || 'Nội dung tổng quan của bài học đang được cập nhật.'}
               </div>
             </TabsContent>
             <TabsContent value="notes" className="space-y-4 mt-4">
@@ -257,7 +382,13 @@ export function CoursePlayer() {
             <Button
               variant="outline"
               className="flex-1 bg-transparent"
-              disabled={currentLesson === 1}
+              disabled={currentLessonIndex <= 0}
+              onClick={() => {
+                const prevLessonId = lessonIds[currentLessonIndex - 1]
+                if (typeof prevLessonId === 'number') {
+                  setCurrentLesson(prevLessonId)
+                }
+              }}
             >
               Bài trước
             </Button>
@@ -297,6 +428,11 @@ export function CoursePlayer() {
                 <p className="mt-3 text-sm text-muted-foreground">{review.content}</p>
               </div>
             ))}
+            {reviews.length === 0 ? (
+              <div className="rounded-xl border border-border/60 bg-background p-4 text-sm text-muted-foreground">
+                Chưa có đánh giá cho khóa học này.
+              </div>
+            ) : null}
           </div>
         </div>
 
@@ -326,6 +462,11 @@ export function CoursePlayer() {
                 <p className="mt-3 text-sm text-muted-foreground">{comment.content}</p>
               </div>
             ))}
+            {comments.length === 0 ? (
+              <div className="rounded-xl border border-border/60 bg-background p-4 text-sm text-muted-foreground">
+                Bài học này chưa có thảo luận.
+              </div>
+            ) : null}
           </div>
         </div>
       </div>

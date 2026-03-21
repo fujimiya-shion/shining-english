@@ -5,7 +5,7 @@ import { resolveClient } from "@/shared/ioc/client-container";
 import { IOC_TOKENS } from "@/shared/ioc/tokens";
 import { ICourseRepository } from "@/data/repositories/remote/course/course.repository.interface";
 import { CommonRequest } from "@/data/dtos/common/common-request";
-import { CourseFilterRequest } from "@/data/dtos/course.dto";
+import { CourseFilterRequest } from "@/data/dtos/course/course.dto";
 
 export interface CourseStoreProps {
     status: AppStatus;

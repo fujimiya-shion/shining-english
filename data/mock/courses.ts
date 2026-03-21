@@ -1,38 +1,48 @@
-export const mockCourses = [
-    {
+import { Course } from "@/data/models/course.model";
+
+export const mockCourses: Course[] = [
+    Object.assign(new Course(), {
         id: 1,
-        title: 'Nắm Vững Ngữ Pháp Tiếng Anh',
-        category: 'Ngữ Pháp',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        name: 'Nắm Vững Ngữ Pháp Tiếng Anh',
+        slug: 'nam-vung-ngu-phap-tieng-anh',
         price: 790000,
-        image: 'https://cdn.pixabay.com/photo/2020/05/04/19/43/computer-5130405_640.jpg',
+        thumbnail: 'https://cdn.pixabay.com/photo/2020/05/04/19/43/computer-5130405_640.jpg',
         rating: 4.8,
-        students: 2453,
-    },
-    {
+        learned: 2453,
+    }),
+    Object.assign(new Course(), {
         id: 2,
-        title: 'Tiếng Anh Giao Tiếp Nâng Cao',
-        category: 'Giao Tiếp',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        name: 'Tiếng Anh Giao Tiếp Nâng Cao',
+        slug: 'tieng-anh-giao-tiep-nang-cao',
         price: 890000,
-        image: 'https://cdn.pixabay.com/photo/2020/04/18/16/21/online-5059831_1280.jpg',
+        thumbnail: 'https://cdn.pixabay.com/photo/2020/04/18/16/21/online-5059831_1280.jpg',
         rating: 4.9,
-        students: 3102,
-    },
-    {
+        learned: 3102,
+    }),
+    Object.assign(new Course(), {
         id: 3,
-        title: 'Viết Tiếng Anh Chuyên Nghiệp',
-        category: 'Viết Văn',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        name: 'Viết Tiếng Anh Chuyên Nghiệp',
+        slug: 'viet-tieng-anh-chuyen-nghiep',
         price: 990000,
-        image: 'https://cdn.pixabay.com/photo/2021/04/29/16/48/webinar-6216973_1280.jpg',
+        thumbnail: 'https://cdn.pixabay.com/photo/2021/04/29/16/48/webinar-6216973_1280.jpg',
         rating: 4.7,
-        students: 1876,
-    },
-    {
+        learned: 1876,
+    }),
+    Object.assign(new Course(), {
         id: 4,
-        title: 'Luyện Thi IELTS & TOEFL',
-        category: 'Thi Cử',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        name: 'Luyện Thi IELTS & TOEFL',
+        slug: 'luyen-thi-ielts-toefl',
         price: 690000,
-        image: 'https://images.unsplash.com/photo-1758874384070-d8f494b5abcf?fm=jpg&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=60&w=3000',
+        thumbnail: 'https://images.unsplash.com/photo-1758874384070-d8f494b5abcf?fm=jpg&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=60&w=3000',
         rating: 4.6,
-        students: 4521,
-    },
+        learned: 4521,
+    }),
 ];

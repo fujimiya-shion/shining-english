@@ -1,4 +1,7 @@
 export const AppEndpoints = {
+  server: {
+    accessToken: '/access-token'
+  },
   auth: {
     register: "/auth/register",
     login: "/auth/login",
@@ -11,6 +14,7 @@ export const AppEndpoints = {
 
   course: {
     index: "/courses",
+    detail: (slug: string) => `/courses/slug/${encodeURIComponent(slug)}`,
     filter: "/courses/filter",
     filterProps: "/courses/filter-props",
   }

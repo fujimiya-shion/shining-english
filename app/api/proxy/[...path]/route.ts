@@ -1,13 +1,72 @@
 import { NextRequest, NextResponse } from "next/server";
-import { callBackend } from "@/infra/server/backend-http";
-import { getAccessTokenFromCookie } from "@/infra/server/auth-cookie";
+import { callBackend } from "@/infra/backend/http";
+import { getBackendAccessToken } from "@/infra/backend/access-token";
+import {
+  createProxyGuardValue,
+  getProxyGuardCookieMaxAge,
+  PROXY_GUARD_COOKIE_NAME,
+  verifyProxyGuardValue,
+} from "@/infra/security/proxy-guard";
 
 type RouteContext = {
   params?: Promise<{ path?: string[] }> | { path?: string[] };
 };
 
+function applyProxyGuardCookie(response: NextResponse): void {
+  response.cookies.set(PROXY_GUARD_COOKIE_NAME, createProxyGuardValue(), {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: getProxyGuardCookieMaxAge(),
+  });
+}
+
+function buildPassthroughHeaders(sourceHeaders: Headers): Headers {
+  const headers = new Headers();
+
+  for (const [key, value] of sourceHeaders.entries()) {
+    const normalizedKey = key.toLowerCase();
+
+    if (
+      normalizedKey === "content-type" ||
+      normalizedKey === "content-length" ||
+      normalizedKey === "content-disposition" ||
+      normalizedKey === "accept-ranges" ||
+      normalizedKey === "content-range" ||
+      normalizedKey === "cache-control" ||
+      normalizedKey === "etag" ||
+      normalizedKey === "last-modified"
+    ) {
+      headers.set(key, value);
+    }
+  }
+
+  return headers;
+}
+
+function buildUpstreamHeaders(request: NextRequest): Record<string, string> {
+  const headers: Record<string, string> = {};
+  const range = request.headers.get("range");
+  const ifRange = request.headers.get("if-range");
+
+  if (range) {
+    headers.Range = range;
+  }
+
+  if (ifRange) {
+    headers["If-Range"] = ifRange;
+  }
+
+  return headers;
+}
+
 function buildPath(pathSegments: string[]): string {
   return `/${pathSegments.join("/")}`;
+}
+
+function shouldAttachAccessToken(pathSegments: string[]): boolean {
+  return buildPath(pathSegments) !== "/access-token";
 }
 
 async function parseBodyIfNeeded(request: NextRequest, method: string): Promise<unknown> {
@@ -46,7 +105,17 @@ async function handleRequest(
     return NextResponse.json({ message: "Missing backend path" }, { status: 400 });
   }
 
-  const accessToken = await getAccessTokenFromCookie();
+  const verification = verifyProxyGuardValue(
+    request.cookies.get(PROXY_GUARD_COOKIE_NAME)?.value,
+  );
+
+  if (!verification.valid && verification.reason !== "expired") {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
+  const accessToken = shouldAttachAccessToken(pathSegments)
+    ? await getBackendAccessToken()
+    : null;
   const query = request.nextUrl.searchParams;
   let body: unknown;
   try {
@@ -65,6 +134,7 @@ async function handleRequest(
       method,
       path: buildPath(pathSegments),
       query,
+      headers: buildUpstreamHeaders(request),
       body,
       accessToken,
     });
@@ -79,16 +149,25 @@ async function handleRequest(
 
   if (contentType.includes("application/json")) {
     const payload = await upstreamResponse.json();
-    return NextResponse.json(payload, { status: upstreamResponse.status });
+    const response = NextResponse.json(payload, { status: upstreamResponse.status });
+
+    if (verification.shouldRefresh || verification.reason === "expired") {
+      applyProxyGuardCookie(response);
+    }
+
+    return response;
   }
 
-  const text = await upstreamResponse.text();
-  return new NextResponse(text, {
+  const response = new NextResponse(upstreamResponse.body, {
     status: upstreamResponse.status,
-    headers: {
-      "content-type": contentType || "text/plain; charset=utf-8",
-    },
+    headers: buildPassthroughHeaders(upstreamResponse.headers),
   });
+
+  if (verification.shouldRefresh || verification.reason === "expired") {
+    applyProxyGuardCookie(response);
+  }
+
+  return response;
 }
 
 export async function GET(request: NextRequest, context: RouteContext): Promise<NextResponse> {
