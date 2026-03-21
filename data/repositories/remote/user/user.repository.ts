@@ -21,7 +21,7 @@ export class UserRepository extends BaseRepository implements IUserRepository {
         phone,
         password,
       },
-      map: (raw) => ObjectResponse.fromApiJson(raw as Record<string, unknown>),
+      map: (raw) => ObjectResponse.fromApiJson(raw),
     });
   }
 
@@ -45,14 +45,14 @@ export class UserRepository extends BaseRepository implements IUserRepository {
         ip_address: ipAddress,
         user_agent: userAgent,
       },
-      map: (raw) => ObjectResponse.fromApiJson(raw as Record<string, unknown>),
+      map: (raw) => ObjectResponse.fromApiJson(raw),
     });
   }
 
   async getProfile(): Promise<ApiResult<ObjectResponse<User>, ApiException>> {
     return this.get({
       url: AppEndpoints.auth.me,
-      map: (raw) => ObjectResponse.fromApiJson(raw as Record<string, unknown>, User),
+      map: (raw) => ObjectResponse.fromApiJson(raw, User),
     });
   }
 
@@ -62,14 +62,14 @@ export class UserRepository extends BaseRepository implements IUserRepository {
     return this.post({
       url: AppEndpoints.user.update,
       body: data,
-      map: (raw) => ObjectResponse.fromApiJson(raw as Record<string, unknown>, User),
+      map: (raw) => ObjectResponse.fromApiJson(raw, User),
     });
   }
 
   async logout(): Promise<ApiResult<ObjectResponse<unknown>, ApiException>> {
     return this.post({
       url: AppEndpoints.auth.logout,
-      map: (raw) => ObjectResponse.fromApiJson(raw as Record<string, unknown>),
+      map: (raw) => ObjectResponse.fromApiJson(raw),
     });
   }
 

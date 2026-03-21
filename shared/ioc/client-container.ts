@@ -1,4 +1,4 @@
-import { BrowserProxyHttpClient } from "@/infra/http/browser-proxy-http.client";
+import { ClientSideHttpClient } from "@/infra/http/client-side-http.client";
 import { UserRepository } from "@/data/repositories/remote/user/user.repository";
 import { IUserRepository } from "@/data/repositories/remote/user/user.repository.interface";
 import { IoCContainer } from "./ioc-container";
@@ -12,13 +12,14 @@ function buildClientContainer(): IoCContainer {
   const container = new IoCContainer();
   container.bind<IUserRepository>(
     IOC_TOKENS.USER_REPOSITORY,
-    () => new UserRepository(new BrowserProxyHttpClient()),
+    () => new UserRepository(new ClientSideHttpClient()),
   );
 
   container.bind<ICourseRepository>(
     IOC_TOKENS.COURSE_REPOSITORY,
-    () => new CourseRepository(new BrowserProxyHttpClient()),
-  )
+    () => new CourseRepository(new ClientSideHttpClient()),
+  );
+
   return container;
 }
 

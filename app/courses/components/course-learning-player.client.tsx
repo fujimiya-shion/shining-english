@@ -4,7 +4,7 @@ import { Button } from '@/shared/components/ui/button'
 import { AppButton } from '@/shared/components/ui/app-button'
 import { CourseListItem, type CourseListItemData } from '@/shared/components/ui/course/course-list-item'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Star } from 'lucide-react'
 import { SerializedCourse } from '@/data/models/course.model'
 
@@ -35,6 +35,14 @@ type CourseLearningPlayerClientProps = {
 
 function stripHtml(value: string): string {
   return value.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+}
+
+function resolveLessonVideoUrl(lessonId?: number | string, value?: string): string {
+  if (!lessonId || !value) {
+    return ''
+  }
+
+  return `/api/proxy/lessons/${lessonId}/video`
 }
 
 function formatRelativeTime(value?: string): string {
@@ -80,14 +88,20 @@ export function CourseLearningPlayerClient({ course }: CourseLearningPlayerClien
         title: lesson.name ?? `Bài học ${index + 1}`,
         group: lesson.groupName?.trim() || 'Danh sách bài học',
         description: lesson.description ? stripHtml(lesson.description) : '',
+        videoUrl: resolveLessonVideoUrl(lesson.id, lesson.videoUrl),
         duration: lesson.durationMinutes,
         comments: lesson.comments ?? [],
       })),
     [course.lessons]
   )
 
-  const [currentLesson, setCurrentLesson] = useState(lessonSources[0]?.id ?? 0)
+  const initialLessonId = useMemo(() => {
+    return lessonSources.find((lesson) => lesson.videoUrl)?.id ?? lessonSources[0]?.id ?? 0
+  }, [lessonSources])
+
+  const [currentLesson, setCurrentLesson] = useState(initialLessonId)
   const [completedLessonIds, setCompletedLessonIds] = useState<number[]>([])
+  const [unavailableVideoIds, setUnavailableVideoIds] = useState<number[]>([])
   const [notes, setNotes] = useState('')
   const normalizedDescription = course.description ? stripHtml(course.description) : ''
 
@@ -99,6 +113,19 @@ export function CourseLearningPlayerClient({ course }: CourseLearningPlayerClien
 
     return map
   }, [lessonSources])
+
+  useEffect(() => {
+    if (lessonSources.length === 0) {
+      if (currentLesson !== 0) {
+        setCurrentLesson(0)
+      }
+      return
+    }
+
+    if (!lessonMap.has(currentLesson)) {
+      setCurrentLesson(initialLessonId)
+    }
+  }, [currentLesson, initialLessonId, lessonMap, lessonSources.length])
 
   const modules = useMemo<CourseModule[]>(() => {
     const grouped = new Map<string, CourseListItemData[]>()
@@ -129,6 +156,10 @@ export function CourseLearningPlayerClient({ course }: CourseLearningPlayerClien
   const currentLessonIndex = lessonIds.findIndex((id) => id === currentLesson)
   const currentLessonData = allLessons.find((l) => l.id === currentLesson)
   const currentLessonDetail = currentLesson ? lessonMap.get(currentLesson) : undefined
+  const currentLessonVideoUrl = currentLessonDetail?.videoUrl ?? ''
+  const shouldShowVideo = Boolean(
+    currentLessonVideoUrl && !unavailableVideoIds.includes(currentLesson)
+  )
 
   const totalDurationMinutes = lessonSources.reduce((total, lesson) => {
     return total + (lesson.duration ?? 0)
@@ -204,33 +235,55 @@ export function CourseLearningPlayerClient({ course }: CourseLearningPlayerClien
         {/* Video Player */}
         <div className="overflow-hidden rounded-2xl border border-border/60 bg-muted/40">
           <div className="relative aspect-video bg-primary/10 flex items-center justify-center">
-            <div className="absolute inset-0 bg-gradient-to-tr from-black/35 via-black/10 to-transparent"></div>
-            <div className="relative text-center">
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border border-white/40 bg-white/10 backdrop-blur">
-                <svg
-                  className="h-8 w-8 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-              </div>
-              <p className="mt-4 text-white/90">
-                Video bài học: {currentLessonData?.title ?? 'Đang cập nhật'}
-              </p>
-            </div>
+            {shouldShowVideo ? (
+              <video
+                key={currentLesson}
+                className="h-full w-full"
+                controls
+                controlsList="nodownload"
+                preload="metadata"
+                src={currentLessonVideoUrl}
+                onError={() => {
+                  setUnavailableVideoIds((prev) =>
+                    prev.includes(currentLesson) ? prev : [...prev, currentLesson]
+                  )
+                }}
+              >
+                Trình duyệt của bạn không hỗ trợ phát video.
+              </video>
+            ) : (
+              <>
+                <div className="absolute inset-0 bg-gradient-to-tr from-black/35 via-black/10 to-transparent"></div>
+                <div className="relative text-center">
+                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border border-white/40 bg-white/10 backdrop-blur">
+                    <svg
+                      className="h-8 w-8 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.5}
+                        d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={1.5}
+                        d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </div>
+                  <p className="mt-4 text-white/90">
+                    {currentLessonVideoUrl
+                      ? `Không tải được video: ${currentLessonData?.title ?? 'Đang cập nhật'}`
+                      : `Video bài học: ${currentLessonData?.title ?? 'Đang cập nhật'}`}
+                  </p>
+                </div>
+              </>
+            )}
           </div>
         </div>
 

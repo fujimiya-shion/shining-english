@@ -15,7 +15,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { AppStatus } from '@/shared/enums/app-status';
 import { Toaster, toast } from 'react-hot-toast';
 import { AppUtils } from '@/shared/utils/app-utils';
-import { CourseFilterRequest } from '@/data/dtos/course.dto';
+import { CourseFilterRequest } from '@/data/dtos/course/course.dto';
 
 const durationFilters = ['< 4 tuần', '4-8 tuần', '> 8 tuần'];
 

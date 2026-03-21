@@ -1,4 +1,7 @@
 export const AppEndpoints = {
+  server: {
+    accessToken: '/access-token'
+  },
   auth: {
     register: "/auth/register",
     login: "/auth/login",

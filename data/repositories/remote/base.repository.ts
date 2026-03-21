@@ -3,7 +3,7 @@ import { ApiResult } from "@/data/types/api-result";
 import { ObjectResponse } from "@/data/dtos/common/object-response";
 import { HttpClient, QueryValue } from "@/infra/http/http-client";
 
-type MapResponse<TResponse> = (data: unknown) => TResponse;
+type MapResponse<TResponse> = (data: Record<string, unknown>) => TResponse;
 
 type RequestOptions<TResponse, TBody = unknown> = {
   url: string;
@@ -62,9 +62,18 @@ export abstract class BaseRepository {
       }
 
       try {
-        const response = options.map
-          ? options.map(normalizedRaw)
-          : (normalizedRaw as TResponse);
+        if (options.map) {
+          if (!isRecord(normalizedRaw)) {
+            return new ApiResult<TResponse, ApiException>(
+              undefined,
+              ApiException.fromUnknown(new Error("Expected object response payload.")),
+            );
+          }
+
+          return new ApiResult<TResponse, ApiException>(options.map(normalizedRaw));
+        }
+
+        const response = normalizedRaw as TResponse;
         return new ApiResult<TResponse, ApiException>(response);
       } catch (error) {
         return new ApiResult<TResponse, ApiException>(undefined, ApiException.fromUnknown(error));
@@ -95,9 +104,18 @@ export abstract class BaseRepository {
       }
 
       try {
-        const response = options.map
-          ? options.map(normalizedRaw)
-          : (normalizedRaw as TResponse);
+        if (options.map) {
+          if (!isRecord(normalizedRaw)) {
+            return new ApiResult<TResponse, ApiException>(
+              undefined,
+              ApiException.fromUnknown(new Error("Expected object response payload.")),
+            );
+          }
+
+          return new ApiResult<TResponse, ApiException>(options.map(normalizedRaw));
+        }
+
+        const response = normalizedRaw as TResponse;
         return new ApiResult<TResponse, ApiException>(response);
       } catch (error) {
         return new ApiResult<TResponse, ApiException>(undefined, ApiException.fromUnknown(error));
@@ -128,9 +146,18 @@ export abstract class BaseRepository {
       }
 
       try {
-        const response = options.map
-          ? options.map(normalizedRaw)
-          : (normalizedRaw as TResponse);
+        if (options.map) {
+          if (!isRecord(normalizedRaw)) {
+            return new ApiResult<TResponse, ApiException>(
+              undefined,
+              ApiException.fromUnknown(new Error("Expected object response payload.")),
+            );
+          }
+
+          return new ApiResult<TResponse, ApiException>(options.map(normalizedRaw));
+        }
+
+        const response = normalizedRaw as TResponse;
         return new ApiResult<TResponse, ApiException>(response);
       } catch (error) {
         return new ApiResult<TResponse, ApiException>(undefined, ApiException.fromUnknown(error));
@@ -161,9 +188,18 @@ export abstract class BaseRepository {
       }
 
       try {
-        const response = options.map
-          ? options.map(normalizedRaw)
-          : (normalizedRaw as TResponse);
+        if (options.map) {
+          if (!isRecord(normalizedRaw)) {
+            return new ApiResult<TResponse, ApiException>(
+              undefined,
+              ApiException.fromUnknown(new Error("Expected object response payload.")),
+            );
+          }
+
+          return new ApiResult<TResponse, ApiException>(options.map(normalizedRaw));
+        }
+
+        const response = normalizedRaw as TResponse;
         return new ApiResult<TResponse, ApiException>(response);
       } catch (error) {
         return new ApiResult<TResponse, ApiException>(undefined, ApiException.fromUnknown(error));
@@ -193,9 +229,18 @@ export abstract class BaseRepository {
       }
 
       try {
-        const response = options.map
-          ? options.map(normalizedRaw)
-          : (normalizedRaw as TResponse);
+        if (options.map) {
+          if (!isRecord(normalizedRaw)) {
+            return new ApiResult<TResponse, ApiException>(
+              undefined,
+              ApiException.fromUnknown(new Error("Expected object response payload.")),
+            );
+          }
+
+          return new ApiResult<TResponse, ApiException>(options.map(normalizedRaw));
+        }
+
+        const response = normalizedRaw as TResponse;
         return new ApiResult<TResponse, ApiException>(response);
       } catch (error) {
         return new ApiResult<TResponse, ApiException>(undefined, ApiException.fromUnknown(error));

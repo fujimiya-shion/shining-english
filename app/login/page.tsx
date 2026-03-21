@@ -20,6 +20,18 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const userAgentPlatform = (
+    navigator as Navigator & { userAgentData?: { platform?: string } }
+  ).userAgentData?.platform
+
+  const buildLoginPayload = () => ({
+    email,
+    password,
+    device_identifier: `web-${crypto.randomUUID()}`,
+    device_name: 'Web Browser',
+    platform: userAgentPlatform ?? navigator.platform ?? 'web',
+    user_agent: navigator.userAgent,
+  })
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -27,12 +39,12 @@ export default function LoginPage() {
     setIsSubmitting(true)
 
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch('/api/proxy/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(buildLoginPayload()),
       })
 
       const payload = (await response.json()) as { message?: string }

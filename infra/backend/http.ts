@@ -57,7 +57,7 @@ export async function callBackend(options: BackendRequestOptions): Promise<Respo
   };
 
   if (options.accessToken) {
-    headers["User-Authorization"] = options.accessToken;
+    headers["Authorization"] = options.accessToken;
   }
 
   const hasBody = options.body !== undefined && options.body !== null;

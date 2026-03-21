@@ -35,7 +35,7 @@ function buildBody(body: unknown): BodyInit | undefined {
   return JSON.stringify(body);
 }
 
-export class BrowserProxyHttpClient implements HttpClient {
+export class ClientSideHttpClient implements HttpClient {
   async request<TResponse = unknown, TBody = unknown>(
     config: HttpRequestConfig<TBody>,
   ): Promise<TResponse> {
@@ -44,14 +44,11 @@ export class BrowserProxyHttpClient implements HttpClient {
       ...config.headers,
     };
 
-    
     if (!isFormData(rawBody)) {
       headers["Content-Type"] = headers["Content-Type"] ?? "application/json";
     }
-    
-    const proxyUrl = buildProxyUrl(config.url, config.query);
 
-    const response = await fetch(proxyUrl, {
+    const response = await fetch(buildProxyUrl(config.url, config.query), {
       method: config.method ?? "GET",
       headers,
       body: buildBody(rawBody),

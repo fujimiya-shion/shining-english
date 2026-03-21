@@ -3,7 +3,7 @@ import { AppStatus } from "@/shared/enums/app-status";
 import { resolveClient } from "@/shared/ioc/client-container";
 import { IOC_TOKENS } from "@/shared/ioc/tokens";
 import { ICourseRepository } from "@/data/repositories/remote/course/course.repository.interface";
-import { CourseFilterResponse } from "@/data/dtos/course.dto";
+import { CourseFilterResponse } from "@/data/dtos/course/course.dto";
 
 export interface CourseFilterStoreProps {
   status: AppStatus;

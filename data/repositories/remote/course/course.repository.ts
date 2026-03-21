@@ -7,7 +7,7 @@ import { CommonRequest } from "@/data/dtos/common/common-request";
 import { ApiException } from "@/data/types/api-exception";
 import { ApiResult } from "@/data/types/api-result";
 import { ObjectResponse } from "@/data/dtos/common/object-response";
-import { CourseFilterRequest, CourseFilterResponse } from "@/data/dtos/course.dto";
+import { CourseFilterRequest, CourseFilterResponse } from "@/data/dtos/course/course.dto";
 
 export class CourseRepository extends BaseRepository implements ICourseRepository {
   async getAll(
@@ -16,7 +16,7 @@ export class CourseRepository extends BaseRepository implements ICourseRepositor
     return this.get({
       url: AppEndpoints.course.index,
       query: request?.toParameters(),
-      map: (raw) => PaginationResponse.fromJson(raw as Record<string, unknown>, Course),
+      map: (raw) => PaginationResponse.fromJson(raw, Course),
     });
   }
 
@@ -24,10 +24,7 @@ export class CourseRepository extends BaseRepository implements ICourseRepositor
     return this.get({
       url: AppEndpoints.course.detail(slug),
       map: (raw) =>
-        ObjectResponse.fromApiJson<Course>(
-          raw as Record<string, unknown>,
-          Course,
-        ),
+        ObjectResponse.fromApiJson<Course>(raw, Course),
     });
   }
 
@@ -37,7 +34,7 @@ export class CourseRepository extends BaseRepository implements ICourseRepositor
     return this.get({
       url: AppEndpoints.course.filter,
       query: request?.toParameters(),
-      map: (raw) => PaginationResponse.fromJson(raw as Record<string, unknown>, Course),
+      map: (raw) => PaginationResponse.fromJson(raw, Course),
     });
   }
 
@@ -45,10 +42,7 @@ export class CourseRepository extends BaseRepository implements ICourseRepositor
     return this.get({
       url: AppEndpoints.course.filterProps,
       map: (raw) =>
-        ObjectResponse.fromApiJson<CourseFilterResponse>(
-          raw as Record<string, unknown>,
-          CourseFilterResponse,
-        ),
+        ObjectResponse.fromApiJson<CourseFilterResponse>(raw, CourseFilterResponse),
     });
   }
 }
