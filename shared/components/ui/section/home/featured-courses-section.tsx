@@ -7,7 +7,7 @@ import { ShoppingCart } from "lucide-react";
 import { Course } from "@/data/models/course.model";
 
 import { CourseCardItem } from "@/shared/components/ui/course/course-card-item";
-import { BannerStarfield } from "@/shared/components/ui/banner/banner-starfield";
+import { BannerStarfieldStatic } from "@/shared/components/ui/banner/banner-starfield-static";
 import { AppButton } from "@/shared/components/ui/app-button";
 import { Button } from "@/shared/components/ui/button";
 
@@ -54,7 +54,7 @@ export const FeaturedCoursesSection = ({
       data-animate="stagger"
     >
       <div className="absolute inset-0">
-        <BannerStarfield />
+        <BannerStarfieldStatic />
         <div className="absolute inset-0 bg-linear-to-br from-(--brand-950)/70 via-(--brand-925)/45 to-(--brand-750)/25"></div>
       </div>
       <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">

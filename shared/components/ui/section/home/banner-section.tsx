@@ -1,6 +1,6 @@
 "use client";
 
-import { BannerStarfield } from "@/shared/components/ui/banner/banner-starfield";
+import { BannerStarfieldStatic } from "@/shared/components/ui/banner/banner-starfield-static";
 import { AppButton } from "@/shared/components/ui/app-button";
 import { Button } from "@/shared/components/ui/button";
 import { Award, BookOpen, Clock } from "lucide-react";
@@ -10,7 +10,7 @@ export const BannerSection = () => {
     return (
         <section className="relative h-112.5 overflow-hidden border-b border-border flex items-end md:items-center">
             <div className="absolute inset-0">
-                <BannerStarfield />
+                <BannerStarfieldStatic />
                 <div className="absolute inset-0 bg-linear-to-r from-(--brand-950)/90 via-(--brand-925)/60 to-transparent"></div>
                 <div className="pointer-events-none absolute -right-16 top-10 h-48 w-48 rounded-full border border-white/15 bg-white/5 blur-[1px]"></div>
                 <div className="pointer-events-none absolute right-24 bottom-10 h-16 w-16 rounded-full border-2 border-dashed border-white/25"></div>
