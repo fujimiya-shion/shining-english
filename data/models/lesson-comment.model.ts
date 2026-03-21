@@ -1,3 +1,4 @@
+import "reflect-metadata"
 import { Expose, Type } from 'class-transformer'
 import { BaseModel } from './base.model'
 import { Serializable } from './serializable.model'
