@@ -1,8 +1,10 @@
 import { ForgotPasswordPageClient } from "@/app/forgot-password/components/forgot-password-page.client";
-import { redirectIfAuthenticated } from "@/shared/server/auth-redirect";
+import { GuestOnlyGuard } from "@/shared/components/auth/client-auth-guard";
 
-export default async function ForgotPasswordPage() {
-  await redirectIfAuthenticated();
-
-  return <ForgotPasswordPageClient />;
+export default function ForgotPasswordPage() {
+  return (
+    <GuestOnlyGuard redirectTo="/profile">
+      <ForgotPasswordPageClient />
+    </GuestOnlyGuard>
+  );
 }

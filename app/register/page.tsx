@@ -1,8 +1,10 @@
 import { RegisterPageClient } from "@/app/register/components/register-page.client";
-import { redirectIfAuthenticated } from "@/shared/server/auth-redirect";
+import { GuestOnlyGuard } from "@/shared/components/auth/client-auth-guard";
 
-export default async function RegisterPage() {
-  await redirectIfAuthenticated();
-
-  return <RegisterPageClient />;
+export default function RegisterPage() {
+  return (
+    <GuestOnlyGuard redirectTo="/profile">
+      <RegisterPageClient />
+    </GuestOnlyGuard>
+  );
 }

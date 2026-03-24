@@ -171,6 +171,12 @@ async function parseBodyIfNeeded(request: NextRequest, method: string): Promise<
   }
 
   const contentType = request.headers.get("content-type") ?? "";
+  const contentLength = request.headers.get("content-length");
+  const hasBody = contentLength !== "0";
+
+  if (!hasBody) {
+    return undefined;
+  }
 
   if (contentType.includes("application/json")) {
     try {

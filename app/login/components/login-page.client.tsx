@@ -43,8 +43,7 @@ export function LoginPageClient() {
     const authenticated = await login();
     if (authenticated) {
       reset();
-      router.push("/dashboard");
-      router.refresh();
+      router.replace("/profile");
     }
   };
 

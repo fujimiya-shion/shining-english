@@ -1,8 +1,10 @@
 import { ResetPasswordPageClient } from "@/app/reset-password/components/reset-password-page.client";
-import { redirectIfAuthenticated } from "@/shared/server/auth-redirect";
+import { GuestOnlyGuard } from "@/shared/components/auth/client-auth-guard";
 
-export default async function ResetPasswordPage() {
-  await redirectIfAuthenticated();
-
-  return <ResetPasswordPageClient />;
+export default function ResetPasswordPage() {
+  return (
+    <GuestOnlyGuard redirectTo="/profile">
+      <ResetPasswordPageClient />
+    </GuestOnlyGuard>
+  );
 }
