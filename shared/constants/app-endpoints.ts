@@ -5,6 +5,8 @@ export const AppEndpoints = {
   auth: {
     register: "/auth/register",
     login: "/auth/login",
+    forgotPassword: "/auth/forgot-password",
+    resetPassword: "/auth/reset-password",
     me: "/auth/me",
     logout: "/auth/logout",
   },

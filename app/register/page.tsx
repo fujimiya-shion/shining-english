@@ -1,16 +1,54 @@
-import Link from 'next/link'
-import { Button } from '@/shared/components/ui/button'
-import { AppButton } from '@/shared/components/ui/app-button'
-import { Input } from '@/shared/components/ui/input'
+"use client";
+
+import { FormEvent, useEffect } from "react";
+import Link from "next/link";
+import { AppButton } from "@/shared/components/ui/app-button";
+import { Input } from "@/shared/components/ui/input";
+import { AppStatus } from "@/shared/enums/app-status";
+import { useRegisterStore } from "@/app/register/stores/register.store";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/shared/components/ui/card'
+} from "@/shared/components/ui/card";
 
 export default function RegisterPage() {
+  const {
+    status,
+    name,
+    email,
+    phone,
+    password,
+    passwordConfirmation,
+    acceptTerms,
+    message,
+    errorMessage,
+    localError,
+    setName,
+    setEmail,
+    setPhone,
+    setPassword,
+    setPasswordConfirmation,
+    setAcceptTerms,
+    clearFeedback,
+    reset,
+    register,
+  } = useRegisterStore();
+
+  useEffect(() => {
+    clearFeedback();
+    reset();
+  }, [clearFeedback, reset]);
+
+  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    await register();
+  };
+
+  const isSubmitting = status === AppStatus.loading;
+
   return (
     <main className="relative min-h-full overflow-hidden bg-[radial-gradient(1200px_circle_at_top_left,var(--sky-110)_0%,var(--sky-60)_50%,var(--white)_100%)] py-12 lg:py-16">
       <div className="pointer-events-none absolute -left-24 top-10 h-64 w-64 rounded-full bg-[color:var(--sky-300)]/30 blur-3xl"></div>
@@ -21,55 +59,83 @@ export default function RegisterPage() {
           <CardHeader className="space-y-2">
             <CardTitle className="text-3xl">Tạo tài khoản mới</CardTitle>
             <CardDescription>
-              Đăng ký nhanh để bắt đầu lộ trình học được cá nhân hóa.
+              Đăng ký bằng email để bắt đầu lộ trình học được cá nhân hóa.
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-1 flex-col space-y-6">
-            <Button
-              variant="outline"
-              className="h-11 w-full justify-center gap-3 rounded-full"
-              type="button"
-            >
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-sm font-semibold text-[color:var(--brand-900)] shadow-sm">
-                G
-              </span>
-              Đăng ký với Google
-            </Button>
-
-            <div className="relative">
-              <div className="h-px bg-border"></div>
-              <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-3 text-xs uppercase tracking-[0.3em] text-muted-foreground">
-                Hoặc
-              </span>
-            </div>
-
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={onSubmit}>
               <div className="space-y-2">
                 <label className="text-sm font-medium" htmlFor="register-name">
                   Họ và tên
                 </label>
-                <Input id="register-name" type="text" placeholder="Nguyễn Minh Anh" />
+                <Input
+                  id="register-name"
+                  type="text"
+                  placeholder="Nguyễn Minh Anh"
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium" htmlFor="register-email">
                   Email
                 </label>
-                <Input id="register-email" type="email" placeholder="you@email.com" />
+                <Input
+                  id="register-email"
+                  type="email"
+                  placeholder="you@email.com"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium" htmlFor="register-phone">
+                  Số điện thoại
+                </label>
+                <Input
+                  id="register-phone"
+                  type="tel"
+                  placeholder="0900000000"
+                  value={phone}
+                  onChange={(event) => setPhone(event.target.value)}
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium" htmlFor="register-password">
                   Mật khẩu
                 </label>
-                <Input id="register-password" type="password" placeholder="••••••••" />
+                <Input
+                  id="register-password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  required
+                />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium" htmlFor="register-confirm">
                   Xác nhận mật khẩu
                 </label>
-                <Input id="register-confirm" type="password" placeholder="••••••••" />
+                <Input
+                  id="register-confirm"
+                  type="password"
+                  placeholder="••••••••"
+                  value={passwordConfirmation}
+                  onChange={(event) => setPasswordConfirmation(event.target.value)}
+                  required
+                />
               </div>
               <label className="flex items-start gap-2 text-sm text-muted-foreground">
-                <input type="checkbox" className="mt-1 h-4 w-4 rounded border-border" />
+                <input
+                  type="checkbox"
+                  className="mt-1 h-4 w-4 rounded border-border"
+                  checked={acceptTerms}
+                  onChange={(event) => setAcceptTerms(event.target.checked)}
+                />
                 Tôi đồng ý với{' '}
                 <Link href="/terms" className="text-primary hover:underline">
                   điều khoản sử dụng
@@ -80,8 +146,18 @@ export default function RegisterPage() {
                 </Link>
                 .
               </label>
-              <AppButton className="h-11 w-full rounded-full" type="button">
-                Tạo tài khoản
+              {(localError || errorMessage) && (
+                <p className="text-sm text-red-600" role="alert">
+                  {localError ?? errorMessage}
+                </p>
+              )}
+              {message && (
+                <p className="text-sm text-emerald-700" role="status">
+                  {message}
+                </p>
+              )}
+              <AppButton className="h-11 w-full rounded-full" type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Đang tạo tài khoản..." : "Tạo tài khoản"}
               </AppButton>
             </form>
 
@@ -157,5 +233,5 @@ export default function RegisterPage() {
         </div>
       </div>
     </main>
-  )
+  );
 }

@@ -12,6 +12,8 @@ type RouteContext = {
   params?: Promise<{ path?: string[] }> | { path?: string[] };
 };
 
+const USER_ACCESS_TOKEN_COOKIE_NAME = "se_user_access_token";
+
 function applyProxyGuardCookie(response: NextResponse): void {
   response.cookies.set(PROXY_GUARD_COOKIE_NAME, createProxyGuardValue(), {
     httpOnly: true,
@@ -61,6 +63,67 @@ function buildUpstreamHeaders(request: NextRequest): Record<string, string> {
   return headers;
 }
 
+function getUserAccessToken(request: NextRequest): string | null {
+  const headerToken = request.headers.get("User-Authorization");
+  if (headerToken) {
+    return headerToken;
+  }
+
+  return request.cookies.get(USER_ACCESS_TOKEN_COOKIE_NAME)?.value ?? null;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return !!value && typeof value === "object" && !Array.isArray(value);
+}
+
+function extractUserAccessTokenFromPayload(payload: unknown): string | null {
+  if (!isRecord(payload)) {
+    return null;
+  }
+
+  const data = payload.data;
+  if (!isRecord(data)) {
+    return null;
+  }
+
+  return typeof data.token === "string" && data.token.trim().length > 0
+    ? data.token
+    : null;
+}
+
+function shouldPersistUserAccessToken(path: string, payload: unknown): boolean {
+  return (path === "/auth/login" || path === "/auth/register")
+    && extractUserAccessTokenFromPayload(payload) !== null;
+}
+
+function shouldClearUserAccessToken(path: string, status: number): boolean {
+  return status === 401 || (path === "/auth/logout" && status >= 200 && status < 300);
+}
+
+function persistUserAccessToken(response: NextResponse, payload: unknown): void {
+  const token = extractUserAccessTokenFromPayload(payload);
+  if (!token) {
+    return;
+  }
+
+  response.cookies.set(USER_ACCESS_TOKEN_COOKIE_NAME, token, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+  });
+}
+
+function clearUserAccessToken(response: NextResponse): void {
+  response.cookies.set(USER_ACCESS_TOKEN_COOKIE_NAME, "", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: 0,
+  });
+}
+
 function buildPath(pathSegments: string[]): string {
   return `/${pathSegments.join("/")}`;
 }
@@ -104,6 +167,7 @@ async function handleRequest(
   if (pathSegments.length === 0) {
     return NextResponse.json({ message: "Missing backend path" }, { status: 400 });
   }
+  const path = buildPath(pathSegments);
 
   const verification = verifyProxyGuardValue(
     request.cookies.get(PROXY_GUARD_COOKIE_NAME)?.value,
@@ -116,6 +180,7 @@ async function handleRequest(
   const accessToken = shouldAttachAccessToken(pathSegments)
     ? await getBackendAccessToken()
     : null;
+  const userAccessToken = getUserAccessToken(request);
   const query = request.nextUrl.searchParams;
   let body: unknown;
   try {
@@ -132,11 +197,12 @@ async function handleRequest(
   try {
     upstreamResponse = await callBackend({
       method,
-      path: buildPath(pathSegments),
+      path,
       query,
       headers: buildUpstreamHeaders(request),
       body,
       accessToken,
+      userAccessToken,
     });
   } catch {
     return NextResponse.json(
@@ -151,6 +217,14 @@ async function handleRequest(
     const payload = await upstreamResponse.json();
     const response = NextResponse.json(payload, { status: upstreamResponse.status });
 
+    if (shouldPersistUserAccessToken(path, payload)) {
+      persistUserAccessToken(response, payload);
+    }
+
+    if (shouldClearUserAccessToken(path, upstreamResponse.status)) {
+      clearUserAccessToken(response);
+    }
+
     if (verification.shouldRefresh || verification.reason === "expired") {
       applyProxyGuardCookie(response);
     }
@@ -162,6 +236,10 @@ async function handleRequest(
     status: upstreamResponse.status,
     headers: buildPassthroughHeaders(upstreamResponse.headers),
   });
+
+  if (shouldClearUserAccessToken(path, upstreamResponse.status)) {
+    clearUserAccessToken(response);
+  }
 
   if (verification.shouldRefresh || verification.reason === "expired") {
     applyProxyGuardCookie(response);

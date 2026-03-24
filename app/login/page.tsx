@@ -1,67 +1,52 @@
-'use client'
+"use client";
 
-import { FormEvent, useState } from 'react'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { Button } from '@/shared/components/ui/button'
-import { AppButton } from '@/shared/components/ui/app-button'
-import { Input } from '@/shared/components/ui/input'
+import { FormEvent, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { AppButton } from "@/shared/components/ui/app-button";
+import { Input } from "@/shared/components/ui/input";
+import { AppStatus } from "@/shared/enums/app-status";
+import { useLoginStore } from "@/app/login/stores/login.store";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/shared/components/ui/card'
+} from "@/shared/components/ui/card";
 
 export default function LoginPage() {
-  const router = useRouter()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const userAgentPlatform = (
-    navigator as Navigator & { userAgentData?: { platform?: string } }
-  ).userAgentData?.platform
-
-  const buildLoginPayload = () => ({
+  const router = useRouter();
+  const {
+    status,
     email,
     password,
-    device_identifier: `web-${crypto.randomUUID()}`,
-    device_name: 'Web Browser',
-    platform: userAgentPlatform ?? navigator.platform ?? 'web',
-    user_agent: navigator.userAgent,
-  })
+    message,
+    errorMessage,
+    setEmail,
+    setPassword,
+    clearFeedback,
+    login,
+    reset,
+  } = useLoginStore();
+
+  useEffect(() => {
+    clearFeedback();
+    reset();
+  }, [clearFeedback, reset]);
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    setErrorMessage(null)
-    setIsSubmitting(true)
+    event.preventDefault();
 
-    try {
-      const response = await fetch('/api/proxy/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(buildLoginPayload()),
-      })
-
-      const payload = (await response.json()) as { message?: string }
-
-      if (!response.ok) {
-        setErrorMessage(payload.message ?? 'Đăng nhập thất bại')
-        return
-      }
-
-      router.push('/dashboard')
-      router.refresh()
-    } catch {
-      setErrorMessage('Không thể kết nối máy chủ, vui lòng thử lại.')
-    } finally {
-      setIsSubmitting(false)
+    const authenticated = await login();
+    if (authenticated) {
+      reset();
+      router.push("/dashboard");
+      router.refresh();
     }
-  }
+  };
+
+  const isSubmitting = status === AppStatus.loading;
 
   return (
     <main className="relative min-h-full overflow-hidden bg-[radial-gradient(1200px_circle_at_top_left,var(--sky-110)_0%,var(--sky-60)_50%,var(--white)_100%)] py-12 lg:py-16">
@@ -112,28 +97,10 @@ export default function LoginPage() {
           <CardHeader className="space-y-2">
             <CardTitle className="text-3xl">Chào mừng bạn trở lại</CardTitle>
             <CardDescription>
-              Đăng nhập bằng Google hoặc email + mật khẩu để tiếp tục học.
+              Đăng nhập bằng email để tiếp tục học và theo dõi tiến độ của bạn.
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-1 flex-col space-y-6">
-            <Button
-              variant="outline"
-              className="h-11 w-full justify-center gap-3 rounded-full"
-              type="button"
-            >
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-sm font-semibold text-[color:var(--brand-900)] shadow-sm">
-                G
-              </span>
-              Tiếp tục với Google
-            </Button>
-
-            <div className="relative">
-              <div className="h-px bg-border"></div>
-              <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-3 text-xs uppercase tracking-[0.3em] text-muted-foreground">
-                Hoặc
-              </span>
-            </div>
-
             <form className="space-y-4" onSubmit={onSubmit}>
               <div className="space-y-2">
                 <label className="text-sm font-medium" htmlFor="login-email">
@@ -166,7 +133,7 @@ export default function LoginPage() {
                   <input type="checkbox" className="h-4 w-4 rounded border-border" />
                   Ghi nhớ đăng nhập
                 </label>
-                <Link className="text-primary hover:underline" href="#">
+                <Link className="text-primary hover:underline" href="/forgot-password">
                   Quên mật khẩu?
                 </Link>
               </div>
@@ -175,8 +142,13 @@ export default function LoginPage() {
                   {errorMessage}
                 </p>
               )}
+              {message && (
+                <p className="text-sm text-emerald-700" role="status">
+                  {message}
+                </p>
+              )}
               <AppButton className="h-11 w-full rounded-full" type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Đang đăng nhập...' : 'Đăng nhập'}
+                {isSubmitting ? "Đang đăng nhập..." : "Đăng nhập"}
               </AppButton>
             </form>
 
@@ -213,5 +185,5 @@ export default function LoginPage() {
         </Card>
       </div>
     </main>
-  )
+  );
 }

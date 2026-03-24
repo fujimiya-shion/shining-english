@@ -1,15 +1,46 @@
-import Link from 'next/link'
-import { AppButton } from '@/shared/components/ui/app-button'
-import { Input } from '@/shared/components/ui/input'
+"use client";
+
+import { FormEvent, useEffect } from "react";
+import Link from "next/link";
+import { AppButton } from "@/shared/components/ui/app-button";
+import { Input } from "@/shared/components/ui/input";
+import { AppStatus } from "@/shared/enums/app-status";
+import { useForgotPasswordStore } from "@/app/forgot-password/stores/forgot-password.store";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/shared/components/ui/card'
+} from "@/shared/components/ui/card";
 
 export default function ForgotPasswordPage() {
+  const {
+    status,
+    email,
+    message,
+    errorMessage,
+    setEmail,
+    clearFeedback,
+    forgotPassword,
+    reset,
+  } = useForgotPasswordStore();
+
+  useEffect(() => {
+    clearFeedback();
+    reset();
+  }, [clearFeedback, reset]);
+
+  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const success = await forgotPassword();
+    if (success) {
+      reset();
+    }
+  };
+
+  const isSubmitting = status === AppStatus.loading;
+
   return (
     <main className="min-h-full bg-[radial-gradient(1200px_circle_at_top_left,var(--sky-110)_0%,var(--sky-60)_50%,var(--white)_100%)] px-4 py-12">
       <div className="mx-auto w-full max-w-xl">
@@ -21,15 +52,32 @@ export default function ForgotPasswordPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={onSubmit}>
               <div className="space-y-2">
                 <label htmlFor="reset-email" className="text-sm font-medium">
                   Email đăng ký
                 </label>
-                <Input id="reset-email" type="email" placeholder="you@email.com" />
+                <Input
+                  id="reset-email"
+                  type="email"
+                  placeholder="you@email.com"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  required
+                />
               </div>
-              <AppButton className="h-11 w-full rounded-full" type="button">
-                Gửi liên kết đặt lại
+              {message && (
+                <p className="text-sm text-emerald-700" role="status">
+                  {message}
+                </p>
+              )}
+              {errorMessage && (
+                <p className="text-sm text-red-600" role="alert">
+                  {errorMessage}
+                </p>
+              )}
+              <AppButton className="h-11 w-full rounded-full" type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Đang gửi..." : "Gửi liên kết đặt lại"}
               </AppButton>
             </form>
             <div className="rounded-2xl border border-border/70 bg-[color:var(--sky-70)] p-4 text-sm text-muted-foreground">
@@ -44,5 +92,5 @@ export default function ForgotPasswordPage() {
         </Card>
       </div>
     </main>
-  )
+  );
 }

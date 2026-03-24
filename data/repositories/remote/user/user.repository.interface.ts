@@ -30,4 +30,15 @@ export interface IUserRepository {
   logout(): Promise<ApiResult<ObjectResponse<unknown>, ApiException>>;
 
   me(): Promise<ApiResult<ObjectResponse<User>, ApiException>>;
+
+  forgotPassword(
+    email: string,
+  ): Promise<ApiResult<ObjectResponse<unknown>, ApiException>>;
+
+  resetPassword(
+    email: string,
+    token: string,
+    password: string,
+    passwordConfirmation: string,
+  ): Promise<ApiResult<ObjectResponse<unknown>, ApiException>>;
 }
