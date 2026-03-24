@@ -101,15 +101,17 @@ export function SiteHeader({ cartCount = 0 }: SiteHeaderProps) {
           <div className="md:hidden" />
         </div>
         <div className="flex items-center justify-end gap-3 lg:gap-6">
-          <AppButton asChild size="sm" className="hidden gap-2 md:inline-flex">
-            <Link
-              href={authenticated ? accountHref : '/login'}
-              className="inline-flex items-center justify-center gap-2"
-            >
-              <AccountIcon className="h-4 w-4" aria-hidden="true" />
-              <span>{authenticated ? accountLabel : 'Đăng Nhập'}</span>
-            </Link>
-          </AppButton>
+          <div className="hidden md:block">
+            <AppButton asChild size="sm" className="gap-2">
+              <Link
+                href={authenticated ? accountHref : '/login'}
+                className="inline-flex items-center justify-center gap-2"
+              >
+                <AccountIcon className="h-4 w-4" aria-hidden="true" />
+                <span>{authenticated ? accountLabel : 'Đăng Nhập'}</span>
+              </Link>
+            </AppButton>
+          </div>
 
           <div className="relative hidden md:block">
             <Link href="/cart" className="relative" aria-label="Giỏ hàng">
