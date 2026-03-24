@@ -29,6 +29,7 @@ export class UserRepository extends BaseRepository implements IUserRepository {
     email: string,
     password: string,
     deviceIdentifier: string,
+    remember?: boolean,
     deviceName?: string,
     platform?: string,
     ipAddress?: string,
@@ -39,6 +40,7 @@ export class UserRepository extends BaseRepository implements IUserRepository {
       body: {
         email,
         password,
+        remember,
         device_identifier: deviceIdentifier,
         device_name: deviceName,
         platform,
@@ -75,5 +77,33 @@ export class UserRepository extends BaseRepository implements IUserRepository {
 
   async me(): Promise<ApiResult<ObjectResponse<User>, ApiException>> {
     return this.getProfile();
+  }
+
+  async forgotPassword(
+    email: string,
+  ): Promise<ApiResult<ObjectResponse<unknown>, ApiException>> {
+    return this.post({
+      url: AppEndpoints.auth.forgotPassword,
+      body: { email },
+      map: (raw) => ObjectResponse.fromApiJson(raw),
+    });
+  }
+
+  async resetPassword(
+    email: string,
+    token: string,
+    password: string,
+    passwordConfirmation: string,
+  ): Promise<ApiResult<ObjectResponse<unknown>, ApiException>> {
+    return this.post({
+      url: AppEndpoints.auth.resetPassword,
+      body: {
+        email,
+        token,
+        password,
+        password_confirmation: passwordConfirmation,
+      },
+      map: (raw) => ObjectResponse.fromApiJson(raw),
+    });
   }
 }

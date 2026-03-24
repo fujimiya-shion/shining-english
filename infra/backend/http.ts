@@ -5,6 +5,7 @@ export type BackendRequestOptions = {
   headers?: Record<string, string>;
   body?: unknown;
   accessToken?: string | null;
+  userAccessToken?: string | null;
 };
 
 function normalizePath(path: string): string {
@@ -58,6 +59,10 @@ export async function callBackend(options: BackendRequestOptions): Promise<Respo
 
   if (options.accessToken) {
     headers["Authorization"] = options.accessToken;
+  }
+
+  if (options.userAccessToken) {
+    headers["User-Authorization"] = options.userAccessToken;
   }
 
   const hasBody = options.body !== undefined && options.body !== null;

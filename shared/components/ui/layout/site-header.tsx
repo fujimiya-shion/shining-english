@@ -2,8 +2,10 @@
 
 import Link from 'next/link'
 import { AppButton } from '@/shared/components/ui/app-button'
+import { useAuthStore } from '@/shared/stores/auth.store'
 import {
   BookOpen,
+  CircleUserRound,
   Home,
   Info,
   Map,
@@ -36,12 +38,18 @@ type SiteHeaderProps = {
 }
 
 export function SiteHeader({ cartCount = 0 }: SiteHeaderProps) {
+  const authenticated = useAuthStore((state) => state.authenticated)
+  const currentUserName = useAuthStore((state) => state.currentUser?.name ?? null)
   const closeMobileMenu = (event: React.MouseEvent<HTMLElement>) => {
     const details = event.currentTarget.closest('details')
     if (details) {
       details.removeAttribute('open')
     }
   }
+
+  const accountLabel = currentUserName?.trim() || 'Tài khoản'
+  const accountHref = '/profile'
+  const AccountIcon = authenticated ? CircleUserRound : LogIn
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background">
@@ -93,12 +101,17 @@ export function SiteHeader({ cartCount = 0 }: SiteHeaderProps) {
           <div className="md:hidden" />
         </div>
         <div className="flex items-center justify-end gap-3 lg:gap-6">
-          <AppButton asChild size="sm" className="gap-2 hidden md:inline-flex">
-            <Link href="/login">
-              <LogIn className="h-4 w-4" aria-hidden="true" />
-              Đăng Nhập
-            </Link>
-          </AppButton>
+          <div className="hidden md:block">
+            <AppButton asChild size="sm" className="gap-2">
+              <Link
+                href={authenticated ? accountHref : '/login'}
+                className="inline-flex items-center justify-center gap-2"
+              >
+                <AccountIcon className="h-4 w-4" aria-hidden="true" />
+                <span>{authenticated ? accountLabel : 'Đăng Nhập'}</span>
+              </Link>
+            </AppButton>
+          </div>
 
           <div className="relative hidden md:block">
             <Link href="/cart" className="relative" aria-label="Giỏ hàng">
@@ -149,9 +162,13 @@ export function SiteHeader({ cartCount = 0 }: SiteHeaderProps) {
                 )}
                 <div className="mt-2 flex items-center gap-3">
                   <AppButton asChild size="sm" className="flex-1 gap-2">
-                    <Link href="/login" onClick={closeMobileMenu}>
-                      <LogIn className="h-4 w-4" aria-hidden="true" />
-                      Đăng Nhập
+                    <Link
+                      href={authenticated ? accountHref : '/login'}
+                      onClick={closeMobileMenu}
+                      className="inline-flex w-full items-center justify-center gap-2"
+                    >
+                      <AccountIcon className="h-4 w-4" aria-hidden="true" />
+                      {authenticated ? accountLabel : 'Đăng Nhập'}
                     </Link>
                   </AppButton>
                   <Link

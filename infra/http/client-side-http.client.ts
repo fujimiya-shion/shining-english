@@ -40,11 +40,12 @@ export class ClientSideHttpClient implements HttpClient {
     config: HttpRequestConfig<TBody>,
   ): Promise<TResponse> {
     const rawBody = config.body as unknown;
+    const hasBody = rawBody !== undefined && rawBody !== null;
     const headers: Record<string, string> = {
       ...config.headers,
     };
 
-    if (!isFormData(rawBody)) {
+    if (hasBody && !isFormData(rawBody)) {
       headers["Content-Type"] = headers["Content-Type"] ?? "application/json";
     }
 
