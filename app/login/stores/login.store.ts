@@ -12,6 +12,7 @@ export interface LoginFormStoreProps {
   status: AppStatus;
   email: string;
   password: string;
+  rememberLogin: boolean;
   message: string | null;
   errorMessage: string | null;
 }
@@ -19,6 +20,7 @@ export interface LoginFormStoreProps {
 export interface LoginFormStoreState extends LoginFormStoreProps {
   setEmail: (email: string) => void;
   setPassword: (password: string) => void;
+  setRememberLogin: (rememberLogin: boolean) => void;
   clearFeedback: () => void;
   login: () => Promise<boolean>;
   reset: () => void;
@@ -28,6 +30,7 @@ const initState: LoginFormStoreProps = {
   status: AppStatus.initial,
   email: "",
   password: "",
+  rememberLogin: false,
   message: null,
   errorMessage: null,
 };
@@ -69,6 +72,7 @@ export const useLoginStore = create<LoginFormStoreState>((set, get) => ({
 
   setEmail: (email) => set({ email }),
   setPassword: (password) => set({ password }),
+  setRememberLogin: (rememberLogin) => set({ rememberLogin }),
   clearFeedback: () => set({ message: null, errorMessage: null }),
   login: async () => {
     if (get().status === AppStatus.loading) {
@@ -87,6 +91,7 @@ export const useLoginStore = create<LoginFormStoreState>((set, get) => ({
       get().email,
       get().password,
       device.identifier,
+      get().rememberLogin,
       device.name,
       device.platform,
       undefined,

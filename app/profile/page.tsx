@@ -8,10 +8,10 @@ import {
   CardHeader,
   CardTitle,
 } from '@/shared/components/ui/card'
-import { getCurrentUser } from '@/shared/server/current-user'
+import { requireAuthenticatedUser } from '@/shared/server/auth-redirect'
 
 export default async function ProfilePage() {
-  const currentUser = await getCurrentUser()
+  const currentUser = await requireAuthenticatedUser()
 
   return (
     <main className="min-h-full bg-[radial-gradient(1200px_circle_at_top_left,var(--sky-110)_0%,var(--sky-60)_50%,var(--white)_100%)] px-4 py-12">
@@ -25,15 +25,9 @@ export default async function ProfilePage() {
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="rounded-2xl border border-border/70 bg-[color:var(--sky-70)] p-4">
-              {currentUser.authenticated ? (
-                <p className="text-sm text-[color:var(--brand-900)]">
-                  Phiên đăng nhập hợp lệ. Dữ liệu hồ sơ đã được lấy từ backend qua server-side proxy.
-                </p>
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  Bạn chưa đăng nhập hoặc token đã hết hạn.
-                </p>
-              )}
+              <p className="text-sm text-[color:var(--brand-900)]">
+                Xin chào {currentUser.data?.data?.name ?? "bạn"}. Dữ liệu hồ sơ đã được lấy từ backend qua server-side proxy.
+              </p>
             </div>
             <div className="flex flex-wrap gap-3">
               <AppButton type="button" className="h-11 rounded-full">

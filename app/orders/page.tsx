@@ -8,13 +8,16 @@ import {
   CardHeader,
   CardTitle,
 } from '@/shared/components/ui/card'
+import { requireAuthenticatedUser } from '@/shared/server/auth-redirect'
 
 const sampleOrders = [
   { id: 'SE-2401', status: 'Hoàn tất', amount: '890.000đ', date: '02/01/2026' },
   { id: 'SE-2394', status: 'Hoàn tất', amount: '790.000đ', date: '20/12/2025' },
 ]
 
-export default function OrdersPage() {
+export default async function OrdersPage() {
+  await requireAuthenticatedUser()
+
   return (
     <main className="min-h-full bg-[radial-gradient(1200px_circle_at_top_left,var(--sky-110)_0%,var(--sky-60)_50%,var(--white)_100%)] px-4 py-12">
       <div className="mx-auto w-full max-w-4xl">

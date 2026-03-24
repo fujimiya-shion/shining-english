@@ -15,6 +15,7 @@ export interface IUserRepository {
     email: string,
     password: string,
     deviceIdentifier: string,
+    remember?: boolean,
     deviceName?: string,
     platform?: string,
     ipAddress?: string,

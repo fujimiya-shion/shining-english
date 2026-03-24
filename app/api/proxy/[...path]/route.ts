@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { callBackend } from "@/infra/backend/http";
 import { getBackendAccessToken } from "@/infra/backend/access-token";
 import {
+  getUserAccessTokenCookieName,
+  getUserAccessTokenCookieMaxAge,
+} from "@/infra/backend/user-access-token";
+import {
   createProxyGuardValue,
   getProxyGuardCookieMaxAge,
   PROXY_GUARD_COOKIE_NAME,
@@ -12,8 +16,6 @@ type RouteContext = {
   params?: Promise<{ path?: string[] }> | { path?: string[] };
 };
 
-const USER_ACCESS_TOKEN_COOKIE_NAME = "se_user_access_token";
-
 function applyProxyGuardCookie(response: NextResponse): void {
   response.cookies.set(PROXY_GUARD_COOKIE_NAME, createProxyGuardValue(), {
     httpOnly: true,
@@ -22,6 +24,10 @@ function applyProxyGuardCookie(response: NextResponse): void {
     path: "/",
     maxAge: getProxyGuardCookieMaxAge(),
   });
+}
+
+function getUserAccessTokenCookie(): string {
+  return getUserAccessTokenCookieName();
 }
 
 function buildPassthroughHeaders(sourceHeaders: Headers): Headers {
@@ -69,7 +75,7 @@ function getUserAccessToken(request: NextRequest): string | null {
     return headerToken;
   }
 
-  return request.cookies.get(USER_ACCESS_TOKEN_COOKIE_NAME)?.value ?? null;
+  return request.cookies.get(getUserAccessTokenCookie())?.value ?? null;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -100,22 +106,49 @@ function shouldClearUserAccessToken(path: string, status: number): boolean {
   return status === 401 || (path === "/auth/logout" && status >= 200 && status < 300);
 }
 
-function persistUserAccessToken(response: NextResponse, payload: unknown): void {
+function shouldRememberUserAccessToken(path: string, body: unknown): boolean {
+  if (path !== "/auth/login" || !isRecord(body)) {
+    return false;
+  }
+
+  return body.remember === true;
+}
+
+function sanitizeRequestBody(path: string, body: unknown): unknown {
+  if (path !== "/auth/login" || !isRecord(body)) {
+    return body;
+  }
+
+  const { remember: _remember, ...rest } = body;
+  return rest;
+}
+
+function persistUserAccessToken(
+  response: NextResponse,
+  payload: unknown,
+  rememberLogin: boolean,
+): void {
   const token = extractUserAccessTokenFromPayload(payload);
   if (!token) {
     return;
   }
 
-  response.cookies.set(USER_ACCESS_TOKEN_COOKIE_NAME, token, {
+  const cookieOptions: Parameters<typeof response.cookies.set>[2] = {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
     path: "/",
-  });
+  };
+
+  if (rememberLogin) {
+    cookieOptions.maxAge = getUserAccessTokenCookieMaxAge();
+  }
+
+  response.cookies.set(getUserAccessTokenCookie(), token, cookieOptions);
 }
 
 function clearUserAccessToken(response: NextResponse): void {
-  response.cookies.set(USER_ACCESS_TOKEN_COOKIE_NAME, "", {
+  response.cookies.set(getUserAccessTokenCookie(), "", {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
@@ -192,6 +225,8 @@ async function handleRequest(
 
     throw error;
   }
+  const sanitizedBody = sanitizeRequestBody(path, body);
+  const rememberUserAccessToken = shouldRememberUserAccessToken(path, body);
 
   let upstreamResponse: Response;
   try {
@@ -200,7 +235,7 @@ async function handleRequest(
       path,
       query,
       headers: buildUpstreamHeaders(request),
-      body,
+      body: sanitizedBody,
       accessToken,
       userAccessToken,
     });
@@ -218,7 +253,7 @@ async function handleRequest(
     const response = NextResponse.json(payload, { status: upstreamResponse.status });
 
     if (shouldPersistUserAccessToken(path, payload)) {
-      persistUserAccessToken(response, payload);
+      persistUserAccessToken(response, payload, rememberUserAccessToken);
     }
 
     if (shouldClearUserAccessToken(path, upstreamResponse.status)) {

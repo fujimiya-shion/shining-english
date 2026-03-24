@@ -29,6 +29,7 @@ export class UserRepository extends BaseRepository implements IUserRepository {
     email: string,
     password: string,
     deviceIdentifier: string,
+    remember?: boolean,
     deviceName?: string,
     platform?: string,
     ipAddress?: string,
@@ -39,6 +40,7 @@ export class UserRepository extends BaseRepository implements IUserRepository {
       body: {
         email,
         password,
+        remember,
         device_identifier: deviceIdentifier,
         device_name: deviceName,
         platform,
