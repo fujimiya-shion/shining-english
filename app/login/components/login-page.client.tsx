@@ -29,6 +29,7 @@ export function LoginPageClient() {
     setRememberLogin,
     clearFeedback,
     login,
+    loginWithGoogle,
     reset,
   } = useLoginStore();
 
@@ -41,6 +42,14 @@ export function LoginPageClient() {
     event.preventDefault();
 
     const authenticated = await login();
+    if (authenticated) {
+      reset();
+      router.replace("/profile");
+    }
+  };
+
+  const onGoogleLogin = async () => {
+    const authenticated = await loginWithGoogle();
     if (authenticated) {
       reset();
       router.replace("/profile");
@@ -102,6 +111,45 @@ export function LoginPageClient() {
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-1 flex-col space-y-6">
+            <div className="space-y-3">
+              <AppButton
+                className="h-11 w-full rounded-full border-border/80 bg-white text-[color:var(--brand-900)] shadow-none hover:bg-[color:var(--sky-70)]"
+                type="button"
+                variant="outline"
+                disabled={isSubmitting}
+                onClick={onGoogleLogin}
+              >
+                <span className="mr-2 inline-flex h-5 w-5 items-center justify-center">
+                  <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5">
+                    <path
+                      fill="#4285F4"
+                      d="M21.6 12.23c0-.68-.06-1.33-.17-1.95H12v3.69h5.39a4.6 4.6 0 0 1-1.99 3.02v2.5h3.22c1.89-1.74 2.98-4.3 2.98-7.26Z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M12 22c2.7 0 4.96-.9 6.61-2.44l-3.22-2.5c-.9.6-2.05.96-3.39.96-2.6 0-4.8-1.76-5.59-4.12H3.08v2.59A9.99 9.99 0 0 0 12 22Z"
+                    />
+                    <path
+                      fill="#FBBC05"
+                      d="M6.41 13.9A5.99 5.99 0 0 1 6.1 12c0-.66.11-1.3.31-1.9V7.51H3.08A9.99 9.99 0 0 0 2 12c0 1.61.39 3.13 1.08 4.49l3.33-2.59Z"
+                    />
+                    <path
+                      fill="#EA4335"
+                      d="M12 5.98c1.47 0 2.8.5 3.84 1.49l2.88-2.88C16.95 2.94 14.69 2 12 2A9.99 9.99 0 0 0 3.08 7.51L6.41 10.1C7.2 7.74 9.4 5.98 12 5.98Z"
+                    />
+                  </svg>
+                </span>
+                {isSubmitting ? "Đang kết nối..." : "Tiếp tục với Google"}
+              </AppButton>
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-border/70"></span>
+                </div>
+                <div className="relative flex justify-center text-xs uppercase tracking-[0.24em] text-muted-foreground">
+                  <span className="bg-white px-3">Hoặc đăng nhập bằng email</span>
+                </div>
+              </div>
+            </div>
             <form className="space-y-4" onSubmit={onSubmit}>
               <div className="space-y-2">
                 <label className="text-sm font-medium" htmlFor="login-email">

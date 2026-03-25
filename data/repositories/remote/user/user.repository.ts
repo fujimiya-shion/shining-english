@@ -51,6 +51,36 @@ export class UserRepository extends BaseRepository implements IUserRepository {
     });
   }
 
+  async loginWithThirdParty(
+    provider: string,
+    accessToken: string,
+    idToken: string,
+    name: string,
+    deviceIdentifier: string,
+    remember?: boolean,
+    deviceName?: string,
+    platform?: string,
+    ipAddress?: string,
+    userAgent?: string,
+  ): Promise<ApiResult<ObjectResponse<unknown>, ApiException>> {
+    return this.post({
+      url: AppEndpoints.auth.thirdPartyLogin,
+      body: {
+        provider,
+        access_token: accessToken,
+        id_token: idToken,
+        name,
+        remember,
+        device_identifier: deviceIdentifier,
+        device_name: deviceName,
+        platform,
+        ip_address: ipAddress,
+        user_agent: userAgent,
+      },
+      map: (raw) => ObjectResponse.fromApiJson(raw),
+    });
+  }
+
   async getProfile(): Promise<ApiResult<ObjectResponse<User>, ApiException>> {
     return this.get({
       url: AppEndpoints.auth.me,

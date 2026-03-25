@@ -7,6 +7,7 @@ import { IOC_TOKENS } from "@/shared/ioc/tokens";
 import { IUserRepository } from "@/data/repositories/remote/user/user.repository.interface";
 import { useAuthStore } from "@/shared/stores/auth.store";
 import { resolveApiErrorMessage } from "@/shared/utils/api-error-message";
+import { signInWithGoogle } from "@/shared/utils/google-identity";
 
 export interface LoginFormStoreProps {
   status: AppStatus;
@@ -23,6 +24,7 @@ export interface LoginFormStoreState extends LoginFormStoreProps {
   setRememberLogin: (rememberLogin: boolean) => void;
   clearFeedback: () => void;
   login: () => Promise<boolean>;
+  loginWithGoogle: () => Promise<boolean>;
   reset: () => void;
 }
 
@@ -115,6 +117,61 @@ export const useLoginStore = create<LoginFormStoreState>((set, get) => ({
     });
 
     return fetched;
+  },
+  loginWithGoogle: async () => {
+    if (get().status === AppStatus.loading) {
+      return false;
+    }
+
+    set({
+      status: AppStatus.loading,
+      message: null,
+      errorMessage: null,
+    });
+
+    try {
+      const googleSession = await signInWithGoogle();
+      const repository = resolveUserRepository();
+      const device = buildDeviceMetadata();
+      const result = await repository.loginWithThirdParty(
+        "google",
+        googleSession.accessToken,
+        // Backend currently validates id_token but authenticates with access_token.
+        googleSession.accessToken,
+        googleSession.profile.name,
+        device.identifier,
+        get().rememberLogin,
+        device.name,
+        device.platform,
+        undefined,
+        device.userAgent,
+      );
+
+      if (!result.response) {
+        set({
+          status: AppStatus.error,
+          message: null,
+          errorMessage: resolveErrorMessage(result.exception),
+        });
+        return false;
+      }
+
+      const fetched = await useAuthStore.getState().fetchMe();
+      set({
+        status: fetched ? AppStatus.success : AppStatus.error,
+        message: fetched ? "Đăng nhập với Google thành công." : null,
+        errorMessage: fetched ? null : "Không thể đồng bộ thông tin người dùng.",
+      });
+
+      return fetched;
+    } catch (error) {
+      set({
+        status: AppStatus.error,
+        message: null,
+        errorMessage: error instanceof Error ? error.message : "Đăng nhập với Google thất bại.",
+      });
+      return false;
+    }
   },
   reset: () => set({ ...initState }),
 }));
