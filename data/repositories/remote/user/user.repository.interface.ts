@@ -22,6 +22,17 @@ export interface IUserRepository {
     userAgent?: string,
   ): Promise<ApiResult<ObjectResponse<unknown>, ApiException>>;
 
+  loginWithThirdParty(
+    provider: string,
+    accessToken: string,
+    deviceIdentifier: string,
+    remember?: boolean,
+    deviceName?: string,
+    platform?: string,
+    ipAddress?: string,
+    userAgent?: string,
+  ): Promise<ApiResult<ObjectResponse<unknown>, ApiException>>;
+
   getProfile(): Promise<ApiResult<ObjectResponse<User>, ApiException>>;
 
   updateProfile(

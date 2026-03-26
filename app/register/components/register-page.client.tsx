@@ -1,11 +1,9 @@
 "use client";
 
-import { FormEvent, useEffect } from "react";
-import Link from "next/link";
-import { AppButton } from "@/shared/components/ui/app-button";
-import { Input } from "@/shared/components/ui/input";
-import { AppStatus } from "@/shared/enums/app-status";
+import { GoogleLoginButton } from "@/app/login/components/google-login-button.client";
+import { useLoginStore } from "@/app/login/stores/login.store";
 import { useRegisterStore } from "@/app/register/stores/register.store";
+import { AppButton } from "@/shared/components/ui/app-button";
 import {
   Card,
   CardContent,
@@ -13,6 +11,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
+import { Input } from "@/shared/components/ui/input";
+import { AppStatus } from "@/shared/enums/app-status";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { FormEvent, useCallback, useEffect } from "react";
+import toast, { Toaster } from "react-hot-toast";
 
 export function RegisterPageClient() {
   const {
@@ -37,6 +42,9 @@ export function RegisterPageClient() {
     register,
   } = useRegisterStore();
 
+  const { status: loginStoreStatus, loginWithGoogle, reset: loginStoreReset } = useLoginStore();
+  const router = useRouter();
+
   useEffect(() => {
     clearFeedback();
     reset();
@@ -48,9 +56,34 @@ export function RegisterPageClient() {
   };
 
   const isSubmitting = status === AppStatus.loading;
+  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? "";
+
+  const onAccessToken = useCallback(async (accessToken: string) => {
+    const isSuccess = await loginWithGoogle(accessToken);
+    if(isSuccess) {
+      loginStoreReset();
+      router.replace('/profile');
+    }
+    else
+      toast.error("Đã có lỗi xảy ra khi đăng nhập với Google");
+  }, []);
+
+  const onError = useCallback(async (message: string) => {
+    toast.error(message);
+  }, [])
+
+  const onBeforeAccessToken = useCallback(() => {
+    if(!acceptTerms) {
+      toast.error("Vui lòng chấp nhận điều khoản trước khi tiến hành đăng nhập với Google")
+      return false;
+    }
+    return true;
+  }, [acceptTerms]);
+  
 
   return (
     <main className="relative min-h-full overflow-hidden bg-[radial-gradient(1200px_circle_at_top_left,var(--sky-110)_0%,var(--sky-60)_50%,var(--white)_100%)] py-12 lg:py-16">
+      <Toaster position="top-right" />
       <div className="pointer-events-none absolute -left-24 top-10 h-64 w-64 rounded-full bg-[color:var(--sky-300)]/30 blur-3xl"></div>
       <div className="pointer-events-none absolute right-0 top-32 h-72 w-72 rounded-full bg-primary/20 blur-[120px]"></div>
       <div className="pointer-events-none absolute bottom-0 left-1/3 h-64 w-64 rounded-full bg-[color:var(--brand-900)]/10 blur-[140px]"></div>
@@ -61,7 +94,23 @@ export function RegisterPageClient() {
             <CardDescription>
               Đăng ký bằng email để bắt đầu lộ trình học được cá nhân hóa.
             </CardDescription>
+            <GoogleOAuthProvider clientId={googleClientId}>
+              <GoogleLoginButton 
+                onBeforeAccessToken={onBeforeAccessToken}
+                onAccessToken={onAccessToken}
+                onError={onError}
+                disabled={loginStoreStatus == AppStatus.loading || status == AppStatus.loading || isSubmitting} >
+              </GoogleLoginButton>
+            </GoogleOAuthProvider>
           </CardHeader>
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-border/70"></span>
+            </div>
+            <div className="relative flex justify-center text-xs uppercase tracking-[0.24em] text-muted-foreground">
+              <span className="bg-white px-3">Hoặc đăng ký bằng email</span>
+            </div>
+          </div>
           <CardContent className="flex flex-1 flex-col space-y-6">
             <form className="space-y-4" onSubmit={onSubmit}>
               <div className="space-y-2">
@@ -157,7 +206,7 @@ export function RegisterPageClient() {
                 </p>
               )}
               <AppButton className="h-11 w-full rounded-full" type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Đang tạo tài khoản..." : "Tạo tài khoản"}
+                {isSubmitting || loginStoreStatus == AppStatus.loading ? "Đang tạo tài khoản..." : "Tạo tài khoản"}
               </AppButton>
             </form>
 

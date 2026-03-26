@@ -7,6 +7,8 @@ import { AppButton } from "@/shared/components/ui/app-button";
 import { Input } from "@/shared/components/ui/input";
 import { AppStatus } from "@/shared/enums/app-status";
 import { useLoginStore } from "@/app/login/stores/login.store";
+import { GoogleOAuthProviderClient } from "@/shared/components/providers/google-oauth-provider.client";
+import { GoogleLoginButton } from "@/app/login/components/google-login-button.client";
 import {
   Card,
   CardContent,
@@ -28,7 +30,9 @@ export function LoginPageClient() {
     setPassword,
     setRememberLogin,
     clearFeedback,
+    setGoogleLoginError,
     login,
+    loginWithGoogle,
     reset,
   } = useLoginStore();
 
@@ -41,6 +45,16 @@ export function LoginPageClient() {
     event.preventDefault();
 
     const authenticated = await login();
+    if (authenticated) {
+      reset();
+      router.replace("/profile");
+    }
+  };
+
+  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID?.trim() ?? "";
+
+  const onGoogleAccessToken = async (accessToken: string) => {
+    const authenticated = await loginWithGoogle(accessToken);
     if (authenticated) {
       reset();
       router.replace("/profile");
@@ -102,6 +116,34 @@ export function LoginPageClient() {
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-1 flex-col space-y-6">
+            <div className="space-y-3">
+              {googleClientId ? (
+                <GoogleOAuthProviderClient clientId={googleClientId}>
+                  <GoogleLoginButton
+                    disabled={isSubmitting}
+                    onAccessToken={onGoogleAccessToken}
+                    onError={setGoogleLoginError}
+                  />
+                </GoogleOAuthProviderClient>
+              ) : (
+                <AppButton
+                  className="h-11 w-full rounded-full border-border/80 bg-white text-[color:var(--brand-900)] shadow-none"
+                  type="button"
+                  variant="outline"
+                  disabled
+                >
+                  Thiếu NEXT_PUBLIC_GOOGLE_CLIENT_ID
+                </AppButton>
+              )}
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-border/70"></span>
+                </div>
+                <div className="relative flex justify-center text-xs uppercase tracking-[0.24em] text-muted-foreground">
+                  <span className="bg-white px-3">Hoặc đăng nhập bằng email</span>
+                </div>
+              </div>
+            </div>
             <form className="space-y-4" onSubmit={onSubmit}>
               <div className="space-y-2">
                 <label className="text-sm font-medium" htmlFor="login-email">

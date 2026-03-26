@@ -22,7 +22,9 @@ export interface LoginFormStoreState extends LoginFormStoreProps {
   setPassword: (password: string) => void;
   setRememberLogin: (rememberLogin: boolean) => void;
   clearFeedback: () => void;
+  setGoogleLoginError: (message: string) => void;
   login: () => Promise<boolean>;
+  loginWithGoogle: (accessToken: string) => Promise<boolean>;
   reset: () => void;
 }
 
@@ -74,6 +76,12 @@ export const useLoginStore = create<LoginFormStoreState>((set, get) => ({
   setPassword: (password) => set({ password }),
   setRememberLogin: (rememberLogin) => set({ rememberLogin }),
   clearFeedback: () => set({ message: null, errorMessage: null }),
+  setGoogleLoginError: (message) =>
+    set({
+      status: AppStatus.error,
+      message: null,
+      errorMessage: message,
+    }),
   login: async () => {
     if (get().status === AppStatus.loading) {
       return false;
@@ -111,6 +119,48 @@ export const useLoginStore = create<LoginFormStoreState>((set, get) => ({
     set({
       status: fetched ? AppStatus.success : AppStatus.error,
       message: fetched ? "Đăng nhập thành công." : null,
+      errorMessage: fetched ? null : "Không thể đồng bộ thông tin người dùng.",
+    });
+
+    return fetched;
+  },
+  loginWithGoogle: async (accessToken) => {
+    if (get().status === AppStatus.loading) {
+      return false;
+    }
+
+    set({
+      status: AppStatus.loading,
+      message: null,
+      errorMessage: null,
+    });
+
+    const repository = resolveUserRepository();
+    const device = buildDeviceMetadata();
+    const result = await repository.loginWithThirdParty(
+      "google",
+      accessToken,
+      device.identifier,
+      get().rememberLogin,
+      device.name,
+      device.platform,
+      undefined,
+      device.userAgent,
+    );
+
+    if (!result.response) {
+      set({
+        status: AppStatus.error,
+        message: null,
+        errorMessage: resolveErrorMessage(result.exception),
+      });
+      return false;
+    }
+
+    const fetched = await useAuthStore.getState().fetchMe();
+    set({
+      status: fetched ? AppStatus.success : AppStatus.error,
+      message: fetched ? "Đăng nhập với Google thành công." : null,
       errorMessage: fetched ? null : "Không thể đồng bộ thông tin người dùng.",
     });
 

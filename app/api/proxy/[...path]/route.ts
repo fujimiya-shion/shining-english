@@ -98,7 +98,11 @@ function extractUserAccessTokenFromPayload(payload: unknown): string | null {
 }
 
 function shouldPersistUserAccessToken(path: string, payload: unknown): boolean {
-  return (path === "/auth/login" || path === "/auth/register")
+  return (
+    path === "/auth/login" ||
+    path === "/auth/register" ||
+    path === "/auth/third-party-login"
+  )
     && extractUserAccessTokenFromPayload(payload) !== null;
 }
 
@@ -107,7 +111,10 @@ function shouldClearUserAccessToken(path: string, status: number): boolean {
 }
 
 function shouldRememberUserAccessToken(path: string, body: unknown): boolean {
-  if (path !== "/auth/login" || !isRecord(body)) {
+  if (
+    (path !== "/auth/login" && path !== "/auth/third-party-login") ||
+    !isRecord(body)
+  ) {
     return false;
   }
 
@@ -115,7 +122,10 @@ function shouldRememberUserAccessToken(path: string, body: unknown): boolean {
 }
 
 function sanitizeRequestBody(path: string, body: unknown): unknown {
-  if (path !== "/auth/login" || !isRecord(body)) {
+  if (
+    (path !== "/auth/login" && path !== "/auth/third-party-login") ||
+    !isRecord(body)
+  ) {
     return body;
   }
 
