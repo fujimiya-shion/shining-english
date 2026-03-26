@@ -5,12 +5,14 @@ import { AppButton } from "@/shared/components/ui/app-button";
 
 type GoogleLoginButtonProps = {
   disabled?: boolean;
+  onBeforeAccessToken?: () => boolean;
   onAccessToken: (accessToken: string) => Promise<void> | void;
   onError: (message: string) => void;
 };
 
 export function GoogleLoginButton({
   disabled = false,
+  onBeforeAccessToken = () => true,
   onAccessToken,
   onError,
 }: GoogleLoginButtonProps) {
@@ -29,13 +31,20 @@ export function GoogleLoginButton({
     },
   });
 
+  const onClick = () => {
+    const canProcess = onBeforeAccessToken();
+    if(canProcess) {
+      login();
+    }
+  }
+
   return (
     <AppButton
       className="h-11 w-full rounded-full border-border/80 bg-white text-[color:var(--brand-900)] shadow-none hover:bg-[color:var(--sky-70)]"
       type="button"
       variant="outline"
       disabled={disabled}
-      onClick={() => login()}
+      onClick={onClick}
     >
       <span className="mr-2 inline-flex h-5 w-5 items-center justify-center">
         <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5">
