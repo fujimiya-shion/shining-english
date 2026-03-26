@@ -54,8 +54,6 @@ export class UserRepository extends BaseRepository implements IUserRepository {
   async loginWithThirdParty(
     provider: string,
     accessToken: string,
-    idToken: string,
-    name: string,
     deviceIdentifier: string,
     remember?: boolean,
     deviceName?: string,
@@ -68,8 +66,6 @@ export class UserRepository extends BaseRepository implements IUserRepository {
       body: {
         provider,
         access_token: accessToken,
-        id_token: idToken,
-        name,
         remember,
         device_identifier: deviceIdentifier,
         device_name: deviceName,

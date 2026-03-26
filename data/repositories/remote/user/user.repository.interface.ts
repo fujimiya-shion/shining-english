@@ -25,8 +25,6 @@ export interface IUserRepository {
   loginWithThirdParty(
     provider: string,
     accessToken: string,
-    idToken: string,
-    name: string,
     deviceIdentifier: string,
     remember?: boolean,
     deviceName?: string,
