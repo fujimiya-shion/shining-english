@@ -5,6 +5,8 @@ import { IoCContainer } from "./ioc-container";
 import { IOC_TOKENS, IoCToken } from "./tokens";
 import { ICourseRepository } from "@/data/repositories/remote/course/course.repository.interface";
 import { CourseRepository } from "@/data/repositories/remote/course/course.repository";
+import { ICartRepository } from "@/data/repositories/remote/cart/cart.repository.interface";
+import { CartRepository } from "@/data/repositories/remote/cart/cart.repository";
 
 let clientContainer: IoCContainer | null = null;
 
@@ -18,6 +20,11 @@ function buildClientContainer(): IoCContainer {
   container.bind<ICourseRepository>(
     IOC_TOKENS.COURSE_REPOSITORY,
     () => new CourseRepository(new ClientSideHttpClient()),
+  );
+
+  container.bind<ICartRepository>(
+    IOC_TOKENS.CART_REPOSITORY,
+    () => new CartRepository(new ClientSideHttpClient()),
   );
 
   return container;

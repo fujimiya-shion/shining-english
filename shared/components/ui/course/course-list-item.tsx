@@ -6,6 +6,7 @@ export type CourseListItemData = {
   duration?: number
   completed: boolean
   locked: boolean
+  statusLabel?: string
 }
 
 type CourseListItemProps = {
@@ -39,11 +40,26 @@ export function CourseListItem({ lesson, isActive, onSelect }: CourseListItemPro
         {icon}
         <span className="flex-1 line-clamp-2">{lesson.title}</span>
       </div>
-      {typeof lesson.duration === 'number' && lesson.duration > 0 ? (
-        <div className="mt-1 ml-6 text-xs text-muted-foreground">
-          {lesson.duration}m
-        </div>
-      ) : null}
+      <div className="mt-1 ml-6 flex items-center gap-2 text-xs">
+        {typeof lesson.duration === 'number' && lesson.duration > 0 ? (
+          <span className={isActive ? 'text-primary-foreground/80' : 'text-muted-foreground'}>
+            {lesson.duration}m
+          </span>
+        ) : null}
+        {lesson.statusLabel ? (
+          <span
+            className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${
+              isActive
+                ? 'bg-white/18 text-primary-foreground'
+                : lesson.locked
+                  ? 'bg-background text-muted-foreground'
+                  : 'bg-primary/10 text-primary'
+            }`}
+          >
+            {lesson.statusLabel}
+          </span>
+        ) : null}
+      </div>
     </button>
   )
 }

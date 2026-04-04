@@ -18,7 +18,11 @@ export const AppEndpoints = {
   course: {
     index: "/courses",
     detail: (slug: string) => `/courses/slug/${encodeURIComponent(slug)}`,
+    access: (courseId: number) => `/courses/${courseId}/access`,
     filter: "/courses/filter",
     filterProps: "/courses/filter-props",
+  },
+  cart: {
+    items: "/cart/items",
   },
 } as const;

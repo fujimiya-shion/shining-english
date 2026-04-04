@@ -1,0 +1,196 @@
+'use client'
+
+import {
+  CourseLearningPlayerComment,
+  CourseLearningPlayerLessonDetail,
+  CourseLearningPlayerLessonSummary,
+} from '@/app/courses/components/course-learning-player-sections/course-learning-player-types'
+import { AppButton } from '@/shared/components/ui/app-button'
+import { Button } from '@/shared/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs'
+
+export function CourseLearningPlayerLessonSection({
+  comments,
+  currentLesson,
+  currentLessonData,
+  currentLessonDetail,
+  currentLessonIndex,
+  currentLessonVideoUrl,
+  lessonIds,
+  notes,
+  onChangeNotes,
+  onCompleteLesson,
+  onSelectLesson,
+  onVideoError,
+  shouldShowVideo,
+  showLessonOnlyContent = false,
+}: {
+  comments: CourseLearningPlayerComment[]
+  currentLesson: number
+  currentLessonData?: CourseLearningPlayerLessonSummary
+  currentLessonDetail?: CourseLearningPlayerLessonDetail
+  currentLessonIndex: number
+  currentLessonVideoUrl: string
+  lessonIds: number[]
+  notes: string
+  onChangeNotes: (value: string) => void
+  onCompleteLesson: () => void
+  onSelectLesson: (lessonId: number) => void
+  onVideoError: () => void
+  shouldShowVideo: boolean
+  showLessonOnlyContent?: boolean
+}) {
+  if (!showLessonOnlyContent) {
+    return (
+      <div className="overflow-hidden rounded-2xl border border-border/60 bg-muted/40">
+        <div className="relative flex aspect-video items-center justify-center bg-primary/10">
+          {shouldShowVideo ? (
+            <video
+              key={currentLesson}
+              className="h-full w-full"
+              controls
+              controlsList="nodownload"
+              preload="metadata"
+              src={currentLessonVideoUrl}
+              onError={onVideoError}
+            >
+              Trình duyệt của bạn không hỗ trợ phát video.
+            </video>
+          ) : (
+            <>
+              <div className="absolute inset-0 bg-gradient-to-tr from-black/35 via-black/10 to-transparent" />
+              <div className="relative text-center">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border border-white/40 bg-white/10 backdrop-blur">
+                  <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </div>
+                <p className="mt-4 text-white/90">
+                  {currentLessonVideoUrl
+                    ? `Không tải được video: ${currentLessonData?.title ?? 'Đang cập nhật'}`
+                    : `Video bài học: ${currentLessonData?.title ?? 'Đang cập nhật'}`}
+                </p>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <h2 className="text-2xl font-bold">{currentLessonData?.title ?? 'Bài học đang cập nhật'}</h2>
+        {typeof currentLessonData?.duration === 'number' && currentLessonData.duration > 0 ? (
+          <p className="mt-1 text-muted-foreground">Thời lượng: {currentLessonData.duration} phút</p>
+        ) : null}
+      </div>
+
+      <Tabs defaultValue="overview" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="overview">Tổng quan</TabsTrigger>
+          <TabsTrigger value="notes">Ghi chú</TabsTrigger>
+          <TabsTrigger value="resources">Tài liệu</TabsTrigger>
+        </TabsList>
+        <TabsContent value="overview" className="mt-4 space-y-4">
+          <div className="whitespace-pre-line text-sm text-muted-foreground">
+            {currentLessonDetail?.description || 'Nội dung tổng quan của bài học đang được cập nhật.'}
+          </div>
+        </TabsContent>
+        <TabsContent value="notes" className="mt-4 space-y-4">
+          <div className="space-y-3">
+            <textarea
+              value={notes}
+              onChange={(event) => onChangeNotes(event.target.value)}
+              placeholder="Ghi chú nhanh trong lúc học..."
+              className="h-32 w-full resize-none rounded-lg border border-border bg-background p-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+            <AppButton>Lưu ghi chú</AppButton>
+          </div>
+        </TabsContent>
+        <TabsContent value="resources" className="mt-4 space-y-4">
+          <div className="space-y-2">
+            <div className="flex cursor-pointer items-center gap-2 rounded-lg border border-border p-3 transition-colors hover:bg-muted/50">
+              <svg className="h-4 w-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M4 4a2 2 0 012-2h6a2 2 0 012 2v12a1 1 0 110 2h-6a1 1 0 110-2h6V4H6v12a1 1 0 110 2H4a2 2 0 01-2-2V4z" />
+              </svg>
+              <span className="text-sm font-medium">grammar-guide.pdf</span>
+            </div>
+            <div className="flex cursor-pointer items-center gap-2 rounded-lg border border-border p-3 transition-colors hover:bg-muted/50">
+              <svg className="h-4 w-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M4 4a2 2 0 012-2h6a2 2 0 012 2v12a1 1 0 110 2h-6a1 1 0 110-2h6V4H6v12a1 1 0 110 2H4a2 2 0 01-2-2V4z" />
+              </svg>
+              <span className="text-sm font-medium">practice-exercises.pdf</span>
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
+
+      <div className="flex gap-3 pt-4">
+        <Button
+          variant="outline"
+          className="flex-1 bg-transparent"
+          disabled={currentLessonIndex <= 0}
+          onClick={() => {
+            const previousLessonId = lessonIds[currentLessonIndex - 1]
+            if (typeof previousLessonId === 'number') {
+              onSelectLesson(previousLessonId)
+            }
+          }}
+        >
+          Bài trước
+        </Button>
+        <AppButton className="flex-1" onClick={onCompleteLesson}>
+          {currentLessonData?.completed ? 'Tiếp tục' : 'Hoàn thành'} & Bài tiếp theo
+        </AppButton>
+      </div>
+
+      <div className="rounded-2xl border border-border/60 bg-card/70 p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 className="text-lg font-semibold">Thảo luận bài học</h3>
+            <p className="text-sm text-muted-foreground">
+              Hỏi đáp trong bài học {currentLessonData?.title?.toLowerCase() ?? 'đang xem'}
+            </p>
+          </div>
+          <Button variant="outline">Viết bình luận</Button>
+        </div>
+        <div className="mt-6 space-y-4">
+          {comments.map((comment) => (
+            <div key={comment.id} className="rounded-xl border border-border/60 bg-background p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent/20 font-semibold text-accent-foreground">
+                    {comment.name.slice(0, 1)}
+                  </div>
+                  <div>
+                    <p className="font-medium">{comment.name}</p>
+                    <p className="text-xs text-muted-foreground">{comment.time}</p>
+                  </div>
+                </div>
+              </div>
+              <p className="mt-3 text-sm text-muted-foreground">{comment.content}</p>
+            </div>
+          ))}
+          {comments.length === 0 ? (
+            <div className="rounded-xl border border-border/60 bg-background p-4 text-sm text-muted-foreground">
+              Bài học này chưa có thảo luận.
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  )
+}

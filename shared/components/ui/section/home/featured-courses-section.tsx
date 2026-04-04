@@ -73,11 +73,8 @@ export const FeaturedCoursesSection = ({
                   className="min-w-[14.5rem] shrink-0 basis-[calc(50%-0.5rem)] sm:min-w-[16rem] sm:basis-[55%] md:min-w-[17rem] md:basis-[40%] h-full"
                 >
                   <CourseCardItem
-                    title={course.name ?? ''}
+                    course={course}
                     image={course.thumbnail || "/placeholder.svg"}
-                    rating={course.rating}
-                    students={course.learned}
-                    price={course.price}
                     metaNote="Có phản hồi trực tiếp"
                     href={`/courses/${course.slug ?? course.id}`}
                     className="h-full"
@@ -111,11 +108,8 @@ export const FeaturedCoursesSection = ({
               {courses.map((course) => (
                 <CourseCardItem
                   key={course.id}
-                  title={course.name ?? ''}
+                  course={course}
                   image={course.thumbnail || "/placeholder.svg"}
-                  rating={course.rating}
-                  students={course.learned}
-                  price={course.price}
                   metaNote="Có phản hồi trực tiếp"
                   href={`/courses/${course.slug ?? course.id}`}
                   className="h-full"
