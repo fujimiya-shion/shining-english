@@ -1,9 +1,17 @@
 import { LoginPageClient } from "@/app/login/components/login-page.client";
 import { GuestOnlyGuard } from "@/shared/components/auth/client-auth-guard";
+import { normalizeReturnTo } from "@/shared/utils/return-to-utils";
 
-export default function LoginPage() {
+type LoginPageProps = {
+  searchParams?: Promise<{ returnTo?: string }> | { returnTo?: string };
+};
+
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const resolvedSearchParams = await Promise.resolve(searchParams);
+  const redirectTo = normalizeReturnTo(resolvedSearchParams?.returnTo, "/profile");
+
   return (
-    <GuestOnlyGuard redirectTo="/profile">
+    <GuestOnlyGuard redirectTo={redirectTo}>
       <LoginPageClient />
     </GuestOnlyGuard>
   );

@@ -13,9 +13,10 @@ import {
 } from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
 import { AppStatus } from "@/shared/enums/app-status";
+import { normalizeReturnTo, resolveReturnToFromReferrer } from "@/shared/utils/return-to-utils";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useCallback, useEffect } from "react";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -44,11 +45,17 @@ export function RegisterPageClient() {
 
   const { status: loginStoreStatus, loginWithGoogle, reset: loginStoreReset } = useLoginStore();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     clearFeedback();
     reset();
   }, [clearFeedback, reset]);
+
+  const returnTo = normalizeReturnTo(
+    searchParams.get("returnTo"),
+    resolveReturnToFromReferrer("/profile"),
+  );
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -62,11 +69,11 @@ export function RegisterPageClient() {
     const isSuccess = await loginWithGoogle(accessToken);
     if(isSuccess) {
       loginStoreReset();
-      router.replace('/profile');
+      router.replace(returnTo);
     }
     else
       toast.error("Đã có lỗi xảy ra khi đăng nhập với Google");
-  }, []);
+  }, [loginWithGoogle, loginStoreReset, returnTo, router]);
 
   const onError = useCallback(async (message: string) => {
     toast.error(message);
@@ -230,7 +237,10 @@ export function RegisterPageClient() {
 
             <div className="mt-auto text-center text-sm text-muted-foreground">
               Đã có tài khoản?{" "}
-              <Link className="text-primary font-medium hover:underline" href="/login">
+              <Link
+                className="text-primary font-medium hover:underline"
+                href={returnTo === "/profile" ? "/login" : `/login?returnTo=${encodeURIComponent(returnTo)}`}
+              >
                 Đăng nhập
               </Link>
             </div>

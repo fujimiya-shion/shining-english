@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AppButton } from "@/shared/components/ui/app-button";
 import { Input } from "@/shared/components/ui/input";
 import { AppStatus } from "@/shared/enums/app-status";
@@ -16,9 +16,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/shared/components/ui/card";
+import {
+  normalizeReturnTo,
+  resolveReturnToFromReferrer,
+} from "@/shared/utils/return-to-utils";
 
 export function LoginPageClient() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const {
     status,
     email,
@@ -41,13 +46,18 @@ export function LoginPageClient() {
     reset();
   }, [clearFeedback, reset]);
 
+  const returnTo = normalizeReturnTo(
+    searchParams.get("returnTo"),
+    resolveReturnToFromReferrer("/profile"),
+  );
+
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const authenticated = await login();
     if (authenticated) {
       reset();
-      router.replace("/profile");
+      router.replace(returnTo);
     }
   };
 
@@ -57,7 +67,7 @@ export function LoginPageClient() {
     const authenticated = await loginWithGoogle(accessToken);
     if (authenticated) {
       reset();
-      router.replace("/profile");
+      router.replace(returnTo);
     }
   };
 
@@ -220,7 +230,10 @@ export function LoginPageClient() {
 
             <div className="mt-auto text-center text-sm text-muted-foreground">
               Chưa có tài khoản?{" "}
-              <Link className="text-primary font-medium hover:underline" href="/register">
+              <Link
+                className="text-primary font-medium hover:underline"
+                href={returnTo === "/profile" ? "/register" : `/register?returnTo=${encodeURIComponent(returnTo)}`}
+              >
                 Tạo tài khoản
               </Link>
             </div>

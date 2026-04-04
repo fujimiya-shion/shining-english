@@ -1,0 +1,6 @@
+export { CoursesPageFiltersSidebar } from './courses-page-filters-sidebar'
+export { CoursesPageGrid } from './courses-page-grid'
+export { CoursesPageHeroSection } from './courses-page-hero-section'
+export { CoursesPageMobileCategories } from './courses-page-mobile-categories'
+export { CoursesPagePagination } from './courses-page-pagination'
+export { CoursesPageResultsToolbar } from './courses-page-results-toolbar'

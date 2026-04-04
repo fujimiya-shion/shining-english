@@ -1,4 +1,5 @@
 import { Course } from "@/data/models/course.model";
+import { CourseAccess } from "@/data/models/course-access.model";
 import { PaginationResponse } from "@/data/dtos/common/pagination-response";
 import { BaseRepository } from "../base.repository";
 import { ICourseRepository } from "./course.repository.interface";
@@ -25,6 +26,13 @@ export class CourseRepository extends BaseRepository implements ICourseRepositor
       url: AppEndpoints.course.detail(slug),
       map: (raw) =>
         ObjectResponse.fromApiJson<Course>(raw, Course),
+    });
+  }
+
+  async getAccess(courseId: number): Promise<ApiResult<ObjectResponse<CourseAccess>, ApiException>> {
+    return this.get({
+      url: AppEndpoints.course.access(courseId),
+      map: (raw) => ObjectResponse.fromApiJson<CourseAccess>(raw, CourseAccess),
     });
   }
 
