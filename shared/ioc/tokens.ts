@@ -2,6 +2,9 @@ export const IOC_TOKENS = {
   USER_REPOSITORY: Symbol("USER_REPOSITORY"),
   COURSE_REPOSITORY: Symbol("COURSE_REPOSITORY"),
   CART_REPOSITORY: Symbol("CART_REPOSITORY"),
+  ORDER_REPOSITORY: Symbol("ORDER_REPOSITORY"),
+  EVENT_MANAGER: Symbol("EVENT_MANAGER"),
+  EVENT_BUS: Symbol("EVENT_BUS"),
 } as const;
 
 export type IoCToken = (typeof IOC_TOKENS)[keyof typeof IOC_TOKENS];

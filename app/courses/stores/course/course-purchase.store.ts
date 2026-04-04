@@ -3,6 +3,8 @@
 import { create } from "zustand";
 import { ICartRepository } from "@/data/repositories/remote/cart/cart.repository.interface";
 import { ICourseRepository } from "@/data/repositories/remote/course/course.repository.interface";
+import { CartInvalidatedEvent } from "@/infra/events/events/cart-invalidated.event";
+import { EventBus } from "@/infra/events/event-bus";
 import { AppStatus } from "@/shared/enums/app-status";
 import { resolveClient } from "@/shared/ioc/client-container";
 import { IOC_TOKENS } from "@/shared/ioc/tokens";
@@ -47,6 +49,10 @@ function resolveCourseRepository(): ICourseRepository {
 
 function resolveCartRepository(): ICartRepository {
   return resolveClient<ICartRepository>(IOC_TOKENS.CART_REPOSITORY);
+}
+
+function resolveEventBus(): EventBus {
+  return resolveClient<EventBus>(IOC_TOKENS.EVENT_BUS);
 }
 
 export const useCoursePurchaseStore = create<CoursePurchaseStoreState>((set) => ({
@@ -104,6 +110,9 @@ export const useCoursePurchaseStore = create<CoursePurchaseStoreState>((set) => 
       message: "Đã thêm khóa học vào giỏ hàng.",
       errorMessage: null,
     });
+
+    const eventBus = resolveEventBus();
+    eventBus.emit(new CartInvalidatedEvent('course_purchase', courseId));
     return true;
   },
 

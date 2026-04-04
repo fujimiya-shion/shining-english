@@ -24,5 +24,11 @@ export const AppEndpoints = {
   },
   cart: {
     items: "/cart/items",
+    item: (courseId: number) => `/cart/items/${courseId}`,
+    count: "/cart/count",
+    clear: "/cart/clear",
+  },
+  order: {
+    index: "/orders",
   },
 } as const;

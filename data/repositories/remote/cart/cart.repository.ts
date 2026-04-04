@@ -1,4 +1,7 @@
+import { PaginationResponse } from '@/data/dtos/common/pagination-response'
 import { ObjectResponse } from '@/data/dtos/common/object-response'
+import { CartCount } from '@/data/models/cart-count.model'
+import { CartItem } from '@/data/models/cart-item.model'
 import { CourseAccess } from '@/data/models/course-access.model'
 import { ApiException } from '@/data/types/api-exception'
 import { ApiResult } from '@/data/types/api-result'
@@ -15,6 +18,34 @@ export class CartRepository extends BaseRepository implements ICartRepository {
         quantity,
       },
       map: (raw) => ObjectResponse.fromApiJson<CourseAccess>(raw, CourseAccess),
+    })
+  }
+
+  getItems(): Promise<ApiResult<PaginationResponse<CartItem>, ApiException>> {
+    return this.get({
+      url: AppEndpoints.cart.items,
+      map: (raw) => PaginationResponse.fromJson<CartItem>(raw, CartItem),
+    })
+  }
+
+  getCount(): Promise<ApiResult<ObjectResponse<CartCount>, ApiException>> {
+    return this.get({
+      url: AppEndpoints.cart.count,
+      map: (raw) => ObjectResponse.fromApiJson<CartCount>(raw, CartCount),
+    })
+  }
+
+  removeCourse(courseId: number): Promise<ApiResult<ObjectResponse<unknown>, ApiException>> {
+    return this.delete({
+      url: AppEndpoints.cart.item(courseId),
+      map: (raw) => ObjectResponse.fromApiJson(raw),
+    })
+  }
+
+  clear(): Promise<ApiResult<ObjectResponse<unknown>, ApiException>> {
+    return this.delete({
+      url: AppEndpoints.cart.clear,
+      map: (raw) => ObjectResponse.fromApiJson(raw),
     })
   }
 }
