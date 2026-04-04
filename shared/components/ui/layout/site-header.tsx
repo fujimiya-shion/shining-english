@@ -2,7 +2,10 @@
 
 import Link from 'next/link'
 import { AppButton } from '@/shared/components/ui/app-button'
+import { AppStatus } from '@/shared/enums/app-status'
 import { useAuthStore } from '@/shared/stores/auth.store'
+import { useCartStore } from '@/shared/stores/cart.store'
+import { useEffect } from 'react'
 import {
   BookOpen,
   CircleUserRound,
@@ -33,13 +36,33 @@ const navItems: NavItem[] = [
   { label: 'Liên hệ', icon: Phone, href: '/contact' },
 ]
 
-type SiteHeaderProps = {
-  cartCount?: number
+function CartCountBadge({ count }: { count: number }) {
+  return (
+    <span className="absolute right-0 top-0 md:-top-2.5 inline-flex h-5 min-w-5 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-background bg-[color:var(--brand-900)] px-0 text-[10px] font-semibold leading-none tabular-nums text-white shadow-sm">
+      {count > 99 ? '99+' : count}
+    </span>
+  )
 }
 
-export function SiteHeader({ cartCount = 0 }: SiteHeaderProps) {
+export function SiteHeader() {
   const authenticated = useAuthStore((state) => state.authenticated)
   const currentUserName = useAuthStore((state) => state.currentUser?.name ?? null)
+  const cartCount = useCartStore((state) => state.quantityCount)
+  const countStatus = useCartStore((state) => state.countStatus)
+  const fetchCartCount = useCartStore((state) => state.fetchCount)
+  const resetCart = useCartStore((state) => state.reset)
+
+  useEffect(() => {
+    if (!authenticated) {
+      resetCart()
+      return
+    }
+
+    if (countStatus === AppStatus.initial) {
+      void fetchCartCount()
+    }
+  }, [authenticated, countStatus, fetchCartCount, resetCart])
+
   const closeMobileMenu = (event: React.MouseEvent<HTMLElement>) => {
     const details = event.currentTarget.closest('details')
     if (details) {
@@ -118,11 +141,7 @@ export function SiteHeader({ cartCount = 0 }: SiteHeaderProps) {
               <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-background shadow-sm transition-colors hover:border-primary/40 hover:text-primary">
                 <ShoppingBag className="h-5 w-5" strokeWidth={2} aria-hidden="true" />
               </span>
-              {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-accent text-accent-foreground text-xs flex items-center justify-center font-medium">
-                  {cartCount}
-                </span>
-              )}
+              {cartCount > 0 ? <CartCountBadge count={cartCount} /> : null}
             </Link>
           </div>
 
@@ -180,11 +199,7 @@ export function SiteHeader({ cartCount = 0 }: SiteHeaderProps) {
                     <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-background shadow-sm">
                       <ShoppingBag className="h-5 w-5" strokeWidth={2} aria-hidden="true" />
                     </span>
-                    {cartCount > 0 && (
-                      <span className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-accent text-accent-foreground text-xs flex items-center justify-center font-medium">
-                        {cartCount}
-                      </span>
-                    )}
+                    {cartCount > 0 ? <CartCountBadge count={cartCount} /> : null}
                   </Link>
                 </div>
               </div>
