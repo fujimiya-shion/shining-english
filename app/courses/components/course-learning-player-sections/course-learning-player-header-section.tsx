@@ -9,6 +9,7 @@ import { formatPrice } from '@/shared/utils/currency-utils'
 export function CourseLearningPlayerHeaderSection({
   authenticated,
   canWatchCourse,
+  pendingAccess,
   courseMeta,
   coursePrice,
   inCart,
@@ -21,6 +22,7 @@ export function CourseLearningPlayerHeaderSection({
 }: {
   authenticated: boolean
   canWatchCourse: boolean
+  pendingAccess: boolean
   courseMeta: CourseLearningPlayerMeta
   coursePrice?: number
   inCart: boolean
@@ -86,7 +88,7 @@ export function CourseLearningPlayerHeaderSection({
             </div>
             {!canWatchCourse ? (
               <div className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-                {inCart ? 'Trong giỏ hàng' : authenticated ? 'Chưa sở hữu' : 'Khách'}
+                {pendingAccess ? 'Chờ duyệt thanh toán' : inCart ? 'Trong giỏ hàng' : authenticated ? 'Chưa sở hữu' : 'Khách'}
               </div>
             ) : null}
           </div>
@@ -94,6 +96,8 @@ export function CourseLearningPlayerHeaderSection({
           <p className="mt-3 text-sm leading-6 text-muted-foreground">
             {canWatchCourse
               ? 'Tiếp tục học từ bài học gần nhất của bạn.'
+              : pendingAccess
+                ? 'Bạn đã đặt mua khóa học này. Đơn hàng đang chờ admin duyệt thanh toán trước khi mở quyền học.'
               : inCart
                 ? 'Khóa học đã nằm trong giỏ hàng. Bạn có thể sang checkout để hoàn tất.'
                 : authenticated
@@ -101,7 +105,13 @@ export function CourseLearningPlayerHeaderSection({
                   : 'Đăng nhập để thêm vào giỏ, mua ngay và mở toàn bộ nội dung khóa học.'}
           </p>
 
-          {!canWatchCourse ? (
+          {pendingAccess ? (
+            <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              Bạn đã mua khóa học này nhưng đơn hàng hiện chưa ở trạng thái paid. Vui lòng chờ admin duyệt để mở quyền truy cập.
+            </div>
+          ) : null}
+
+          {!canWatchCourse && !pendingAccess ? (
             <div className="mt-4 rounded-2xl border border-primary/15 bg-white/80 px-4 py-3">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Quyền lợi sau khi mở khóa</span>
@@ -128,7 +138,7 @@ export function CourseLearningPlayerHeaderSection({
 
           {canWatchCourse ? (
             <AppButton className="mt-5 h-11 w-full rounded-full">Tiếp tục học</AppButton>
-          ) : (
+          ) : pendingAccess ? null : (
             <div className="mt-5 grid gap-3">
               <AppButton className="h-11 w-full rounded-full text-base font-semibold" onClick={onBuyNow}>
                 Mua ngay

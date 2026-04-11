@@ -27,6 +27,7 @@ export function CourseLearningPlayerAuthenticatedView({
   const purchaseStatus = useCoursePurchaseStore((state) => state.status)
   const purchaseActionStatus = useCoursePurchaseStore((state) => state.actionStatus)
   const enrolled = useCoursePurchaseStore((state) => state.enrolled)
+  const pendingAccess = useCoursePurchaseStore((state) => state.pendingAccess)
   const inCart = useCoursePurchaseStore((state) => state.inCart)
   const purchaseMessage = useCoursePurchaseStore((state) => state.message)
   const purchaseErrorMessage = useCoursePurchaseStore((state) => state.errorMessage)
@@ -120,6 +121,7 @@ export function CourseLearningPlayerAuthenticatedView({
           <CourseLearningPlayerHeaderSection
             authenticated
             canWatchCourse={canWatchCourse}
+            pendingAccess={pendingAccess}
             courseMeta={playerState.courseMeta}
             coursePrice={course.price}
             inCart={inCart}

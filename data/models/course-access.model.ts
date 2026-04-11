@@ -7,6 +7,9 @@ export class CourseAccess {
 
   enrolled = false
 
+  @Expose({ name: 'pending_access' })
+  pendingAccess = false
+
   @Expose({ name: 'in_cart' })
   inCart = false
 }

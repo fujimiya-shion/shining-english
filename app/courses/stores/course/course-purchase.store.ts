@@ -16,6 +16,7 @@ export interface CoursePurchaseStoreProps {
   status: AppStatus;
   actionStatus: AppStatus;
   enrolled: boolean;
+  pendingAccess: boolean;
   inCart: boolean;
   loginPromptOpen: boolean;
   loginPromptAction: AuthPromptAction;
@@ -36,6 +37,7 @@ const initState: CoursePurchaseStoreProps = {
   status: AppStatus.initial,
   actionStatus: AppStatus.initial,
   enrolled: false,
+  pendingAccess: false,
   inCart: false,
   loginPromptOpen: false,
   loginPromptAction: null,
@@ -70,6 +72,7 @@ export const useCoursePurchaseStore = create<CoursePurchaseStoreState>((set) => 
       set({
         status: AppStatus.error,
         enrolled: false,
+        pendingAccess: false,
         inCart: false,
         errorMessage: resolveApiErrorMessage(result.exception),
       });
@@ -79,6 +82,7 @@ export const useCoursePurchaseStore = create<CoursePurchaseStoreState>((set) => 
     set({
       status: AppStatus.done,
       enrolled: result.response.data.enrolled,
+      pendingAccess: result.response.data.pendingAccess,
       inCart: result.response.data.inCart,
       errorMessage: null,
     });
@@ -107,6 +111,7 @@ export const useCoursePurchaseStore = create<CoursePurchaseStoreState>((set) => 
       actionStatus: AppStatus.success,
       inCart: result.response.data.inCart,
       enrolled: result.response.data.enrolled,
+      pendingAccess: result.response.data.pendingAccess,
       message: "Đã thêm khóa học vào giỏ hàng.",
       errorMessage: null,
     });
