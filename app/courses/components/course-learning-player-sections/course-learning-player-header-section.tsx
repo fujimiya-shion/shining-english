@@ -97,7 +97,7 @@ export function CourseLearningPlayerHeaderSection({
             {canWatchCourse
               ? 'Tiếp tục học từ bài học gần nhất của bạn.'
               : pendingAccess
-                ? 'Bạn đã đặt mua khóa học này. Đơn hàng đang chờ admin duyệt thanh toán trước khi mở quyền học.'
+                ? 'Bạn đã đăng ký khóa học này. Ngay khi thanh toán được xác nhận, khóa học sẽ được mở cho bạn.'
               : inCart
                 ? 'Khóa học đã nằm trong giỏ hàng. Bạn có thể sang checkout để hoàn tất.'
                 : authenticated
@@ -107,7 +107,7 @@ export function CourseLearningPlayerHeaderSection({
 
           {pendingAccess ? (
             <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-              Bạn đã mua khóa học này nhưng đơn hàng hiện chưa ở trạng thái paid. Vui lòng chờ admin duyệt để mở quyền truy cập.
+              Thanh toán của bạn đang được kiểm tra. Bạn sẽ vào học được ngay sau khi hệ thống xác nhận.
             </div>
           ) : null}
 
