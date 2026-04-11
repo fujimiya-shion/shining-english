@@ -2,6 +2,7 @@ import "reflect-metadata";
 import { Expose, Type } from "class-transformer";
 import { BaseModel } from "./base.model";
 import { LessonComment, SerializedLessonComment } from "./lesson-comment.model";
+import { LessonNote, SerializedLessonNote } from './lesson-note.model'
 import { Serializable } from "./serializable.model";
 
 export type SerializedLesson = {
@@ -14,6 +15,7 @@ export type SerializedLesson = {
   durationMinutes?: number;
   hasQuiz?: boolean;
   comments: SerializedLessonComment[];
+  notes: SerializedLessonNote[];
 };
 
 export class Lesson extends BaseModel implements Serializable<SerializedLesson> {
@@ -46,6 +48,9 @@ export class Lesson extends BaseModel implements Serializable<SerializedLesson> 
   @Type(() => LessonComment)
   comments?: LessonComment[];
 
+  @Type(() => LessonNote)
+  notes?: LessonNote[]
+
   serialize(): SerializedLesson {
     return {
       id: this.id,
@@ -57,6 +62,7 @@ export class Lesson extends BaseModel implements Serializable<SerializedLesson> 
       durationMinutes: this.durationMinutes,
       hasQuiz: this.hasQuiz,
       comments: (this.comments ?? []).map((comment) => comment.serialize()),
+      notes: (this.notes ?? []).map((note) => note.serialize()),
     };
   }
 }

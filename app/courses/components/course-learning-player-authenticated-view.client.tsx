@@ -6,6 +6,8 @@ import { AppStatus } from '@/shared/enums/app-status'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { useCoursePurchaseStore } from '../stores/course/course-purchase.store'
+import { useLessonNoteStore } from '@/shared/stores/lesson-note.store'
+import { formatRelativeTime } from '@/shared/utils/date-time-utils'
 import {
   CourseLearningPlayerHeaderSection,
   CourseLearningPlayerLessonSection,
@@ -35,6 +37,13 @@ export function CourseLearningPlayerAuthenticatedView({
   const addToCart = useCoursePurchaseStore((state) => state.addToCart)
   const clearPurchaseFeedback = useCoursePurchaseStore((state) => state.clearFeedback)
   const resetPurchaseState = useCoursePurchaseStore((state) => state.reset)
+  const lessonNotes = useLessonNoteStore((state) => state.lessonNotes)
+  const lessonNotesStatus = useLessonNoteStore((state) => state.lessonStatus)
+  const noteActionStatus = useLessonNoteStore((state) => state.actionStatus)
+  const fetchLessonNotes = useLessonNoteStore((state) => state.fetchLessonNotes)
+  const createNote = useLessonNoteStore((state) => state.createNote)
+  const deleteNote = useLessonNoteStore((state) => state.deleteNote)
+  const clearNoteFeedback = useLessonNoteStore((state) => state.clearFeedback)
 
   const playerState = useCourseLearningPlayerState({
     course,
@@ -55,6 +64,14 @@ export function CourseLearningPlayerAuthenticatedView({
 
     void syncAccess(courseId)
   }, [courseId, resetPurchaseState, syncAccess])
+
+  useEffect(() => {
+    if (!canWatchCourse || playerState.currentLesson <= 0) {
+      return
+    }
+
+    void fetchLessonNotes(playerState.currentLesson)
+  }, [canWatchCourse, fetchLessonNotes, playerState.currentLesson])
 
   const handleBuyNow = () => {
     clearPurchaseFeedback()
@@ -85,6 +102,37 @@ export function CourseLearningPlayerAuthenticatedView({
     await addToCart(courseId)
   }
 
+  const mappedLessonNotes = lessonNotes.map((note) => ({
+    id: note.id ?? '',
+    content: note.content?.trim() || 'Ghi chú đang được cập nhật.',
+    time: formatRelativeTime(
+      note.createdAt instanceof Date ? note.createdAt.toISOString() : note.createdAt,
+    ),
+    lessonName: note.lesson?.name?.trim() || playerState.currentLessonData?.title || 'Bài học hiện tại',
+    courseName: note.lesson?.course?.name?.trim() || course.name,
+  }))
+
+  const handleSaveNote = async () => {
+    const lessonId = playerState.currentLesson
+    const content = playerState.notes.trim()
+
+    if (!lessonId || !content) {
+      return
+    }
+
+    clearNoteFeedback()
+
+    const saved = await createNote(lessonId, content)
+    if (saved) {
+      playerState.clearCurrentLessonNoteDraft()
+    }
+  }
+
+  const handleDeleteNote = async (noteId: number) => {
+    clearNoteFeedback()
+    await deleteNote(noteId)
+  }
+
   return (
     <CourseLearningPlayerScaffold
       main={
@@ -100,8 +148,13 @@ export function CourseLearningPlayerAuthenticatedView({
               currentLessonIndex={playerState.currentLessonIndex}
               currentLessonVideoUrl={playerState.currentLessonVideoUrl}
               lessonIds={playerState.lessonIds}
+              lessonNotes={mappedLessonNotes}
+              lessonNotesStatus={lessonNotesStatus}
               notes={playerState.notes}
+              noteActionStatus={noteActionStatus}
               onChangeNotes={playerState.setNotes}
+              onDeleteNote={handleDeleteNote}
+              onSaveNote={handleSaveNote}
               onCompleteLesson={playerState.handleCompleteLesson}
               onSelectLesson={playerState.setCurrentLesson}
               onVideoError={playerState.handleVideoError}
@@ -144,8 +197,13 @@ export function CourseLearningPlayerAuthenticatedView({
               currentLessonIndex={playerState.currentLessonIndex}
               currentLessonVideoUrl={playerState.currentLessonVideoUrl}
               lessonIds={playerState.lessonIds}
+              lessonNotes={mappedLessonNotes}
+              lessonNotesStatus={lessonNotesStatus}
               notes={playerState.notes}
+              noteActionStatus={noteActionStatus}
               onChangeNotes={playerState.setNotes}
+              onDeleteNote={handleDeleteNote}
+              onSaveNote={handleSaveNote}
               onCompleteLesson={playerState.handleCompleteLesson}
               onSelectLesson={playerState.setCurrentLesson}
               onVideoError={playerState.handleVideoError}

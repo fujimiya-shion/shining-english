@@ -55,6 +55,7 @@ export function CourseLearningPlayerGuestView({
             <CourseLearningPlayerHeaderSection
               authenticated={authenticated}
               canWatchCourse={false}
+              pendingAccess={false}
               courseMeta={playerState.courseMeta}
               coursePrice={course.price}
               inCart={false}

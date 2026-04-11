@@ -15,6 +15,14 @@ export type CourseLearningPlayerComment = {
   time: string
 }
 
+export type CourseLearningPlayerNote = {
+  id: number | string
+  content: string
+  time: string
+  lessonName: string
+  courseName?: string
+}
+
 export type CourseLearningPlayerReview = {
   id: number | string
   name: string

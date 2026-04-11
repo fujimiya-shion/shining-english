@@ -45,7 +45,7 @@ export function useCourseLearningPlayerState({
   const [currentLesson, setCurrentLesson] = useState(initialLessonId)
   const [completedLessonIds, setCompletedLessonIds] = useState<number[]>([])
   const [unavailableVideoIds, setUnavailableVideoIds] = useState<number[]>([])
-  const [notes, setNotes] = useState('')
+  const [noteDrafts, setNoteDrafts] = useState<Record<number, string>>({})
   const normalizedDescription = course.description ? stripHtml(course.description) : ''
 
   const lessonMap = useMemo(() => {
@@ -146,6 +146,30 @@ export function useCourseLearningPlayerState({
     [currentLessonDetail?.comments]
   )
 
+  const notes = currentLesson > 0 ? (noteDrafts[currentLesson] ?? '') : ''
+
+  const setNotes = (value: string) => {
+    if (currentLesson <= 0) {
+      return
+    }
+
+    setNoteDrafts((prev) => ({
+      ...prev,
+      [currentLesson]: value,
+    }))
+  }
+
+  const clearCurrentLessonNoteDraft = () => {
+    if (currentLesson <= 0) {
+      return
+    }
+
+    setNoteDrafts((prev) => ({
+      ...prev,
+      [currentLesson]: '',
+    }))
+  }
+
   const handleCompleteLesson = () => {
     if (currentLesson > 0 && !completedLessonIds.includes(currentLesson)) {
       setCompletedLessonIds((prev) => [...prev, currentLesson])
@@ -178,6 +202,7 @@ export function useCourseLearningPlayerState({
     reviews,
     setCurrentLesson,
     setNotes,
+    clearCurrentLessonNoteDraft,
     shouldShowVideo,
   }
 }
