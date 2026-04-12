@@ -3,11 +3,13 @@
 import {
   CourseLearningPlayerComment,
   CourseLearningPlayerLessonDetail,
+  CourseLearningPlayerNote,
   CourseLearningPlayerLessonSummary,
 } from '@/app/courses/components/course-learning-player-sections/course-learning-player-types'
 import { AppButton } from '@/shared/components/ui/app-button'
 import { Button } from '@/shared/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs'
+import { AppStatus } from '@/shared/enums/app-status'
 
 export function CourseLearningPlayerLessonSection({
   comments,
@@ -17,8 +19,13 @@ export function CourseLearningPlayerLessonSection({
   currentLessonIndex,
   currentLessonVideoUrl,
   lessonIds,
+  lessonNotes,
+  lessonNotesStatus,
   notes,
+  noteActionStatus,
   onChangeNotes,
+  onDeleteNote,
+  onSaveNote,
   onCompleteLesson,
   onSelectLesson,
   onVideoError,
@@ -32,8 +39,13 @@ export function CourseLearningPlayerLessonSection({
   currentLessonIndex: number
   currentLessonVideoUrl: string
   lessonIds: number[]
+  lessonNotes: CourseLearningPlayerNote[]
+  lessonNotesStatus: AppStatus
   notes: string
+  noteActionStatus: AppStatus
   onChangeNotes: (value: string) => void
+  onDeleteNote: (noteId: number) => void
+  onSaveNote: () => void
   onCompleteLesson: () => void
   onSelectLesson: (lessonId: number) => void
   onVideoError: () => void
@@ -117,7 +129,43 @@ export function CourseLearningPlayerLessonSection({
               placeholder="Ghi chú nhanh trong lúc học..."
               className="h-32 w-full resize-none rounded-lg border border-border bg-background p-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
             />
-            <AppButton>Lưu ghi chú</AppButton>
+            <AppButton
+              disabled={noteActionStatus === AppStatus.loading || !notes.trim()}
+              onClick={onSaveNote}
+            >
+              {noteActionStatus === AppStatus.loading ? 'Đang lưu...' : 'Lưu ghi chú'}
+            </AppButton>
+            <div className="space-y-3">
+              {lessonNotesStatus === AppStatus.loading ? (
+                <div className="rounded-lg border border-border/60 bg-muted/30 p-4 text-sm text-muted-foreground">
+                  Đang tải ghi chú của bài học này...
+                </div>
+              ) : null}
+              {lessonNotes.map((note) => (
+                <div key={note.id} className="rounded-lg border border-border/60 bg-card p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-semibold">{note.lessonName}</p>
+                      <p className="text-xs text-muted-foreground">{note.time}</p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-auto px-2 py-1 text-xs text-muted-foreground hover:text-destructive"
+                      onClick={() => onDeleteNote(Number(note.id))}
+                    >
+                      Xóa
+                    </Button>
+                  </div>
+                  <p className="mt-3 whitespace-pre-line text-sm text-muted-foreground">{note.content}</p>
+                </div>
+              ))}
+              {lessonNotesStatus !== AppStatus.loading && lessonNotes.length === 0 ? (
+                <div className="rounded-lg border border-dashed border-border/60 bg-muted/20 p-4 text-sm text-muted-foreground">
+                  Chưa có ghi chú nào cho bài học này.
+                </div>
+              ) : null}
+            </div>
           </div>
         </TabsContent>
         <TabsContent value="resources" className="mt-4 space-y-4">

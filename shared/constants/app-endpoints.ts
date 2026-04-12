@@ -31,4 +31,9 @@ export const AppEndpoints = {
   order: {
     index: "/orders",
   },
+  lessonNote: {
+    index: '/notes',
+    byLesson: (lessonId: number) => `/lessons/${lessonId}/notes`,
+    detail: (noteId: number) => `/notes/${noteId}`,
+  },
 } as const;

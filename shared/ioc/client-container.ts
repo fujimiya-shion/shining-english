@@ -9,6 +9,8 @@ import { ICartRepository } from "@/data/repositories/remote/cart/cart.repository
 import { CartRepository } from "@/data/repositories/remote/cart/cart.repository";
 import { IOrderRepository } from "@/data/repositories/remote/order/order.repository.interface";
 import { OrderRepository } from "@/data/repositories/remote/order/order.repository";
+import { ILessonNoteRepository } from '@/data/repositories/remote/lesson-note/lesson-note.repository.interface'
+import { LessonNoteRepository } from '@/data/repositories/remote/lesson-note/lesson-note.repository'
 import { EventManager } from "@/infra/events/event-manager";
 import { EventBus } from "@/infra/events/event-bus";
 
@@ -37,6 +39,11 @@ function buildClientContainer(): IoCContainer {
   container.bind<IOrderRepository>(
     IOC_TOKENS.ORDER_REPOSITORY,
     () => new OrderRepository(new ClientSideHttpClient()),
+  );
+
+  container.bind<ILessonNoteRepository>(
+    IOC_TOKENS.LESSON_NOTE_REPOSITORY,
+    () => new LessonNoteRepository(new ClientSideHttpClient()),
   );
 
   container.bind<EventManager>(

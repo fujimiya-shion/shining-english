@@ -7,6 +7,8 @@ import { IoCContainer } from "./ioc-container";
 import { IOC_TOKENS, IoCToken } from "./tokens";
 import { ICourseRepository } from "@/data/repositories/remote/course/course.repository.interface";
 import { CourseRepository } from "@/data/repositories/remote/course/course.repository";
+import { ILessonNoteRepository } from '@/data/repositories/remote/lesson-note/lesson-note.repository.interface'
+import { LessonNoteRepository } from '@/data/repositories/remote/lesson-note/lesson-note.repository'
 import { EventBus } from "@/infra/events/event-bus";
 import { EventManager } from "@/infra/events/event-manager";
 
@@ -24,6 +26,10 @@ function buildServerContainer(): IoCContainer {
   container.bind<ICourseRepository>(
     IOC_TOKENS.COURSE_REPOSITORY,
     () => new CourseRepository(new ServerSideHttpClient()),
+  );
+  container.bind<ILessonNoteRepository>(
+    IOC_TOKENS.LESSON_NOTE_REPOSITORY,
+    () => new LessonNoteRepository(new ServerSideHttpClient()),
   );
   container.bind<EventManager>(
     IOC_TOKENS.EVENT_MANAGER,
