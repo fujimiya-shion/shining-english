@@ -33,8 +33,15 @@ export type CourseLearningPlayerReview = {
 
 export type CourseLearningPlayerLessonSummary = CourseListItemData
 
+export type CourseLearningPlayerLessonResource = {
+  id: string
+  name: string
+  url: string
+}
+
 export type CourseLearningPlayerLessonDetail = {
   description?: string
+  resources: CourseLearningPlayerLessonResource[]
 }
 
 export type CourseLearningPlayerMeta = {

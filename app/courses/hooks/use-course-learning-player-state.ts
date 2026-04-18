@@ -4,7 +4,7 @@ import { SerializedCourse } from '@/data/models/course.model'
 import { CourseListItemData } from '@/shared/components/ui/course/course-list-item'
 import { formatRelativeTime } from '@/shared/utils/date-time-utils'
 import { stripHtml } from '@/shared/utils/string-utils'
-import { resolveProxyVideoUrl } from '@/shared/utils/video-utils'
+import { resolveProxyLessonDocumentUrl, resolveProxyVideoUrl } from '@/shared/utils/video-utils'
 import { useEffect, useMemo, useState } from 'react'
 
 type CourseLearningPlayerModule = {
@@ -34,6 +34,18 @@ export function useCourseLearningPlayerState({
         videoUrl: resolveLessonVideoUrl(lesson.id, lesson.videoUrl),
         duration: lesson.durationMinutes,
         comments: lesson.comments ?? [],
+        resources: (lesson.documents ?? []).map((documentPath, documentIndex) => ({
+          id: `${lesson.id ?? index + 1}-${documentIndex}`,
+          name:
+            lesson.documentNames?.[documentPath]?.trim()
+            || documentPath.split('/').pop()
+            || `Tai lieu ${documentIndex + 1}`,
+          url: resolveProxyLessonDocumentUrl(
+            lesson.id,
+            documentIndex,
+            documentPath,
+          ),
+        })),
       })),
     [course.lessons]
   )

@@ -10,6 +10,8 @@ export type SerializedLesson = {
   name?: string;
   slug?: string;
   videoUrl?: string;
+  documents?: string[];
+  documentNames?: Record<string, string>;
   groupName?: string;
   description?: string;
   durationMinutes?: number;
@@ -27,6 +29,11 @@ export class Lesson extends BaseModel implements Serializable<SerializedLesson> 
 
   @Expose({ name: "video_url" })
   videoUrl?: string;
+
+  documents?: string[];
+
+  @Expose({ name: "document_names" })
+  documentNames?: Record<string, string>;
 
   @Expose({ name: "group_name" })
   groupName?: string;
@@ -57,6 +64,8 @@ export class Lesson extends BaseModel implements Serializable<SerializedLesson> 
       name: this.name,
       slug: this.slug,
       videoUrl: this.videoUrl,
+      documents: this.documents ?? [],
+      documentNames: this.documentNames ?? {},
       groupName: this.groupName,
       description: this.description,
       durationMinutes: this.durationMinutes,

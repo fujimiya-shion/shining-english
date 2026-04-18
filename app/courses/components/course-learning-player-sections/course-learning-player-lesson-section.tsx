@@ -170,18 +170,25 @@ export function CourseLearningPlayerLessonSection({
         </TabsContent>
         <TabsContent value="resources" className="mt-4 space-y-4">
           <div className="space-y-2">
-            <div className="flex cursor-pointer items-center gap-2 rounded-lg border border-border p-3 transition-colors hover:bg-muted/50">
-              <svg className="h-4 w-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M4 4a2 2 0 012-2h6a2 2 0 012 2v12a1 1 0 110 2h-6a1 1 0 110-2h6V4H6v12a1 1 0 110 2H4a2 2 0 01-2-2V4z" />
-              </svg>
-              <span className="text-sm font-medium">grammar-guide.pdf</span>
-            </div>
-            <div className="flex cursor-pointer items-center gap-2 rounded-lg border border-border p-3 transition-colors hover:bg-muted/50">
-              <svg className="h-4 w-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M4 4a2 2 0 012-2h6a2 2 0 012 2v12a1 1 0 110 2h-6a1 1 0 110-2h6V4H6v12a1 1 0 110 2H4a2 2 0 01-2-2V4z" />
-              </svg>
-              <span className="text-sm font-medium">practice-exercises.pdf</span>
-            </div>
+            {currentLessonDetail?.resources?.map((resource) => (
+              <a
+                key={resource.id}
+                href={resource.url}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-2 rounded-lg border border-border p-3 transition-colors hover:bg-muted/50"
+              >
+                <svg className="h-4 w-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M4 4a2 2 0 012-2h6a2 2 0 012 2v12a1 1 0 110 2h-6a1 1 0 110-2h6V4H6v12a1 1 0 110 2H4a2 2 0 01-2-2V4z" />
+                </svg>
+                <span className="text-sm font-medium">{resource.name}</span>
+              </a>
+            ))}
+            {!currentLessonDetail?.resources?.length ? (
+              <div className="rounded-lg border border-dashed border-border/60 bg-muted/20 p-4 text-sm text-muted-foreground">
+                Bài học này chưa có tài liệu đính kèm.
+              </div>
+            ) : null}
           </div>
         </TabsContent>
       </Tabs>
