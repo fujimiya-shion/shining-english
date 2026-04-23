@@ -3,10 +3,12 @@
 import { SerializedCourse } from '@/data/models/course.model'
 import { useCourseLearningPlayerState } from '@/app/courses/hooks/use-course-learning-player-state'
 import { AppStatus } from '@/shared/enums/app-status'
+import { AppConfirmModal } from '@/shared/components/ui/app-confirm-modal'
 import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useCoursePurchaseStore } from '../stores/course/course-purchase.store'
 import { useLessonNoteStore } from '@/shared/stores/lesson-note.store'
+import { useCourseLearningProgressStore } from '../stores/course/course-learning-progress.store'
 import { formatRelativeTime } from '@/shared/utils/date-time-utils'
 import {
   CourseLearningPlayerHeaderSection,
@@ -44,10 +46,21 @@ export function CourseLearningPlayerAuthenticatedView({
   const createNote = useLessonNoteStore((state) => state.createNote)
   const deleteNote = useLessonNoteStore((state) => state.deleteNote)
   const clearNoteFeedback = useLessonNoteStore((state) => state.clearFeedback)
+  const progressCurrentLessonId = useCourseLearningProgressStore((state) => state.currentLessonId)
+  const progressCompletedLessonIds = useCourseLearningProgressStore((state) => state.completedLessonIds)
+  const pendingQuiz = useCourseLearningProgressStore((state) => state.pendingQuiz)
+  const fetchProgress = useCourseLearningProgressStore((state) => state.fetchProgress)
+  const completeLessonProgress = useCourseLearningProgressStore((state) => state.completeLesson)
+  const setCurrentLessonProgress = useCourseLearningProgressStore((state) => state.setCurrentLesson)
+  const consumePendingQuiz = useCourseLearningProgressStore((state) => state.consumePendingQuiz)
+  const resetLearningProgress = useCourseLearningProgressStore((state) => state.reset)
+  const [quizPromptOpen, setQuizPromptOpen] = useState(false)
 
   const playerState = useCourseLearningPlayerState({
     course,
     enrolled,
+    progressCurrentLessonId,
+    progressCompletedLessonIds,
   })
 
   const courseId = Number(course.id ?? 0)
@@ -57,13 +70,22 @@ export function CourseLearningPlayerAuthenticatedView({
 
   useEffect(() => {
     resetPurchaseState()
+    resetLearningProgress()
 
     if (!courseId) {
       return
     }
 
     void syncAccess(courseId)
-  }, [courseId, resetPurchaseState, syncAccess])
+  }, [courseId, resetLearningProgress, resetPurchaseState, syncAccess])
+
+  useEffect(() => {
+    if (!canWatchCourse || !courseId) {
+      return
+    }
+
+    void fetchProgress(courseId)
+  }, [canWatchCourse, courseId, fetchProgress])
 
   useEffect(() => {
     if (!canWatchCourse || playerState.currentLesson <= 0) {
@@ -133,9 +155,64 @@ export function CourseLearningPlayerAuthenticatedView({
     await deleteNote(noteId)
   }
 
+  const handleSelectLesson = (lessonId: number) => {
+    playerState.setCurrentLesson(lessonId)
+
+    if (!canWatchCourse || !courseId) {
+      return
+    }
+
+    void setCurrentLessonProgress(courseId, lessonId)
+  }
+
+  const handleCompleteLesson = async () => {
+    if (!canWatchCourse || !courseId || playerState.currentLesson <= 0) {
+      playerState.handleCompleteLesson()
+      return
+    }
+
+    const completed = await completeLessonProgress(courseId, playerState.currentLesson)
+    if (!completed) {
+      playerState.handleCompleteLesson()
+    }
+  }
+
+  const openQuizForPendingLesson = (lessonId: number) => {
+    const slug = typeof course.slug === 'string' ? course.slug : ''
+    if (!slug) {
+      consumePendingQuiz()
+      return
+    }
+
+    consumePendingQuiz()
+    setQuizPromptOpen(false)
+    router.push(`/courses/${slug}/quiz?lessonId=${lessonId}`)
+  }
+
+  useEffect(() => {
+    if (!pendingQuiz || !canWatchCourse) {
+      setQuizPromptOpen(false)
+      return
+    }
+
+    const isFullscreen = Boolean(document.fullscreenElement)
+    if (isFullscreen) {
+      const confirmed = window.confirm('Bài tiếp theo có quiz. Bạn muốn làm quiz ngay bây giờ không?')
+      if (confirmed) {
+        openQuizForPendingLesson(pendingQuiz.lessonId)
+      } else {
+        consumePendingQuiz()
+      }
+      return
+    }
+
+    setQuizPromptOpen(true)
+  }, [canWatchCourse, consumePendingQuiz, pendingQuiz, router])
+
   return (
-    <CourseLearningPlayerScaffold
-      main={
+    <>
+      <CourseLearningPlayerScaffold
+        main={
         <>
           {isAccessLoading ? (
             <CourseLearningPlayerLoadingState message="Đang kiểm tra quyền truy cập khóa học..." />
@@ -155,8 +232,8 @@ export function CourseLearningPlayerAuthenticatedView({
               onChangeNotes={playerState.setNotes}
               onDeleteNote={handleDeleteNote}
               onSaveNote={handleSaveNote}
-              onCompleteLesson={playerState.handleCompleteLesson}
-              onSelectLesson={playerState.setCurrentLesson}
+              onCompleteLesson={handleCompleteLesson}
+              onSelectLesson={handleSelectLesson}
               onVideoError={playerState.handleVideoError}
               shouldShowVideo={playerState.shouldShowVideo}
             />
@@ -204,8 +281,8 @@ export function CourseLearningPlayerAuthenticatedView({
               onChangeNotes={playerState.setNotes}
               onDeleteNote={handleDeleteNote}
               onSaveNote={handleSaveNote}
-              onCompleteLesson={playerState.handleCompleteLesson}
-              onSelectLesson={playerState.setCurrentLesson}
+              onCompleteLesson={handleCompleteLesson}
+              onSelectLesson={handleSelectLesson}
               onVideoError={playerState.handleVideoError}
               shouldShowVideo={playerState.shouldShowVideo}
               showLessonOnlyContent
@@ -220,10 +297,26 @@ export function CourseLearningPlayerAuthenticatedView({
           canWatchCourse={canWatchCourse}
           currentLesson={playerState.currentLesson}
           modules={playerState.modules}
-          onSelectLesson={playerState.setCurrentLesson}
+          onSelectLesson={handleSelectLesson}
           progressPercentage={playerState.progressPercentage}
         />
-      }
-    />
+        }
+      />
+      {pendingQuiz ? (
+        <AppConfirmModal
+          open={quizPromptOpen}
+          message="Có quiz ở bài tiếp theo"
+          title="Làm quiz ngay bây giờ?"
+          description={`Bài ${pendingQuiz.lessonId} có quiz. Bạn có muốn làm ngay để mở khóa tiến độ học không?`}
+          confirmText="Làm quiz"
+          cancelText="Để sau"
+          onConfirm={() => openQuizForPendingLesson(pendingQuiz.lessonId)}
+          onCancal={() => {
+            setQuizPromptOpen(false)
+            consumePendingQuiz()
+          }}
+        />
+      ) : null}
+    </>
   )
 }

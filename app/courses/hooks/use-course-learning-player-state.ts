@@ -20,9 +20,13 @@ function resolveLessonVideoUrl(lessonId?: number | string, value?: string): stri
 export function useCourseLearningPlayerState({
   course,
   enrolled,
+  progressCurrentLessonId,
+  progressCompletedLessonIds,
 }: {
   course: SerializedCourse
   enrolled: boolean
+  progressCurrentLessonId?: number | null
+  progressCompletedLessonIds?: number[]
 }) {
   const lessonSources = useMemo(
     () =>
@@ -54,8 +58,8 @@ export function useCourseLearningPlayerState({
     return lessonSources.find((lesson) => lesson.videoUrl)?.id ?? lessonSources[0]?.id ?? 0
   }, [lessonSources])
 
-  const [currentLesson, setCurrentLesson] = useState(initialLessonId)
-  const [completedLessonIds, setCompletedLessonIds] = useState<number[]>([])
+  const [currentLesson, setCurrentLesson] = useState(progressCurrentLessonId ?? initialLessonId)
+  const [completedLessonIds, setCompletedLessonIds] = useState<number[]>(progressCompletedLessonIds ?? [])
   const [unavailableVideoIds, setUnavailableVideoIds] = useState<number[]>([])
   const [noteDrafts, setNoteDrafts] = useState<Record<number, string>>({})
   const normalizedDescription = course.description ? stripHtml(course.description) : ''
@@ -81,6 +85,26 @@ export function useCourseLearningPlayerState({
       setCurrentLesson(initialLessonId)
     }
   }, [currentLesson, initialLessonId, lessonMap, lessonSources.length])
+
+  useEffect(() => {
+    if (!enrolled) {
+      return
+    }
+
+    if (typeof progressCurrentLessonId === 'number' && lessonMap.has(progressCurrentLessonId)) {
+      setCurrentLesson(progressCurrentLessonId)
+    }
+  }, [enrolled, lessonMap, progressCurrentLessonId])
+
+  useEffect(() => {
+    if (!enrolled || !Array.isArray(progressCompletedLessonIds)) {
+      return
+    }
+
+    const lessonSet = new Set(lessonSources.map((lesson) => lesson.id))
+    const normalized = progressCompletedLessonIds.filter((lessonId) => lessonSet.has(lessonId))
+    setCompletedLessonIds(normalized)
+  }, [enrolled, lessonSources, progressCompletedLessonIds])
 
   const modules = useMemo<CourseLearningPlayerModule[]>(() => {
     const grouped = new Map<string, CourseListItemData[]>()
