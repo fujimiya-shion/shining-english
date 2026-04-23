@@ -20,9 +20,13 @@ function resolveLessonVideoUrl(lessonId?: number | string, value?: string): stri
 export function useCourseLearningPlayerState({
   course,
   enrolled,
+  progressCurrentLessonId,
+  progressCompletedLessonIds,
 }: {
   course: SerializedCourse
   enrolled: boolean
+  progressCurrentLessonId?: number | null
+  progressCompletedLessonIds?: number[]
 }) {
   const lessonSources = useMemo(
     () =>
@@ -31,6 +35,7 @@ export function useCourseLearningPlayerState({
         title: lesson.name ?? `Bài học ${index + 1}`,
         group: lesson.groupName?.trim() || 'Danh sách bài học',
         description: lesson.description ? stripHtml(lesson.description) : '',
+        hasQuiz: Boolean(lesson.hasQuiz),
         videoUrl: resolveLessonVideoUrl(lesson.id, lesson.videoUrl),
         duration: lesson.durationMinutes,
         comments: lesson.comments ?? [],
@@ -54,8 +59,8 @@ export function useCourseLearningPlayerState({
     return lessonSources.find((lesson) => lesson.videoUrl)?.id ?? lessonSources[0]?.id ?? 0
   }, [lessonSources])
 
-  const [currentLesson, setCurrentLesson] = useState(initialLessonId)
-  const [completedLessonIds, setCompletedLessonIds] = useState<number[]>([])
+  const [currentLesson, setCurrentLesson] = useState(progressCurrentLessonId ?? initialLessonId)
+  const [completedLessonIds, setCompletedLessonIds] = useState<number[]>(progressCompletedLessonIds ?? [])
   const [unavailableVideoIds, setUnavailableVideoIds] = useState<number[]>([])
   const [noteDrafts, setNoteDrafts] = useState<Record<number, string>>({})
   const normalizedDescription = course.description ? stripHtml(course.description) : ''
@@ -81,6 +86,26 @@ export function useCourseLearningPlayerState({
       setCurrentLesson(initialLessonId)
     }
   }, [currentLesson, initialLessonId, lessonMap, lessonSources.length])
+
+  useEffect(() => {
+    if (!enrolled) {
+      return
+    }
+
+    if (typeof progressCurrentLessonId === 'number' && lessonMap.has(progressCurrentLessonId)) {
+      setCurrentLesson(progressCurrentLessonId)
+    }
+  }, [enrolled, lessonMap, progressCurrentLessonId])
+
+  useEffect(() => {
+    if (!enrolled || !Array.isArray(progressCompletedLessonIds)) {
+      return
+    }
+
+    const lessonSet = new Set(lessonSources.map((lesson) => lesson.id))
+    const normalized = progressCompletedLessonIds.filter((lessonId) => lessonSet.has(lessonId))
+    setCompletedLessonIds(normalized)
+  }, [enrolled, lessonSources, progressCompletedLessonIds])
 
   const modules = useMemo<CourseLearningPlayerModule[]>(() => {
     const grouped = new Map<string, CourseListItemData[]>()
@@ -113,6 +138,7 @@ export function useCourseLearningPlayerState({
   const currentLessonIndex = lessonIds.findIndex((id) => id === currentLesson)
   const currentLessonData = allLessons.find((lesson) => lesson.id === currentLesson)
   const currentLessonDetail = currentLesson ? lessonMap.get(currentLesson) : undefined
+  const currentLessonHasQuiz = Boolean(currentLessonDetail?.hasQuiz)
   const currentLessonVideoUrl = currentLessonDetail?.videoUrl ?? ''
   const shouldShowVideo = enrolled && Boolean(
     currentLessonVideoUrl && !unavailableVideoIds.includes(currentLesson)
@@ -203,6 +229,7 @@ export function useCourseLearningPlayerState({
     currentLesson,
     currentLessonData,
     currentLessonDetail,
+    currentLessonHasQuiz,
     currentLessonIndex,
     currentLessonVideoUrl,
     handleCompleteLesson,

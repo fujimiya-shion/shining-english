@@ -22,6 +22,7 @@ export function CoursesPageClient() {
     pageCount,
     priceMaxInput,
     priceMinInput,
+    searchKeyword,
     resetFilters,
     selectedCategoryId,
     selectedFilters,
@@ -37,6 +38,7 @@ export function CoursesPageClient() {
     applyFilters,
     setPriceMinFromSlider,
     setPriceMaxFromSlider,
+    setSearchKeyword,
     levels,
     visiblePages,
   } = useCoursesPage()
@@ -45,7 +47,11 @@ export function CoursesPageClient() {
     <main className="min-h-full bg-[radial-gradient(1200px_circle_at_top_left,var(--sky-90)_0%,var(--sky-50)_52%,var(--white)_100%)] py-10">
       <Toaster position="top-right" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <CoursesPageHeroSection />
+        <CoursesPageHeroSection
+          searchKeyword={searchKeyword}
+          onChangeSearchKeyword={setSearchKeyword}
+          onSubmitSearch={() => applyFilters({ query: searchKeyword, page: 1 })}
+        />
         <CoursesPageMobileCategories categories={categories} />
 
         <div className="mt-10 grid gap-8 lg:grid-cols-[280px_1fr]">
