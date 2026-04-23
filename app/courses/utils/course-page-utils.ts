@@ -50,12 +50,14 @@ export function buildCourseFilterRequest({
   levelIds,
   priceMin,
   priceMax,
+  query,
   page,
 }: {
   categoryId?: number
   levelIds: number[]
   priceMin?: number
   priceMax?: number
+  query?: string
   page: number
 }) {
   return new CourseFilterRequest(
@@ -64,7 +66,7 @@ export function buildCourseFilterRequest({
     levelIds[0],
     priceMin,
     priceMax,
-    undefined,
+    query,
     page
   )
 }

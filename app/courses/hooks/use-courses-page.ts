@@ -1,6 +1,5 @@
 'use client'
 
-import { CourseFilterRequest } from '@/data/dtos/course/course.dto'
 import { AppStatus } from '@/shared/enums/app-status'
 import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'react-hot-toast'
@@ -19,6 +18,7 @@ type ApplyFiltersOverrides = {
   levelIds?: number[]
   priceMin?: string
   priceMax?: string
+  query?: string
   page?: number
 }
 
@@ -40,6 +40,7 @@ export function useCoursesPage() {
 
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | undefined>(undefined)
   const [selectedLevelIds, setSelectedLevelIds] = useState<number[]>([])
+  const [searchKeyword, setSearchKeyword] = useState('')
   const [priceMinInput, setPriceMinInput] = useState('')
   const [priceMaxInput, setPriceMaxInput] = useState('')
 
@@ -61,10 +62,11 @@ export function useCoursesPage() {
     return (
       selectedCategoryId !== undefined ||
       selectedLevelIds.length > 0 ||
+      searchKeyword.trim() !== '' ||
       priceMinInput.trim() !== '' ||
       priceMaxInput.trim() !== ''
     )
-  }, [priceMaxInput, priceMinInput, selectedCategoryId, selectedLevelIds])
+  }, [priceMaxInput, priceMinInput, searchKeyword, selectedCategoryId, selectedLevelIds])
 
   const parsedMinPrice = parseOptionalNumber(priceMinInput)
   const parsedMaxPrice = parseOptionalNumber(priceMaxInput)
@@ -90,13 +92,16 @@ export function useCoursesPage() {
       overrides && 'priceMin' in overrides ? overrides.priceMin ?? '' : priceMinInput
     const priceMaxRaw =
       overrides && 'priceMax' in overrides ? overrides.priceMax ?? '' : priceMaxInput
+    const queryRaw = overrides && 'query' in overrides ? overrides.query ?? '' : searchKeyword
     const targetPage = overrides?.page ?? page
     const priceMin = parseOptionalNumber(priceMinRaw)
     const priceMax = parseOptionalNumber(priceMaxRaw)
+    const query = queryRaw.trim() === '' ? undefined : queryRaw.trim()
 
     if (
       categoryId === undefined &&
       levelIds.length === 0 &&
+      query === undefined &&
       priceMin === undefined &&
       priceMax === undefined
     ) {
@@ -112,6 +117,7 @@ export function useCoursesPage() {
         levelIds,
         priceMin,
         priceMax,
+        query,
         page: targetPage,
       })
     )
@@ -128,6 +134,7 @@ export function useCoursesPage() {
   const resetFilters = async () => {
     setSelectedCategoryId(undefined)
     setSelectedLevelIds([])
+    setSearchKeyword('')
     setPriceMinInput('')
     setPriceMaxInput('')
     setPage(1)
@@ -201,12 +208,14 @@ export function useCoursesPage() {
     priceBoundMin,
     priceMaxInput,
     priceMinInput,
+    searchKeyword,
     resetFilters,
     selectedCategoryId,
     selectedFilters,
     selectedLevelIds,
     setPriceMaxFromSlider,
     setPriceMinFromSlider,
+    setSearchKeyword,
     sliderLeftPercent,
     sliderMaxValue,
     sliderMinValue,
