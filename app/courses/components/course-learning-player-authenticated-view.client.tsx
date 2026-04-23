@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react'
 import { useCoursePurchaseStore } from '../stores/course/course-purchase.store'
 import { useLessonNoteStore } from '@/shared/stores/lesson-note.store'
 import { useCourseLearningProgressStore } from '../stores/course/course-learning-progress.store'
+import { useCourseQuizStore } from '../stores/course/course-quiz.store'
 import { formatRelativeTime } from '@/shared/utils/date-time-utils'
 import {
   CourseLearningPlayerHeaderSection,
@@ -48,13 +49,17 @@ export function CourseLearningPlayerAuthenticatedView({
   const clearNoteFeedback = useLessonNoteStore((state) => state.clearFeedback)
   const progressCurrentLessonId = useCourseLearningProgressStore((state) => state.currentLessonId)
   const progressCompletedLessonIds = useCourseLearningProgressStore((state) => state.completedLessonIds)
-  const pendingQuiz = useCourseLearningProgressStore((state) => state.pendingQuiz)
   const fetchProgress = useCourseLearningProgressStore((state) => state.fetchProgress)
   const completeLessonProgress = useCourseLearningProgressStore((state) => state.completeLesson)
   const setCurrentLessonProgress = useCourseLearningProgressStore((state) => state.setCurrentLesson)
-  const consumePendingQuiz = useCourseLearningProgressStore((state) => state.consumePendingQuiz)
+  const shouldPromptQuizForLesson = useCourseLearningProgressStore((state) => state.shouldPromptQuizForLesson)
   const resetLearningProgress = useCourseLearningProgressStore((state) => state.reset)
-  const [quizPromptOpen, setQuizPromptOpen] = useState(false)
+  const lessonQuizStatus = useCourseQuizStore((state) => state.quizStatus)
+  const lessonQuiz = useCourseQuizStore((state) => state.quiz)
+  const lessonQuizLatestAttempt = useCourseQuizStore((state) => state.latestAttempt)
+  const fetchQuizByLesson = useCourseQuizStore((state) => state.fetchQuizByLesson)
+  const fetchLatestAttempt = useCourseQuizStore((state) => state.fetchLatestAttempt)
+  const [quizPromptLessonId, setQuizPromptLessonId] = useState<number | null>(null)
 
   const playerState = useCourseLearningPlayerState({
     course,
@@ -94,6 +99,29 @@ export function CourseLearningPlayerAuthenticatedView({
 
     void fetchLessonNotes(playerState.currentLesson)
   }, [canWatchCourse, fetchLessonNotes, playerState.currentLesson])
+
+  useEffect(() => {
+    if (!canWatchCourse || playerState.currentLesson <= 0 || !playerState.currentLessonHasQuiz) {
+      return
+    }
+
+    void fetchQuizByLesson(playerState.currentLesson)
+  }, [canWatchCourse, fetchQuizByLesson, playerState.currentLesson, playerState.currentLessonHasQuiz])
+
+  useEffect(() => {
+    const quizId = lessonQuiz?.id
+    const normalizedQuizId = typeof quizId === 'number'
+      ? quizId
+      : typeof quizId === 'string'
+        ? Number.parseInt(quizId, 10)
+        : NaN
+
+    if (!Number.isFinite(normalizedQuizId)) {
+      return
+    }
+
+    void fetchLatestAttempt(normalizedQuizId)
+  }, [fetchLatestAttempt, lessonQuiz?.id])
 
   const handleBuyNow = () => {
     clearPurchaseFeedback()
@@ -156,6 +184,7 @@ export function CourseLearningPlayerAuthenticatedView({
   }
 
   const handleSelectLesson = (lessonId: number) => {
+    setQuizPromptLessonId(null)
     playerState.setCurrentLesson(lessonId)
 
     if (!canWatchCourse || !courseId) {
@@ -171,43 +200,70 @@ export function CourseLearningPlayerAuthenticatedView({
       return
     }
 
+    if (playerState.currentLessonHasQuiz) {
+      const shouldPromptQuiz = await shouldPromptQuizForLesson(playerState.currentLesson)
+      if (shouldPromptQuiz) {
+        await openQuizPromptModal(playerState.currentLesson)
+        return
+      }
+    }
+
     const completed = await completeLessonProgress(courseId, playerState.currentLesson)
     if (!completed) {
       playerState.handleCompleteLesson()
     }
   }
 
-  const openQuizForPendingLesson = (lessonId: number) => {
+  const openQuizForLesson = (lessonId: number, mode?: 'result') => {
     const slug = typeof course.slug === 'string' ? course.slug : ''
     if (!slug) {
-      consumePendingQuiz()
+      setQuizPromptLessonId(null)
       return
     }
 
-    consumePendingQuiz()
-    setQuizPromptOpen(false)
-    router.push(`/courses/${slug}/quiz?lessonId=${lessonId}`)
+    setQuizPromptLessonId(null)
+    const query = new URLSearchParams({ lessonId: `${lessonId}` })
+    if (mode) {
+      query.set('mode', mode)
+    }
+    router.push(`/courses/${slug}/quiz?${query.toString()}`)
   }
 
-  useEffect(() => {
-    if (!pendingQuiz || !canWatchCourse) {
-      setQuizPromptOpen(false)
-      return
-    }
-
-    const isFullscreen = Boolean(document.fullscreenElement)
-    if (isFullscreen) {
-      const confirmed = window.confirm('Bài tiếp theo có quiz. Bạn muốn làm quiz ngay bây giờ không?')
-      if (confirmed) {
-        openQuizForPendingLesson(pendingQuiz.lessonId)
-      } else {
-        consumePendingQuiz()
+  const openQuizPromptModal = async (lessonId: number) => {
+    if (document.fullscreenElement) {
+      try {
+        await document.exitFullscreen()
+      } catch {
+        // Ignore fullscreen exit error and still show modal.
       }
+    }
+
+    setQuizPromptLessonId(lessonId)
+  }
+
+  const handleVideoEnded = async () => {
+    if (!canWatchCourse || playerState.currentLesson <= 0) {
       return
     }
 
-    setQuizPromptOpen(true)
-  }, [canWatchCourse, consumePendingQuiz, pendingQuiz, router])
+    void handleCompleteLesson()
+  }
+
+  const handleOpenCurrentLessonQuiz = () => {
+    if (playerState.currentLesson <= 0 || !playerState.currentLessonHasQuiz) {
+      return
+    }
+
+    openQuizForLesson(playerState.currentLesson)
+  }
+
+  const handleViewCurrentLessonQuizResult = () => {
+    if (playerState.currentLesson <= 0 || !playerState.currentLessonHasQuiz) {
+      return
+    }
+
+    openQuizForLesson(playerState.currentLesson, 'result')
+  }
 
   return (
     <>
@@ -233,8 +289,25 @@ export function CourseLearningPlayerAuthenticatedView({
               onDeleteNote={handleDeleteNote}
               onSaveNote={handleSaveNote}
               onCompleteLesson={handleCompleteLesson}
+              onOpenQuiz={handleOpenCurrentLessonQuiz}
+              onViewQuizResult={handleViewCurrentLessonQuizResult}
               onSelectLesson={handleSelectLesson}
+              onVideoEnded={() => {
+                void handleVideoEnded()
+              }}
               onVideoError={playerState.handleVideoError}
+              showQuizAction={playerState.currentLessonHasQuiz}
+              quizStatus={lessonQuizStatus}
+              quizSummary={
+                playerState.currentLessonHasQuiz
+                  ? {
+                      passPercent: lessonQuiz?.passPercent ?? 70,
+                      hasAttempt: Boolean(lessonQuizLatestAttempt),
+                      scorePercent: lessonQuizLatestAttempt?.scorePercent,
+                      passed: lessonQuizLatestAttempt?.passed,
+                    }
+                  : undefined
+              }
               shouldShowVideo={playerState.shouldShowVideo}
             />
           ) : (
@@ -282,8 +355,23 @@ export function CourseLearningPlayerAuthenticatedView({
               onDeleteNote={handleDeleteNote}
               onSaveNote={handleSaveNote}
               onCompleteLesson={handleCompleteLesson}
+              onOpenQuiz={handleOpenCurrentLessonQuiz}
+              onViewQuizResult={handleViewCurrentLessonQuizResult}
               onSelectLesson={handleSelectLesson}
+              onVideoEnded={() => undefined}
               onVideoError={playerState.handleVideoError}
+              showQuizAction={playerState.currentLessonHasQuiz}
+              quizStatus={lessonQuizStatus}
+              quizSummary={
+                playerState.currentLessonHasQuiz
+                  ? {
+                      passPercent: lessonQuiz?.passPercent ?? 70,
+                      hasAttempt: Boolean(lessonQuizLatestAttempt),
+                      scorePercent: lessonQuizLatestAttempt?.scorePercent,
+                      passed: lessonQuizLatestAttempt?.passed,
+                    }
+                  : undefined
+              }
               shouldShowVideo={playerState.shouldShowVideo}
               showLessonOnlyContent
             />
@@ -302,18 +390,17 @@ export function CourseLearningPlayerAuthenticatedView({
         />
         }
       />
-      {pendingQuiz ? (
+      {quizPromptLessonId ? (
         <AppConfirmModal
-          open={quizPromptOpen}
-          message="Có quiz ở bài tiếp theo"
+          open
+          message="Bài học này có quiz"
           title="Làm quiz ngay bây giờ?"
-          description={`Bài ${pendingQuiz.lessonId} có quiz. Bạn có muốn làm ngay để mở khóa tiến độ học không?`}
+          description={`Bạn vừa xem xong bài ${quizPromptLessonId}. Bạn có muốn làm quiz của bài này ngay bây giờ không?`}
           confirmText="Làm quiz"
           cancelText="Để sau"
-          onConfirm={() => openQuizForPendingLesson(pendingQuiz.lessonId)}
+          onConfirm={() => openQuizForLesson(quizPromptLessonId)}
           onCancal={() => {
-            setQuizPromptOpen(false)
-            consumePendingQuiz()
+            setQuizPromptLessonId(null)
           }}
         />
       ) : null}

@@ -1,6 +1,8 @@
 import { Course } from "@/data/models/course.model";
 import { CourseAccess } from "@/data/models/course-access.model";
 import { CourseLearningProgress } from "@/data/models/course-learning-progress.model";
+import { QuizAttempt } from "@/data/models/quiz-attempt.model";
+import { Quiz } from "@/data/models/quiz.model";
 import { PaginationResponse } from "@/data/dtos/common/pagination-response";
 import { CommonRequest } from "@/data/dtos/common/common-request";
 import { ApiResult } from "@/data/types/api-result";
@@ -21,6 +23,16 @@ export interface ICourseRepository {
     courseId: number,
     lessonId: number,
   ): Promise<ApiResult<ObjectResponse<CourseLearningProgress>, ApiException>>;
+  getLessonQuiz(lessonId: number): Promise<ApiResult<ObjectResponse<Quiz>, ApiException>>;
+  getLatestQuizAttempt(quizId: number): Promise<ApiResult<ObjectResponse<QuizAttempt>, ApiException>>;
+  createQuizAttempt(
+    quizId: number,
+    payload: {
+      scorePercent: number;
+      passed: boolean;
+      submittedAt?: string;
+    },
+  ): Promise<ApiResult<ObjectResponse<QuizAttempt>, ApiException>>;
   filter(
     request?: CourseFilterRequest,
   ): Promise<ApiResult<PaginationResponse<Course>, ApiException>>;

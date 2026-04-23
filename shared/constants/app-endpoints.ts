@@ -25,6 +25,13 @@ export const AppEndpoints = {
     filter: "/courses/filter",
     filterProps: "/courses/filter-props",
   },
+  lesson: {
+    quiz: (lessonId: number) => `/lessons/${lessonId}/quiz`,
+  },
+  quizAttempt: {
+    latest: (quizId: number) => `/quizzes/${quizId}/attempts/latest`,
+    store: (quizId: number) => `/quizzes/${quizId}/attempts`,
+  },
   cart: {
     items: "/cart/items",
     item: (courseId: number) => `/cart/items/${courseId}`,

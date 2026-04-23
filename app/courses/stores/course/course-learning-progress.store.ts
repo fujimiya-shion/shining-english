@@ -26,6 +26,7 @@ export interface CourseLearningProgressStoreState extends CourseLearningProgress
   fetchProgress: (courseId: number) => Promise<boolean>;
   completeLesson: (courseId: number, lessonId: number) => Promise<boolean>;
   setCurrentLesson: (courseId: number, lessonId: number) => Promise<boolean>;
+  shouldPromptQuizForLesson: (lessonId: number) => Promise<boolean>;
   consumePendingQuiz: () => void;
   reset: () => void;
 }
@@ -127,6 +128,45 @@ export const useCourseLearningProgressStore = create<CourseLearningProgressStore
       totalLessons: data.totalLessons ?? 0,
       errorMessage: null,
     });
+    return true;
+  },
+
+  shouldPromptQuizForLesson: async (lessonId) => {
+    const lessonQuizResult = await resolveCourseRepository().getLessonQuiz(lessonId);
+    const lessonQuizData = lessonQuizResult.response?.data;
+
+    if (!lessonQuizData) {
+      if (lessonQuizResult.exception?.httpStatus === 404) {
+        return false;
+      }
+
+      // Fallback an toàn: nếu không verify được trạng thái quiz thì vẫn prompt.
+      return true;
+    }
+
+    const quizIdValue = lessonQuizData?.id;
+    const quizId =
+      typeof quizIdValue === "number"
+        ? quizIdValue
+        : typeof quizIdValue === "string"
+          ? Number.parseInt(quizIdValue, 10)
+          : NaN;
+
+    if (!Number.isFinite(quizId)) {
+      return false;
+    }
+
+    const latestAttemptResult = await resolveCourseRepository().getLatestQuizAttempt(quizId);
+
+    if (latestAttemptResult.response) {
+      return false;
+    }
+
+    if (latestAttemptResult.exception?.httpStatus === 404) {
+      return true;
+    }
+
+    // Fallback an toàn: lỗi ngoài 404 xem như chưa chắc đã làm quiz.
     return true;
   },
 

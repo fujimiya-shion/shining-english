@@ -35,6 +35,7 @@ export function useCourseLearningPlayerState({
         title: lesson.name ?? `Bài học ${index + 1}`,
         group: lesson.groupName?.trim() || 'Danh sách bài học',
         description: lesson.description ? stripHtml(lesson.description) : '',
+        hasQuiz: Boolean(lesson.hasQuiz),
         videoUrl: resolveLessonVideoUrl(lesson.id, lesson.videoUrl),
         duration: lesson.durationMinutes,
         comments: lesson.comments ?? [],
@@ -137,6 +138,7 @@ export function useCourseLearningPlayerState({
   const currentLessonIndex = lessonIds.findIndex((id) => id === currentLesson)
   const currentLessonData = allLessons.find((lesson) => lesson.id === currentLesson)
   const currentLessonDetail = currentLesson ? lessonMap.get(currentLesson) : undefined
+  const currentLessonHasQuiz = Boolean(currentLessonDetail?.hasQuiz)
   const currentLessonVideoUrl = currentLessonDetail?.videoUrl ?? ''
   const shouldShowVideo = enrolled && Boolean(
     currentLessonVideoUrl && !unavailableVideoIds.includes(currentLesson)
@@ -227,6 +229,7 @@ export function useCourseLearningPlayerState({
     currentLesson,
     currentLessonData,
     currentLessonDetail,
+    currentLessonHasQuiz,
     currentLessonIndex,
     currentLessonVideoUrl,
     handleCompleteLesson,
