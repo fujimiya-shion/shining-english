@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { Type } from "class-transformer";
+import { Expose, Type } from "class-transformer";
 
 export class CourseFilterRangeResponse {
   min?: number | null;
@@ -19,6 +19,17 @@ export class CourseFilterLevelResponse {
   count?: number;
 }
 
+export class CourseFilterDurationHoursResponse {
+  @Expose({ name: "min_hours" })
+  minHours?: number | null;
+
+  @Expose({ name: "max_hours" })
+  maxHours?: number | null;
+
+  label?: string;
+  count?: number;
+}
+
 export class CourseFilterResponse {
   @Type(() => CourseFilterCategoryResponse)
   categories?: CourseFilterCategoryResponse[];
@@ -34,6 +45,10 @@ export class CourseFilterResponse {
 
   @Type(() => CourseFilterLevelResponse)
   levels?: CourseFilterLevelResponse[];
+
+  @Expose({ name: "duration_hours" })
+  @Type(() => CourseFilterDurationHoursResponse)
+  durationHours?: CourseFilterDurationHoursResponse[];
 }
 
 export class CourseFilterRequest {
@@ -43,6 +58,8 @@ export class CourseFilterRequest {
     public readonly levelId?: number,
     public readonly priceMin?: number,
     public readonly priceMax?: number,
+    public readonly durationMinHours?: number,
+    public readonly durationMaxHours?: number,
     public readonly query?: string,
     public readonly page?: number,
     public readonly perPage?: number,
@@ -55,6 +72,8 @@ export class CourseFilterRequest {
       level_id: this.levelId,
       price_min: this.priceMin,
       price_max: this.priceMax,
+      duration_min_hours: this.durationMinHours,
+      duration_max_hours: this.durationMaxHours,
       q: this.query,
       page: this.page,
       perPage: this.perPage,

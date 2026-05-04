@@ -19,6 +19,20 @@ import { useDashboardStore } from '@/app/dashboard/stores/dashboard.store'
 import { AppStatus } from '@/shared/enums/app-status'
 import { CourseCardItem } from '@/shared/components/ui/course/course-card-item'
 
+function formatWeeklyStudyTime(hoursThisWeek?: number): string {
+  const normalizedHours = typeof hoursThisWeek === 'number' ? Math.max(0, hoursThisWeek) : 0
+  const totalMinutes = Math.round(normalizedHours * 60)
+
+  if (totalMinutes < 60) {
+    return `${totalMinutes}m`
+  }
+
+  const hours = Math.floor(totalMinutes / 60)
+  const minutes = totalMinutes % 60
+
+  return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`
+}
+
 export function StudentDashboard() {
   const status = useDashboardStore((state) => state.status)
   const overview = useDashboardStore((state) => state.overview)
@@ -32,14 +46,14 @@ export function StudentDashboard() {
   const stats = [
     {
       label: 'Khóa đang học',
-      value: String(overview?.stats?.enrolled_courses ?? 0),
+      value: String(overview?.stats?.enrolledCourses ?? 0),
       note: 'Đang theo lộ trình',
       icon: BookOpen,
       color: 'bg-[#EEF2FF] text-[#4F46E5] border-[#C7D2FE]',
     },
     {
       label: 'Giờ học tuần này',
-      value: `${overview?.stats?.hours_this_week ?? 0}h`,
+      value: formatWeeklyStudyTime(overview?.stats?.hoursThisWeek),
       note: 'Theo dữ liệu thực tế',
       icon: Clock,
       color: 'bg-[#FFF7ED] text-[#EA580C] border-[#FED7AA]',
@@ -53,15 +67,16 @@ export function StudentDashboard() {
     },
     {
       label: 'Chuỗi học',
-      value: `${overview?.stats?.streak_days ?? 0} ngày`,
+      value: `${overview?.stats?.streakDays ?? 0} ngày`,
       note: 'Giữ vững phong độ',
       icon: Flame,
       color: 'bg-[#FFFBEB] text-[#D97706] border-[#FDE68A]',
     },
   ]
 
-  const enrolledCourses = overview?.enrolled_courses ?? []
-  const recentActivity = overview?.recent_activity ?? []
+  const enrolledCourses = overview?.enrolledCourses ?? []
+  const recentActivity = overview?.recentActivity ?? []
+  const weeklyPlan = overview?.weeklyPlan ?? []
 
   return (
     <div className="min-h-screen bg-[radial-gradient(1400px_circle_at_top_left,#E0F2FE_0%,#EFF6FF_40%,#FFFFFF_100%)]">
@@ -129,30 +144,18 @@ export function StudentDashboard() {
                   <Card className="border-border/60 bg-white p-4 text-sm text-muted-foreground">Chưa có khóa học đang theo học.</Card>
                 ) : (
                   <div className="grid gap-6 md:grid-cols-3">
-                    {enrolledCourses.map((course) => {
-                      const image = (course.image ?? '').trim()
-                      const hasValidImage =
-                        image.startsWith('http://') ||
-                        image.startsWith('https://') ||
-                        image.startsWith('/')
-
-                      const shortMeta = course.next_lesson
-                        ? `Bài tiếp theo: ${course.next_lesson}`
-                        : 'Tiếp tục lộ trình đã lưu'
+                    {enrolledCourses.map((enrollment) => {
+                      const course = enrollment.course
+                      const courseSlug = (course.slug ?? '').trim()
+                      const detailHref = courseSlug ? `/courses/${encodeURIComponent(courseSlug)}` : '/courses'
+                      const courseName = course.name ?? 'Khóa học'
+                      const courseId = Number(course.id ?? 0)
 
                       return (
                       <CourseCardItem
-                        key={course.id}
-                        course={{
-                          id: course.id,
-                          name: course.title,
-                          category: { name: course.category },
-                        }}
-                        image={hasValidImage ? image : undefined}
-                        imageAlt={course.title}
-                        duration={course.last_accessed}
-                        metaNote={shortMeta}
-                        href="/courses"
+                        key={`${courseId}-${courseSlug || courseName}`}
+                        course={course}
+                        href={detailHref}
                         actionLabel="Vào học"
                         className="h-full"
                       />
@@ -200,8 +203,33 @@ export function StudentDashboard() {
 
           <div className="space-y-6">
             <Card className="rounded-3xl border-border/70 bg-white/95 p-5">
-              <h2 className="text-base font-semibold text-[color:var(--brand-900)]">Mục tiêu tuần</h2>
-              <p className="mt-2 text-sm text-muted-foreground">Dữ liệu mục tiêu sẽ đồng bộ theo lịch học thực tế.</p>
+              <h2 className="text-base font-semibold text-[color:var(--brand-900)]">Mục tiêu hôm nay</h2>
+              {weeklyPlan.length === 0 ? (
+                <p className="mt-2 text-sm text-muted-foreground">Dữ liệu mục tiêu sẽ đồng bộ theo lịch học thực tế.</p>
+              ) : (
+                <div className="mt-3 space-y-3">
+                  {weeklyPlan.map((item, index) => {
+                    const toneClass =
+                      item.tone === 'done'
+                        ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                        : item.tone === 'doing'
+                          ? 'border-amber-200 bg-amber-50 text-amber-700'
+                          : 'border-slate-200 bg-slate-50 text-slate-700'
+
+                    return (
+                      <div key={`${item.label}-${index}`} className="rounded-2xl border border-border/60 bg-white p-3">
+                        <p className="text-sm font-medium text-[color:var(--brand-900)]">{item.label}</p>
+                        <div className="mt-2 flex items-center justify-between gap-3">
+                          <p className="text-xs text-muted-foreground">{item.status}</p>
+                          <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold uppercase ${toneClass}`}>
+                            {item.tone}
+                          </span>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
             </Card>
           </div>
         </div>

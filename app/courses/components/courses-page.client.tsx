@@ -40,7 +40,10 @@ export function CoursesPageClient() {
     setPriceMaxFromSlider,
     setSearchKeyword,
     levels,
+    durationOptions,
     visiblePages,
+    selectedDurationKeys,
+    toggleDuration,
   } = useCoursesPage()
 
   return (
@@ -58,6 +61,7 @@ export function CoursesPageClient() {
           <CoursesPageFiltersSidebar
             categories={categories}
             levels={levels}
+            durationOptions={durationOptions}
             filterPriceMin={filterProps?.price?.min}
             filterPriceMax={filterProps?.price?.max}
             hasAnyFilters={hasAnyFilters}
@@ -65,6 +69,7 @@ export function CoursesPageClient() {
             priceMinInput={priceMinInput}
             resetFilters={resetFilters}
             selectedCategoryId={selectedCategoryId}
+            selectedDurationKeys={selectedDurationKeys}
             selectedFilters={selectedFilters}
             selectedLevelIds={selectedLevelIds}
             sliderLeftPercent={sliderLeftPercent}
@@ -72,6 +77,7 @@ export function CoursesPageClient() {
             sliderMinValue={sliderMinValue}
             sliderWidthPercent={sliderWidthPercent}
             toggleCategory={toggleCategory}
+            toggleDuration={toggleDuration}
             toggleLevel={toggleLevel}
             updatePriceMaxInput={updatePriceMaxInput}
             updatePriceMinInput={updatePriceMinInput}

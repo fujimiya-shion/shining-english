@@ -10,8 +10,7 @@ export class DashboardRepository extends BaseRepository implements IDashboardRep
   async getOverview(): Promise<ApiResult<ObjectResponse<DashboardOverviewModel>, ApiException>> {
     return this.get({
       url: AppEndpoints.dashboard.overview,
-      map: (raw) => ObjectResponse.fromApiJson<DashboardOverviewModel>(raw),
+      map: (raw) => ObjectResponse.fromApiJson<DashboardOverviewModel>(raw, DashboardOverviewModel),
     });
   }
 }
-

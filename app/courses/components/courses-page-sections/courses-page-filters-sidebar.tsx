@@ -1,6 +1,7 @@
 'use client'
 
-import { durationFilters, formatPricePlaceholder } from '@/app/courses/utils/course-page-utils'
+import * as SliderPrimitive from '@radix-ui/react-slider'
+import { formatPricePlaceholder } from '@/app/courses/utils/course-page-utils'
 import { AppCheckBox } from '@/shared/components/ui/app-checkbox'
 import { Button } from '@/shared/components/ui/button'
 import { Card, CardContent } from '@/shared/components/ui/card'
@@ -8,10 +9,12 @@ import { Input } from '@/shared/components/ui/input'
 
 type Category = { id?: number; name?: string }
 type Level = { value?: number; label?: string; count?: number }
+type DurationOption = { minHours?: number | null; maxHours?: number | null; label?: string; count?: number }
 
 export function CoursesPageFiltersSidebar({
   categories,
   levels,
+  durationOptions,
   filterPriceMin,
   filterPriceMax,
   hasAnyFilters,
@@ -19,6 +22,7 @@ export function CoursesPageFiltersSidebar({
   priceMinInput,
   resetFilters,
   selectedCategoryId,
+  selectedDurationKeys,
   selectedFilters,
   selectedLevelIds,
   sliderLeftPercent,
@@ -26,6 +30,7 @@ export function CoursesPageFiltersSidebar({
   sliderMinValue,
   sliderWidthPercent,
   toggleCategory,
+  toggleDuration,
   toggleLevel,
   updatePriceMaxInput,
   updatePriceMinInput,
@@ -35,6 +40,7 @@ export function CoursesPageFiltersSidebar({
 }: {
   categories: Category[]
   levels: Level[]
+  durationOptions: DurationOption[]
   filterPriceMin?: number | null
   filterPriceMax?: number | null
   hasAnyFilters: boolean
@@ -42,6 +48,7 @@ export function CoursesPageFiltersSidebar({
   priceMinInput: string
   resetFilters: () => Promise<void>
   selectedCategoryId?: number
+  selectedDurationKeys: string[]
   selectedFilters: string[]
   selectedLevelIds: number[]
   sliderLeftPercent: number
@@ -49,6 +56,7 @@ export function CoursesPageFiltersSidebar({
   sliderMinValue: number
   sliderWidthPercent: number
   toggleCategory: (categoryId?: number) => Promise<void>
+  toggleDuration: (minHours?: number | null, maxHours?: number | null) => Promise<void>
   toggleLevel: (levelValue?: number) => Promise<void>
   updatePriceMaxInput: (value: string) => void
   updatePriceMinInput: (value: string) => void
@@ -60,7 +68,7 @@ export function CoursesPageFiltersSidebar({
     <aside className="hidden lg:block">
       <div className="sticky top-24 space-y-6">
         <Card className="border-border/70 bg-white/90">
-          <CardContent className="space-y-6 px-5 py-6">
+          <CardContent className="max-h-[calc(100vh-7.5rem)] space-y-6 overflow-y-auto px-5 py-6 pr-3 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-semibold text-[color:var(--brand-900)]">Bộ lọc</p>
@@ -133,15 +141,28 @@ export function CoursesPageFiltersSidebar({
             <div className="rounded-2xl border border-border/70 bg-white p-4">
               <p className="text-sm font-semibold">Thời lượng</p>
               <div className="mt-3 space-y-2">
-                {durationFilters.map((item) => (
-                  <label key={item} className="flex items-center justify-between text-sm text-muted-foreground">
-                    <span className="flex items-center gap-2">
-                      <AppCheckBox />
-                      {item}
-                    </span>
-                    <span className="text-xs text-muted-foreground/70">6</span>
+                {durationOptions.map((item, index) => {
+                  const key = `${item.minHours ?? 'n'}-${item.maxHours ?? 'n'}`
+                  const checked = selectedDurationKeys.includes(key)
+
+                  return (
+                    <label key={`${key}-${index}`} className="flex items-center justify-between text-sm text-muted-foreground">
+                      <span className="flex items-center gap-2">
+                        <AppCheckBox
+                          checked={checked}
+                          onCheckedChange={() => void toggleDuration(item.minHours, item.maxHours)}
+                        />
+                        {item.label ?? ''}
+                      </span>
+                      <span className="text-xs text-muted-foreground/70">{item.count ?? 0}</span>
+                    </label>
+                  )
+                })}
+                {durationOptions.length === 0 ? (
+                  <label className="flex items-center justify-between text-sm text-muted-foreground">
+                    <span>Chưa có dữ liệu thời lượng</span>
                   </label>
-                ))}
+                ) : null}
               </div>
             </div>
 
@@ -174,31 +195,29 @@ export function CoursesPageFiltersSidebar({
                 />
               </div>
               <div className="relative mt-3 h-6">
-                <div className="absolute left-0 right-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-muted" />
-                <div
-                  className="absolute top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-primary/70"
-                  style={{ left: `${sliderLeftPercent}%`, width: `${sliderWidthPercent}%` }}
-                />
-                <input
-                  type="range"
+                <SliderPrimitive.Root
                   min={filterPriceMin ?? 0}
                   max={filterPriceMax ?? 0}
-                  value={sliderMinValue}
-                  onChange={(event) => setPriceMinFromSlider(Number.parseInt(event.target.value, 10))}
-                  onMouseUp={() => void applyPriceFilters()}
-                  onTouchEnd={() => void applyPriceFilters()}
-                  className="pointer-events-none absolute left-0 top-0 h-6 w-full appearance-none bg-transparent [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border [&::-webkit-slider-thumb]:border-primary/70 [&::-webkit-slider-thumb]:bg-white"
-                />
-                <input
-                  type="range"
-                  min={filterPriceMin ?? 0}
-                  max={filterPriceMax ?? 0}
-                  value={sliderMaxValue}
-                  onChange={(event) => setPriceMaxFromSlider(Number.parseInt(event.target.value, 10))}
-                  onMouseUp={() => void applyPriceFilters()}
-                  onTouchEnd={() => void applyPriceFilters()}
-                  className="pointer-events-none absolute left-0 top-0 h-6 w-full appearance-none bg-transparent [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border [&::-webkit-slider-thumb]:border-primary/70 [&::-webkit-slider-thumb]:bg-white"
-                />
+                  step={25000}
+                  value={[sliderMinValue, sliderMaxValue]}
+                  onValueChange={(value) => {
+                    const [nextMin, nextMax] = value
+                    if (typeof nextMin === 'number') {
+                      setPriceMinFromSlider(nextMin)
+                    }
+                    if (typeof nextMax === 'number') {
+                      setPriceMaxFromSlider(nextMax)
+                    }
+                  }}
+                  onValueCommit={() => void applyPriceFilters()}
+                  className="relative flex h-6 w-full touch-none select-none items-center"
+                >
+                  <SliderPrimitive.Track className="relative h-1.5 w-full grow overflow-hidden rounded-full bg-muted">
+                    <SliderPrimitive.Range className="absolute h-full bg-primary/70" />
+                  </SliderPrimitive.Track>
+                  <SliderPrimitive.Thumb className="block h-4 w-4 rounded-full border border-primary/70 bg-white shadow-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:pointer-events-none disabled:opacity-50" />
+                  <SliderPrimitive.Thumb className="block h-4 w-4 rounded-full border border-primary/70 bg-white shadow-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:pointer-events-none disabled:opacity-50" />
+                </SliderPrimitive.Root>
               </div>
             </div>
           </CardContent>

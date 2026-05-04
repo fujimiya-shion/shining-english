@@ -12,6 +12,7 @@ export function CourseLearningPlayerHeaderSection({
   pendingAccess,
   courseMeta,
   coursePrice,
+  isFreeCourse,
   inCart,
   progressPercentage,
   onAddToCart,
@@ -25,6 +26,7 @@ export function CourseLearningPlayerHeaderSection({
   pendingAccess: boolean
   courseMeta: CourseLearningPlayerMeta
   coursePrice?: number
+  isFreeCourse: boolean
   inCart: boolean
   progressPercentage: number
   onAddToCart: () => void
@@ -42,7 +44,7 @@ export function CourseLearningPlayerHeaderSection({
           </div>
           <div>
             <h1 className="text-3xl font-semibold tracking-tight">{courseMeta.title}</h1>
-            <p className="mt-2 text-muted-foreground">{courseMeta.subtitle}</p>
+            <p className="mt-2 line-clamp-4 text-muted-foreground">{courseMeta.subtitle}</p>
           </div>
           <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
             <span>Giảng viên: {courseMeta.instructor}</span>
@@ -83,7 +85,7 @@ export function CourseLearningPlayerHeaderSection({
                   canWatchCourse ? 'text-primary' : 'text-[color:var(--brand-900)]'
                 }`}
               >
-                {canWatchCourse ? `${Math.round(progressPercentage)}%` : formatPrice(coursePrice)}
+                {canWatchCourse ? `${Math.round(progressPercentage)}%` : isFreeCourse ? 'Miễn phí' : formatPrice(coursePrice)}
               </p>
             </div>
             {!canWatchCourse ? (
@@ -101,7 +103,9 @@ export function CourseLearningPlayerHeaderSection({
               : inCart
                 ? 'Khóa học đã nằm trong giỏ hàng. Bạn có thể sang checkout để hoàn tất.'
                 : authenticated
-                  ? 'Mở toàn bộ video, tài liệu và tiến độ học tập ngay sau khi thanh toán.'
+                  ? isFreeCourse
+                    ? 'Khóa học miễn phí. Bấm "Học ngay" để kích hoạt và vào học.'
+                    : 'Mở toàn bộ video, tài liệu và tiến độ học tập ngay sau khi thanh toán.'
                   : 'Đăng nhập để thêm vào giỏ, mua ngay và mở toàn bộ nội dung khóa học.'}
           </p>
 
@@ -138,6 +142,14 @@ export function CourseLearningPlayerHeaderSection({
 
           {canWatchCourse ? (
             <AppButton className="mt-5 h-11 w-full rounded-full">Tiếp tục học</AppButton>
+          ) : isFreeCourse ? (
+            <AppButton
+              className="mt-5 h-11 w-full rounded-full text-base font-semibold"
+              disabled={isPurchaseActionLoading}
+              onClick={onBuyNow}
+            >
+              Học ngay
+            </AppButton>
           ) : pendingAccess ? null : (
             <div className="mt-5 grid gap-3">
               <AppButton className="h-11 w-full rounded-full text-base font-semibold" onClick={onBuyNow}>

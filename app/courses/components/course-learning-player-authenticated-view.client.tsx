@@ -38,6 +38,7 @@ export function CourseLearningPlayerAuthenticatedView({
   const purchaseErrorMessage = useCoursePurchaseStore((state) => state.errorMessage)
   const syncAccess = useCoursePurchaseStore((state) => state.syncAccess)
   const addToCart = useCoursePurchaseStore((state) => state.addToCart)
+  const activateFreeCourse = useCoursePurchaseStore((state) => state.activateFreeCourse)
   const clearPurchaseFeedback = useCoursePurchaseStore((state) => state.clearFeedback)
   const resetPurchaseState = useCoursePurchaseStore((state) => state.reset)
   const lessonNotes = useLessonNoteStore((state) => state.lessonNotes)
@@ -60,6 +61,7 @@ export function CourseLearningPlayerAuthenticatedView({
   const fetchQuizByLesson = useCourseQuizStore((state) => state.fetchQuizByLesson)
   const fetchLatestAttempt = useCourseQuizStore((state) => state.fetchLatestAttempt)
   const [quizPromptLessonId, setQuizPromptLessonId] = useState<number | null>(null)
+  const [freeEnrollConfirmOpen, setFreeEnrollConfirmOpen] = useState(false)
 
   const playerState = useCourseLearningPlayerState({
     course,
@@ -125,6 +127,12 @@ export function CourseLearningPlayerAuthenticatedView({
 
   const handleBuyNow = () => {
     clearPurchaseFeedback()
+    const isFreeCourse = (course.price ?? 0) <= 0
+
+    if (isFreeCourse) {
+      setFreeEnrollConfirmOpen(true)
+      return
+    }
 
     const query = new URLSearchParams({
       mode: 'buy_now',
@@ -135,6 +143,18 @@ export function CourseLearningPlayerAuthenticatedView({
     })
 
     router.push(`/checkout?${query.toString()}`)
+  }
+
+  const handleConfirmActivateFreeCourse = async () => {
+    if (!courseId) {
+      setFreeEnrollConfirmOpen(false)
+      return
+    }
+
+    const activated = await activateFreeCourse(courseId)
+    if (activated) {
+      setFreeEnrollConfirmOpen(false)
+    }
   }
 
   const handleAddToCart = async () => {
@@ -272,7 +292,7 @@ export function CourseLearningPlayerAuthenticatedView({
         <>
           {isAccessLoading ? (
             <CourseLearningPlayerLoadingState message="Đang kiểm tra quyền truy cập khóa học..." />
-          ) : canWatchCourse ? (
+          ) : canWatchCourse || playerState.shouldShowVideo ? (
             <CourseLearningPlayerLessonSection
               comments={playerState.comments}
               currentLesson={playerState.currentLesson}
@@ -318,6 +338,7 @@ export function CourseLearningPlayerAuthenticatedView({
               totalLessons={playerState.courseMeta.totalLessons}
               totalHours={playerState.courseMeta.totalHours}
               authenticated
+              thumbnail={course.thumbnail}
             />
           )}
 
@@ -327,6 +348,7 @@ export function CourseLearningPlayerAuthenticatedView({
             pendingAccess={pendingAccess}
             courseMeta={playerState.courseMeta}
             coursePrice={course.price}
+            isFreeCourse={(course.price ?? 0) <= 0}
             inCart={inCart}
             progressPercentage={playerState.progressPercentage}
             onAddToCart={() => {
@@ -401,6 +423,22 @@ export function CourseLearningPlayerAuthenticatedView({
           onConfirm={() => openQuizForLesson(quizPromptLessonId)}
           onCancal={() => {
             setQuizPromptLessonId(null)
+          }}
+        />
+      ) : null}
+      {freeEnrollConfirmOpen ? (
+        <AppConfirmModal
+          open
+          title="Kích hoạt khóa học miễn phí?"
+          message="Bạn sẽ được ghi danh ngay và có thể học toàn bộ nội dung."
+          description="Bấm Đồng ý để bắt đầu học ngay bây giờ."
+          confirmText="Đồng ý"
+          cancelText="Hủy"
+          onConfirm={() => {
+            void handleConfirmActivateFreeCourse()
+          }}
+          onCancal={() => {
+            setFreeEnrollConfirmOpen(false)
           }}
         />
       ) : null}

@@ -6,4 +6,3 @@ import { ApiResult } from "@/data/types/api-result";
 export interface IDashboardRepository {
   getOverview(): Promise<ApiResult<ObjectResponse<DashboardOverviewModel>, ApiException>>;
 }
-

@@ -14,6 +14,9 @@ export type SerializedCourse = {
   learned?: number;
   price?: number;
   thumbnail?: string;
+  lessonsCount?: number;
+  commentsCount?: number;
+  totalDurationMinutes?: number;
   category?: {
     id?: number | string;
     name?: string;
@@ -44,6 +47,15 @@ export class Course extends BaseModel implements Serializable<SerializedCourse> 
   price?: number;
   status?: boolean;
   thumbnail?: string;
+
+  @Expose({ name: "lessons_count" })
+  lessonsCount?: number;
+
+  @Expose({ name: "comments_count" })
+  commentsCount?: number;
+
+  @Expose({ name: "total_duration_minutes" })
+  totalDurationMinutes?: number;
 
   @Expose({ name: "category_id" })
   categoryId?: number;
@@ -77,6 +89,9 @@ export class Course extends BaseModel implements Serializable<SerializedCourse> 
       learned: this.learned,
       price: this.price,
       thumbnail: this.thumbnail,
+      lessonsCount: this.lessonsCount,
+      commentsCount: this.commentsCount,
+      totalDurationMinutes: this.totalDurationMinutes,
       category: this.category
         ? {
             id: this.category.id,

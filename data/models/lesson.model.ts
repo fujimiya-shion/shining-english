@@ -16,6 +16,7 @@ export type SerializedLesson = {
   description?: string;
   durationMinutes?: number;
   hasQuiz?: boolean;
+  isPreviewFree?: boolean;
   comments: SerializedLessonComment[];
   notes: SerializedLessonNote[];
 };
@@ -52,6 +53,9 @@ export class Lesson extends BaseModel implements Serializable<SerializedLesson> 
   @Expose({ name: "has_quiz" })
   hasQuiz?: boolean;
 
+  @Expose({ name: "is_preview_free" })
+  isPreviewFree?: boolean;
+
   @Type(() => LessonComment)
   comments?: LessonComment[];
 
@@ -70,6 +74,7 @@ export class Lesson extends BaseModel implements Serializable<SerializedLesson> 
       description: this.description,
       durationMinutes: this.durationMinutes,
       hasQuiz: this.hasQuiz,
+      isPreviewFree: this.isPreviewFree,
       comments: (this.comments ?? []).map((comment) => comment.serialize()),
       notes: (this.notes ?? []).map((note) => note.serialize()),
     };

@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import { Card } from '@/shared/components/ui/card'
 import { AppUtils } from '@/shared/utils/app-utils'
 import { formatPrice } from '@/shared/utils/currency-utils'
@@ -39,12 +38,12 @@ export function CheckoutSummaryCard({
             <div key={item.id} className="flex gap-3 rounded-2xl border border-border/70 bg-background/80 p-3">
               <div className="h-16 w-16 overflow-hidden rounded-xl bg-muted">
                 {imageUrl ? (
-                  <Image
+                  <img
                     src={imageUrl}
                     alt={item.title}
-                    width={64}
-                    height={64}
                     className="h-full w-full object-cover"
+                    loading="lazy"
+                    referrerPolicy="no-referrer"
                   />
                 ) : null}
               </div>

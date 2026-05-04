@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import { CartItem } from '@/data/models/cart-item.model'
 import { AppCheckBox } from '@/shared/components/ui/app-checkbox'
 import { Button } from '@/shared/components/ui/button'
@@ -77,12 +76,12 @@ export function CartItemsSection({
 
               <div className="h-24 w-24 overflow-hidden rounded-2xl bg-muted">
                 {imageUrl ? (
-                  <Image
+                  <img
                     src={imageUrl}
                     alt={course?.name ?? 'Course image'}
-                    width={96}
-                    height={96}
                     className="h-full w-full object-cover"
+                    loading="lazy"
+                    referrerPolicy="no-referrer"
                   />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-xs text-muted-foreground">

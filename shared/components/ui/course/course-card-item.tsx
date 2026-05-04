@@ -1,190 +1,217 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { BookOpen, Clock3, Lightbulb, Users } from 'lucide-react'
+import { BookOpen, Clock3, MessageCircle, ShoppingCart, Star, Users } from 'lucide-react'
 import { Course, SerializedCourse } from '@/data/models/course.model'
 import { AppButton } from '@/shared/components/ui/app-button'
 import { Card } from '@/shared/components/ui/card'
+import { AppUtils } from '@/shared/utils/app-utils'
 import { cn } from '@/lib/utils'
 
 type CourseCardItemCourse = Course | SerializedCourse
 
+function stripHtml(input?: string): string {
+  if (!input) return ''
+  return input.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+}
+
+function formatVnd(value: number): string {
+  return `${value.toLocaleString('vi-VN')}đ`
+}
+
 export type CourseCardItemProps = {
   course: CourseCardItemCourse
-  image?: string
-  imageAlt?: string
-  duration?: string
-  metaNote?: string
   href?: string
   actionLabel?: string
-  actions?: React.ReactNode
+  cartAction?: React.ReactNode
   className?: string
 }
 
-export function CourseCardItem(props: CourseCardItemProps) {
-  const {
-    course,
-    image,
-    imageAlt,
-    duration,
-    metaNote,
-    href,
-    actionLabel = 'Xem Chi Tiết',
-    actions,
-    className,
-  } = props
-
-  const title = course.name ?? ''
+export function CourseCardItem({
+  course,
+  href,
+  actionLabel = 'Xem chi tiết',
+  cartAction,
+  className,
+}: CourseCardItemProps) {
+  const title = course.name ?? 'Khóa học'
   const category = course.category?.name
   const level = course.level?.name
+  const description = stripHtml(course.description)
   const rating = course.rating
-  const students = course.learned
-  const lessons = course.lessons?.length
-  const price = course.price
+  const learned = course.learned
+  const lessonsCount = course.lessonsCount ?? course.lessons?.length ?? 0
+  const commentsCount = course.commentsCount ?? course.reviews?.length ?? 0
+  const totalDurationMinutes =
+    course.totalDurationMinutes
+    ?? course.lessons?.reduce((total, lesson) => total + (lesson.durationMinutes ?? 0), 0)
+    ?? 0
+  const totalHours = totalDurationMinutes > 0 ? Number((totalDurationMinutes / 60).toFixed(1)) : 0
+  const price = typeof course.price === 'number' ? course.price : undefined
+  const originalPriceRaw = (course as { originalPrice?: number; compareAtPrice?: number }).originalPrice
+    ?? (course as { originalPrice?: number; compareAtPrice?: number }).compareAtPrice
+  const originalPrice =
+    typeof originalPriceRaw === 'number' && typeof price === 'number' && originalPriceRaw > price
+      ? originalPriceRaw
+      : undefined
 
-  const hasImage = !!image
+  const imageUrl = AppUtils.getStorageUrl(course.thumbnail)
+  const hasImage = !!imageUrl
+  const isExternalRemote =
+    hasImage &&
+    /^https?:\/\//i.test(imageUrl) &&
+    !imageUrl.includes('localhost')
   const isLocalImage =
     hasImage &&
-    (image.startsWith('http://localhost') || image.startsWith('https://localhost'))
+    (imageUrl.startsWith('http://localhost') || imageUrl.startsWith('https://localhost'))
 
-  const formattedPrice = typeof price === 'number' ? price.toLocaleString('vi-VN') : price
+  const formattedPrice =
+    typeof price === 'number'
+      ? price === 0
+        ? 'Miễn phí'
+        : formatVnd(price)
+      : 'Liên hệ'
+  const formattedOriginalPrice = typeof originalPrice === 'number' ? formatVnd(originalPrice) : undefined
+
+  const formattedLearned =
+    typeof learned === 'number' ? learned.toLocaleString('vi-VN') : learned
 
   return (
     <Card
       className={cn(
-        'group relative flex h-full flex-col overflow-hidden rounded-[26px] border border-border/60 bg-white p-0 shadow-[0_14px_40px_-28px_rgba(0,0,0,0.55)] transition-all duration-300 hover:-translate-y-1 hover:border-[color:color-mix(in_oklab,var(--primary)_35%,transparent)] hover:shadow-[0_28px_70px_-38px_rgba(0,0,0,0.65)]',
+        'group flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card p-0 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg',
         className
       )}
     >
-      <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-        <div className="absolute -inset-24 bg-[radial-gradient(circle_at_30%_10%,color-mix(in_oklab,var(--primary)_18%,transparent),transparent_45%),radial-gradient(circle_at_80%_30%,rgba(255,205,61,0.18),transparent_55%)]" />
-      </div>
+      <div className="relative aspect-16/10 overflow-hidden bg-muted">
+        {hasImage && isExternalRemote ? (
+          <img
+            src={imageUrl}
+            alt={title}
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+            loading="lazy"
+            referrerPolicy="no-referrer"
+          />
+        ) : hasImage ? (
+          <Image
+            src={imageUrl}
+            alt={title}
+            fill
+            unoptimized={isLocalImage}
+            sizes="(min-width: 1024px) 25vw, (min-width: 768px) 50vw, 100vw"
+            className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-linear-to-br from-(--sky-100) to-(--sky-200)" />
+        )}
 
-      <div className="relative">
-        <div className="relative aspect-[4/3] overflow-hidden rounded-t-[26px] bg-muted">
-          {hasImage ? (
-            <Image
-              src={image}
-              alt={imageAlt || title}
-              fill
-              unoptimized={isLocalImage}
-              sizes="(min-width: 1024px) 25vw, (min-width: 768px) 50vw, 100vw"
-              className="object-cover transition-transform duration-500 group-hover:scale-[1.06]"
-            />
-          ) : (
-            <div className="absolute inset-0 animate-pulse bg-gradient-to-br from-muted/60 via-muted to-muted/40" />
-          )}
-
-          <div className="pointer-events-none absolute inset-0 opacity-70 mix-blend-soft-light">
-            <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.28)_1px,transparent_1px)] [background-size:14px_14px]" />
-          </div>
-
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[color:color-mix(in_oklab,var(--primary)_22%,transparent)] via-transparent to-[rgba(255,205,61,0.18)]" />
-        </div>
-
-        <div className="absolute left-4 top-4 flex flex-wrap items-center gap-2">
-          {category ? (
-            <div className="rounded-full bg-white/90 px-3.5 py-1.5 text-[11px] font-extrabold uppercase tracking-[0.22em] text-[color:var(--brand-900)] shadow-sm ring-1 ring-black/5 backdrop-blur">
-              {category}
-            </div>
+        <div className="absolute left-3 top-3 flex items-center gap-2">
+          {typeof rating === 'number' ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-card/95 px-2.5 py-1 text-xs font-semibold text-card-foreground shadow-sm">
+              <Star className="h-3.5 w-3.5 fill-primary text-primary" />
+              {rating.toFixed(1)}
+            </span>
           ) : null}
-          {metaNote?.toLowerCase()?.includes('mới') ? (
-            <div className="rounded-full bg-emerald-500/90 px-3 py-1.5 text-[11px] font-bold text-white shadow-sm ring-1 ring-emerald-200/40 backdrop-blur">
-              NEW ✨
-            </div>
-          ) : null}
-        </div>
 
-        <div className="absolute right-4 top-4 flex items-center gap-2">
           {level ? (
-            <div className="rounded-full bg-[color:color-mix(in_oklab,var(--primary)_85%,#0f2b52)] px-3.5 py-1.5 text-[11px] font-semibold text-white shadow-sm ring-1 ring-white/20 backdrop-blur">
+            <span className="rounded-full bg-card/95 px-2.5 py-1 text-[11px] font-semibold text-muted-foreground shadow-sm">
               {level}
-            </div>
+            </span>
           ) : null}
-          {rating ? (
-            <div className="flex items-center gap-1 rounded-full bg-white/90 px-3 py-1.5 text-[11px] font-bold text-[color:var(--brand-900)] shadow-sm ring-1 ring-black/5 backdrop-blur">
-              <span className="text-[color:color-mix(in_oklab,var(--primary)_75%,#ffb300)]">★</span>
-              {rating}
-            </div>
+        </div>
+      </div>
+
+      <div className="flex flex-1 flex-col gap-4 p-4">
+        <div className="space-y-2">
+          {category ? (
+            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-primary">
+              {category}
+            </p>
+          ) : null}
+
+          <h3 className="line-clamp-2 min-h-[52px] text-xl font-extrabold leading-[1.25] tracking-tight text-card-foreground">
+            {title}
+          </h3>
+
+          {description ? (
+            <p className="line-clamp-2 min-h-[40px] break-words text-sm leading-5 text-muted-foreground">
+              {description}
+            </p>
           ) : null}
         </div>
 
-        {lessons || duration ? (
-          <div className="absolute bottom-4 left-4 flex items-center gap-2">
-            {lessons ? (
-              <div className="rounded-full bg-white/90 px-3 py-1 text-[11px] font-semibold text-[color:var(--brand-900)] ring-1 ring-black/5 backdrop-blur">
-                <span className="inline-flex items-center gap-1.5">
-                  <BookOpen className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
-                  {lessons} bài
-                </span>
-              </div>
-            ) : null}
-            {duration ? (
-              <div className="rounded-full bg-white/90 px-3 py-1 text-[11px] font-semibold text-[color:var(--brand-900)] ring-1 ring-black/5 backdrop-blur">
-                <span className="inline-flex items-center gap-1.5">
-                  <Clock3 className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
-                  {duration}
-                </span>
-              </div>
-            ) : null}
+        <div className="grid grid-cols-3 rounded-2xl bg-muted/70 p-3">
+          <div className="flex flex-col gap-1">
+            <BookOpen className="h-4 w-4 text-primary" />
+            <span className="text-[11px] text-muted-foreground">Bài học</span>
+            <span className="text-sm font-bold text-card-foreground">
+              {lessonsCount || '--'}
+            </span>
           </div>
-        ) : null}
-      </div>
 
-      <div className="flex min-h-[260px] flex-1 flex-col p-5 pt-0 sm:min-h-[280px]">
-        <h3 className="line-clamp-2 text-[17px] font-extrabold leading-snug text-[color:var(--brand-950)] transition-colors group-hover:text-[color:var(--brand-900)]">
-          {title}
-        </h3>
-
-        {students || metaNote ? (
-          <div className="mt-2 flex flex-wrap items-center gap-2 text-[13px] text-[color:var(--brand-700)]">
-            {students ? (
-              <span className="inline-flex items-center gap-1 rounded-full bg-muted/60 px-3 py-1 ring-1 ring-black/5">
-                <Users className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
-                {typeof students === 'number' ? students.toLocaleString('vi-VN') : students} học viên
-              </span>
-            ) : null}
-            {metaNote ? (
-              <span className="inline-flex items-center gap-1 rounded-full bg-muted/60 px-3 py-1 ring-1 ring-black/5">
-                <Lightbulb className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
-                {metaNote}
-              </span>
-            ) : null}
+          <div className="flex flex-col gap-1">
+            <Users className="h-4 w-4 text-primary" />
+            <span className="text-[11px] text-muted-foreground">Học viên</span>
+            <span className="text-sm font-bold text-card-foreground">
+              {formattedLearned || '--'}
+            </span>
           </div>
-        ) : null}
 
-        {price || rating ? (
-          <div className="mt-auto flex items-center justify-between border-t border-border/60 pt-5">
-            {price ? (
-              <div className="flex flex-col">
-                <span className="text-[11px] font-semibold text-[color:var(--brand-600)]">Học phí</span>
-                <span className="text-[22px] font-extrabold tracking-tight text-primary">₫{formattedPrice}</span>
-              </div>
-            ) : (
-              <span />
+          <div className="flex flex-col gap-1">
+            <MessageCircle className="h-4 w-4 text-primary" />
+            <span className="text-[11px] text-muted-foreground">Bình luận</span>
+            <span className="text-sm font-bold text-card-foreground">
+              {commentsCount || '--'}
+            </span>
+          </div>
+        </div>
+
+        <div className="inline-flex items-center gap-1.5 rounded-full bg-[color:var(--sky-60)] px-3 py-1 text-xs font-semibold text-[color:var(--brand-800)]">
+          <Clock3 className="h-3.5 w-3.5 text-primary" />
+          {totalHours > 0 ? `${totalHours} giờ học` : 'Chưa có thời lượng'}
+        </div>
+
+        <div className="mt-auto border-t border-border pt-4">
+          <div className="rounded-2xl border border-border/60 bg-muted/40 px-3 py-2.5">
+            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-muted-foreground">
+              Giá khóa học
+            </p>
+            <div className="mt-1.5 flex flex-wrap items-end gap-x-2 gap-y-1">
+              <p
+                className={cn(
+                  'text-2xl font-extrabold leading-none',
+                  price === 0 ? 'text-emerald-600' : 'text-card-foreground'
+                )}
+              >
+                {formattedPrice}
+              </p>
+              {formattedOriginalPrice ? (
+                <span className="text-sm font-semibold text-muted-foreground line-through">
+                  {formattedOriginalPrice}
+                </span>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="mt-3 flex items-center justify-between gap-2">
+            {href ? (
+              <AppButton
+                asChild
+                className="h-11 rounded-full px-4 text-sm font-semibold"
+              >
+                <Link href={href}>{actionLabel}</Link>
+              </AppButton>
+            ) : null}
+
+            {cartAction ?? (
+              <button
+                type="button"
+                aria-label="Thêm vào giỏ hàng"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-card text-card-foreground shadow-sm transition hover:bg-muted"
+              >
+                <ShoppingCart className="h-5 w-5" />
+              </button>
             )}
-
-            {students ? (
-              <span className="text-xs font-semibold text-muted-foreground">
-                {typeof students === 'number' ? students.toLocaleString('vi-VN') : students}+ đã học
-              </span>
-            ) : rating ? (
-              <span className="text-xs font-semibold text-muted-foreground">{rating}★</span>
-            ) : null}
           </div>
-        ) : null}
-
-        <div className="mt-4 flex items-center gap-3">
-          {actions ? (
-            actions
-          ) : href ? (
-            <AppButton
-              asChild
-              className="flex-1 rounded-full font-semibold shadow-sm transition-shadow hover:shadow-md"
-            >
-              <Link href={href}>{actionLabel}</Link>
-            </AppButton>
-          ) : null}
         </div>
       </div>
     </Card>
