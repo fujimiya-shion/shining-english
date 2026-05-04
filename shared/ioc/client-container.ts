@@ -3,6 +3,10 @@ import { UserRepository } from "@/data/repositories/remote/user/user.repository"
 import { IUserRepository } from "@/data/repositories/remote/user/user.repository.interface";
 import { IoCContainer } from "./ioc-container";
 import { IOC_TOKENS, IoCToken } from "./tokens";
+import { ICityRepository } from "@/data/repositories/remote/city/city.repository.interface";
+import { CityRepository } from "@/data/repositories/remote/city/city.repository";
+import { IDashboardRepository } from "@/data/repositories/remote/dashboard/dashboard.repository.interface";
+import { DashboardRepository } from "@/data/repositories/remote/dashboard/dashboard.repository";
 import { ICourseRepository } from "@/data/repositories/remote/course/course.repository.interface";
 import { CourseRepository } from "@/data/repositories/remote/course/course.repository";
 import { ICartRepository } from "@/data/repositories/remote/cart/cart.repository.interface";
@@ -24,6 +28,14 @@ function buildClientContainer(): IoCContainer {
   container.bind<IUserRepository>(
     IOC_TOKENS.USER_REPOSITORY,
     () => new UserRepository(new ClientSideHttpClient()),
+  );
+  container.bind<ICityRepository>(
+    IOC_TOKENS.CITY_REPOSITORY,
+    () => new CityRepository(new ClientSideHttpClient()),
+  );
+  container.bind<IDashboardRepository>(
+    IOC_TOKENS.DASHBOARD_REPOSITORY,
+    () => new DashboardRepository(new ClientSideHttpClient()),
   );
 
   container.bind<ICourseRepository>(

@@ -14,6 +14,12 @@ export const AppEndpoints = {
   user: {
     update: "/user/update",
   },
+  city: {
+    index: "/cities",
+  },
+  dashboard: {
+    overview: "/dashboard/overview",
+  },
 
   course: {
     index: "/courses",

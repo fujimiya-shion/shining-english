@@ -3,6 +3,10 @@ import "server-only";
 import { ServerSideHttpClient } from "@/infra/http/server-side-http.client";
 import { UserRepository } from "@/data/repositories/remote/user/user.repository";
 import { IUserRepository } from "@/data/repositories/remote/user/user.repository.interface";
+import { ICityRepository } from "@/data/repositories/remote/city/city.repository.interface";
+import { CityRepository } from "@/data/repositories/remote/city/city.repository";
+import { IDashboardRepository } from "@/data/repositories/remote/dashboard/dashboard.repository.interface";
+import { DashboardRepository } from "@/data/repositories/remote/dashboard/dashboard.repository";
 import { IoCContainer } from "./ioc-container";
 import { IOC_TOKENS, IoCToken } from "./tokens";
 import { ICourseRepository } from "@/data/repositories/remote/course/course.repository.interface";
@@ -22,6 +26,14 @@ function buildServerContainer(): IoCContainer {
   container.bind<IUserRepository>(
     IOC_TOKENS.USER_REPOSITORY,
     () => new UserRepository(new ServerSideHttpClient()),
+  );
+  container.bind<ICityRepository>(
+    IOC_TOKENS.CITY_REPOSITORY,
+    () => new CityRepository(new ServerSideHttpClient()),
+  );
+  container.bind<IDashboardRepository>(
+    IOC_TOKENS.DASHBOARD_REPOSITORY,
+    () => new DashboardRepository(new ServerSideHttpClient()),
   );
   container.bind<ICourseRepository>(
     IOC_TOKENS.COURSE_REPOSITORY,

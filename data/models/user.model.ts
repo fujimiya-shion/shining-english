@@ -9,6 +9,8 @@ export class User extends BaseModel {
   avatar?: string;
   cityId?: number | null;
   city_id?: number | null;
+  city_name?: string | null;
+  city?: { id?: number; name?: string } | null;
   emailVerifiedAt?: string | Date | null;
   email_verified_at?: string | Date | null;
 }
