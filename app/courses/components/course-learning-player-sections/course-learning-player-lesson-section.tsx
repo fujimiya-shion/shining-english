@@ -10,6 +10,7 @@ import { AppButton } from '@/shared/components/ui/app-button'
 import { Button } from '@/shared/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs'
 import { AppStatus } from '@/shared/enums/app-status'
+import { BarChart3, CircleCheckBig, CircleDashed, RotateCcw, XCircle } from 'lucide-react'
 
 export function CourseLearningPlayerLessonSection({
   comments,
@@ -27,8 +28,14 @@ export function CourseLearningPlayerLessonSection({
   onDeleteNote,
   onSaveNote,
   onCompleteLesson,
+  onOpenQuiz,
+  onViewQuizResult,
   onSelectLesson,
+  onVideoEnded,
   onVideoError,
+  showQuizAction = false,
+  quizStatus = AppStatus.initial,
+  quizSummary,
   shouldShowVideo,
   showLessonOnlyContent = false,
 }: {
@@ -47,8 +54,19 @@ export function CourseLearningPlayerLessonSection({
   onDeleteNote: (noteId: number) => void
   onSaveNote: () => void
   onCompleteLesson: () => void
+  onOpenQuiz: () => void
+  onViewQuizResult: () => void
   onSelectLesson: (lessonId: number) => void
+  onVideoEnded: () => void
   onVideoError: () => void
+  showQuizAction?: boolean
+  quizStatus?: AppStatus
+  quizSummary?: {
+    passPercent: number
+    hasAttempt: boolean
+    scorePercent?: number
+    passed?: boolean
+  }
   shouldShowVideo: boolean
   showLessonOnlyContent?: boolean
 }) {
@@ -64,6 +82,7 @@ export function CourseLearningPlayerLessonSection({
               controlsList="nodownload"
               preload="metadata"
               src={currentLessonVideoUrl}
+              onEnded={onVideoEnded}
               onError={onVideoError}
             >
               Trình duyệt của bạn không hỗ trợ phát video.
@@ -192,6 +211,74 @@ export function CourseLearningPlayerLessonSection({
           </div>
         </TabsContent>
       </Tabs>
+
+      {showQuizAction ? (
+        <div className="rounded-2xl border border-border/60 bg-gradient-to-br from-card via-card to-muted/40 p-5 shadow-[0_20px_50px_-40px_rgba(15,23,42,0.7)]">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-primary">
+                <BarChart3 className="h-3.5 w-3.5" />
+                Quiz Tracker
+              </div>
+              <h3 className="text-lg font-semibold text-foreground">Bài tập trắc nghiệm của bài học</h3>
+              {quizStatus === AppStatus.loading ? (
+                <p className="text-sm text-muted-foreground">Đang tải dữ liệu quiz...</p>
+              ) : quizSummary?.hasAttempt ? (
+                <p className="text-sm text-muted-foreground">
+                  Điểm gần nhất <span className="font-semibold text-foreground">{quizSummary.scorePercent ?? 0}%</span>
+                  {' '}• Mức đạt <span className="font-semibold text-foreground">{quizSummary.passPercent}%</span>
+                </p>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Chưa có lượt làm nào • Mức đạt <span className="font-semibold text-foreground">{quizSummary?.passPercent ?? 70}%</span>
+                </p>
+              )}
+            </div>
+
+            <div className="shrink-0">
+              {quizStatus === AppStatus.loading ? (
+                <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-muted/40 px-3 py-1.5 text-sm text-muted-foreground">
+                  <CircleDashed className="h-4 w-4 animate-spin" />
+                  Đang kiểm tra
+                </div>
+              ) : quizSummary?.hasAttempt ? (
+                <div
+                  className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-semibold ${
+                    quizSummary.passed
+                      ? 'border border-emerald-300/50 bg-emerald-500/10 text-emerald-600'
+                      : 'border border-rose-300/50 bg-rose-500/10 text-rose-600'
+                  }`}
+                >
+                  {quizSummary.passed ? <CircleCheckBig className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
+                  {quizSummary.passed ? 'Đạt' : 'Chưa đạt'}
+                </div>
+              ) : (
+                <div className="inline-flex items-center gap-2 rounded-full border border-amber-300/50 bg-amber-500/10 px-3 py-1.5 text-sm font-semibold text-amber-600">
+                  <CircleDashed className="h-4 w-4" />
+                  Chưa làm quiz
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-3">
+            <AppButton type="button" className="min-w-44" onClick={onOpenQuiz}>
+              <RotateCcw className="h-4 w-4" />
+              Làm lại bài tập
+            </AppButton>
+            <Button
+              type="button"
+              variant="outline"
+              className="min-w-44 bg-transparent"
+              disabled={!quizSummary?.hasAttempt}
+              onClick={onViewQuizResult}
+            >
+              <BarChart3 className="h-4 w-4" />
+              Xem lại kết quả
+            </Button>
+          </div>
+        </div>
+      ) : null}
 
       <div className="flex gap-3 pt-4">
         <Button

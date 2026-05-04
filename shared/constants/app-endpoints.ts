@@ -19,8 +19,18 @@ export const AppEndpoints = {
     index: "/courses",
     detail: (slug: string) => `/courses/slug/${encodeURIComponent(slug)}`,
     access: (courseId: number) => `/courses/${courseId}/access`,
+    learningProgress: (courseId: number) => `/courses/${courseId}/learning-progress`,
+    completeLesson: (courseId: number, lessonId: number) => `/courses/${courseId}/lessons/${lessonId}/complete`,
+    setCurrentLesson: (courseId: number) => `/courses/${courseId}/current-lesson`,
     filter: "/courses/filter",
     filterProps: "/courses/filter-props",
+  },
+  lesson: {
+    quiz: (lessonId: number) => `/lessons/${lessonId}/quiz`,
+  },
+  quizAttempt: {
+    latest: (quizId: number) => `/quizzes/${quizId}/attempts/latest`,
+    store: (quizId: number) => `/quizzes/${quizId}/attempts`,
   },
   cart: {
     items: "/cart/items",

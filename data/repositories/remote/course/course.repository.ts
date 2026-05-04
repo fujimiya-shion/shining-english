@@ -1,5 +1,8 @@
 import { Course } from "@/data/models/course.model";
 import { CourseAccess } from "@/data/models/course-access.model";
+import { CourseLearningProgress } from "@/data/models/course-learning-progress.model";
+import { QuizAttempt } from "@/data/models/quiz-attempt.model";
+import { Quiz } from "@/data/models/quiz.model";
 import { PaginationResponse } from "@/data/dtos/common/pagination-response";
 import { BaseRepository } from "../base.repository";
 import { ICourseRepository } from "./course.repository.interface";
@@ -33,6 +36,73 @@ export class CourseRepository extends BaseRepository implements ICourseRepositor
     return this.get({
       url: AppEndpoints.course.access(courseId),
       map: (raw) => ObjectResponse.fromApiJson<CourseAccess>(raw, CourseAccess),
+    });
+  }
+
+  async getLearningProgress(
+    courseId: number,
+  ): Promise<ApiResult<ObjectResponse<CourseLearningProgress>, ApiException>> {
+    return this.get({
+      url: AppEndpoints.course.learningProgress(courseId),
+      map: (raw) => ObjectResponse.fromApiJson<CourseLearningProgress>(raw, CourseLearningProgress),
+    });
+  }
+
+  async completeLesson(
+    courseId: number,
+    lessonId: number,
+  ): Promise<ApiResult<ObjectResponse<CourseLearningProgress>, ApiException>> {
+    return this.post({
+      url: AppEndpoints.course.completeLesson(courseId, lessonId),
+      map: (raw) => ObjectResponse.fromApiJson<CourseLearningProgress>(raw, CourseLearningProgress),
+    });
+  }
+
+  async setCurrentLesson(
+    courseId: number,
+    lessonId: number,
+  ): Promise<ApiResult<ObjectResponse<CourseLearningProgress>, ApiException>> {
+    return this.post({
+      url: AppEndpoints.course.setCurrentLesson(courseId),
+      body: { lesson_id: lessonId },
+      map: (raw) => ObjectResponse.fromApiJson<CourseLearningProgress>(raw, CourseLearningProgress),
+    });
+  }
+
+  async getLessonQuiz(
+    lessonId: number,
+  ): Promise<ApiResult<ObjectResponse<Quiz>, ApiException>> {
+    return this.get({
+      url: AppEndpoints.lesson.quiz(lessonId),
+      map: (raw) => ObjectResponse.fromApiJson<Quiz>(raw, Quiz),
+    });
+  }
+
+  async getLatestQuizAttempt(
+    quizId: number,
+  ): Promise<ApiResult<ObjectResponse<QuizAttempt>, ApiException>> {
+    return this.get({
+      url: AppEndpoints.quizAttempt.latest(quizId),
+      map: (raw) => ObjectResponse.fromApiJson<QuizAttempt>(raw, QuizAttempt),
+    });
+  }
+
+  async createQuizAttempt(
+    quizId: number,
+    payload: {
+      scorePercent: number;
+      passed: boolean;
+      submittedAt?: string;
+    },
+  ): Promise<ApiResult<ObjectResponse<QuizAttempt>, ApiException>> {
+    return this.post({
+      url: AppEndpoints.quizAttempt.store(quizId),
+      body: {
+        score_percent: payload.scorePercent,
+        passed: payload.passed,
+        submitted_at: payload.submittedAt,
+      },
+      map: (raw) => ObjectResponse.fromApiJson<QuizAttempt>(raw, QuizAttempt),
     });
   }
 

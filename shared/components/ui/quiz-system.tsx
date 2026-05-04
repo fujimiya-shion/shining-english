@@ -3,100 +3,67 @@
 import { Button } from '@/shared/components/ui/button'
 import { AppButton } from '@/shared/components/ui/app-button'
 import { Card } from '@/shared/components/ui/card'
-import { useState } from 'react'
+import { AppStatus } from '@/shared/enums/app-status'
+import { useEffect, useMemo, useState } from 'react'
 
 interface QuizQuestion {
-  id: number
-  question: string
-  options: string[]
-  correctAnswer: number
-  explanation: string
+  id: number | string
+  content: string
+  options: {
+    id: number | string
+    content: string
+    isCorrect?: boolean
+  }[]
 }
 
 interface QuizProps {
   title: string
   description?: string
   passingScore?: number
-  onComplete?: (score: number, passed: boolean) => void
+  questions: QuizQuestion[]
+  submitStatus?: AppStatus
+  allowRetake?: boolean
+  onComplete?: (score: number, passed: boolean) => Promise<void> | void
+  onContinue?: () => void
 }
 
 export function QuizSystem({
   title,
   description,
   passingScore = 70,
+  questions,
+  submitStatus = AppStatus.initial,
+  allowRetake = true,
   onComplete,
+  onContinue,
 }: QuizProps) {
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [selectedAnswers, setSelectedAnswers] = useState<(number | null)[]>([])
   const [showResults, setShowResults] = useState(false)
 
-  const questions: QuizQuestion[] = [
-    {
-      id: 1,
-      question: 'Which sentence uses the present perfect tense correctly?',
-      options: [
-        'I have been to Paris last year',
-        'I have been in Paris for two years',
-        'I am going to Paris yesterday',
-        'I went to Paris every summer',
-      ],
-      correctAnswer: 1,
-      explanation:
-        'Option B is correct. The present perfect is used with "for" when expressing duration up to now. Option A is incorrect because "last year" requires simple past.',
-    },
-    {
-      id: 2,
-      question: 'What is the correct form of the passive voice for this sentence: "They cancelled the meeting"?',
-      options: [
-        'The meeting was cancelling by them',
-        'The meeting was cancelled by them',
-        'The meeting had been cancelled by them',
-        'The meeting is being cancelled by them',
-      ],
-      correctAnswer: 1,
-      explanation:
-        'Option B is correct. The past simple passive is formed with "was/were + past participle". The verb "cancelled" becomes "was cancelled".',
-    },
-    {
-      id: 3,
-      question: 'Which word should you use to complete: "If I _____ you were here, I would have invited you"?',
-      options: [
-        'knew',
-        'have known',
-        'had known',
-        'would know',
-      ],
-      correctAnswer: 2,
-      explanation:
-        'Option C is correct. In third conditional sentences, the if-clause requires past perfect: "had + past participle".',
-    },
-    {
-      id: 4,
-      question: 'What is the correct preposition in: "I am interested _____ learning English"?',
-      options: [
-        'in',
-        'on',
-        'at',
-        'for',
-      ],
-      correctAnswer: 0,
-      explanation:
-        'Option A is correct. "Interested in" is the correct collocation in English.',
-    },
-    {
-      id: 5,
-      question: 'Which sentence has correct subject-verb agreement?',
-      options: [
-        'Neither of the students have completed their homework',
-        'Neither of the students has completed their homework',
-        'Both students has completed their homework',
-        'The team are playing their best game',
-      ],
-      correctAnswer: 1,
-      explanation:
-        'Option B is correct. "Neither" takes a singular verb "has". In formal English, "team" also takes singular verbs in American English.',
-    },
-  ]
+  useEffect(() => {
+    setCurrentQuestion(0)
+    setShowResults(false)
+    setSelectedAnswers(Array.from({ length: questions.length }, () => null))
+  }, [questions])
+
+  const result = useMemo(() => {
+    const correctCount = selectedAnswers.reduce<number>((count, answer, index) => {
+      const selectedOption = typeof answer === 'number' ? questions[index]?.options?.[answer] : undefined
+      return selectedOption?.isCorrect ? count + 1 : count
+    }, 0)
+
+    const score = questions.length > 0
+      ? Math.round((correctCount / questions.length) * 100)
+      : 0
+    const passed = score >= passingScore
+
+    return {
+      correctCount,
+      score,
+      passed,
+    }
+  }, [passingScore, questions, selectedAnswers])
 
   const handleSelectAnswer = (optionIndex: number) => {
     const newAnswers = [...selectedAnswers]
@@ -116,34 +83,30 @@ export function QuizSystem({
     }
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     setShowResults(true)
 
-    const correctCount = selectedAnswers.reduce<number>((count, answer, index) => {
-      return answer === questions[index].correctAnswer ? count + 1 : count
-    }, 0)
-
-    const score = Math.round((correctCount / questions.length) * 100)
-    const passed = score >= passingScore
-
     if (onComplete) {
-      onComplete(score, passed)
+      await onComplete(result.score, result.passed)
     }
   }
 
+  if (questions.length === 0) {
+    return (
+      <div className="max-w-2xl mx-auto">
+        <Card className="p-8 text-center text-muted-foreground">
+          Quiz hiện chưa có câu hỏi.
+        </Card>
+      </div>
+    )
+  }
+
   if (showResults) {
-    const correctCount = selectedAnswers.reduce<number>((count, answer, index) => {
-      return answer === questions[index].correctAnswer ? count + 1 : count
-    }, 0)
-
-    const score = Math.round((correctCount / questions.length) * 100)
-    const passed = score >= passingScore
-
     return (
       <div className="max-w-2xl mx-auto">
         <Card className="p-8 text-center">
           <div className="mb-6">
-            {passed ? (
+            {result.passed ? (
               <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-accent/20">
                 <svg
                   className="h-8 w-8 text-accent"
@@ -179,22 +142,35 @@ export function QuizSystem({
           </div>
 
           <h2 className="text-2xl font-bold mb-2">
-            {passed ? 'Congratulations!' : 'Not Quite There Yet'}
+            {result.passed ? 'Bạn đã đạt yêu cầu' : 'Bạn chưa đạt yêu cầu'}
           </h2>
 
-          <div className="mb-6">
-            <p className="text-4xl font-bold text-primary mb-1">{score}%</p>
+          <div className="mb-6 rounded-xl border border-border/60 bg-muted/30 p-4">
+            <p className="text-4xl font-bold text-primary mb-1">{result.score}%</p>
             <p className="text-muted-foreground">
-              You answered {correctCount} out of {questions.length} questions correctly
+              Đúng {result.correctCount}/{questions.length} câu
             </p>
-            <p className="text-sm text-muted-foreground mt-2">
-              Passing score required: {passingScore}%
+            <p className="mt-2 text-sm text-muted-foreground">
+              Mức đạt yêu cầu: <span className="font-semibold text-foreground">{passingScore}%</span>
             </p>
+            <p className="text-sm text-muted-foreground">
+              Trạng thái: {' '}
+              <span className={result.passed ? 'font-semibold text-accent' : 'font-semibold text-destructive'}>
+                {result.passed ? 'Đạt' : 'Chưa đạt'}
+              </span>
+            </p>
+          </div>
+
+          <div className="mb-4 text-left">
+            <h3 className="text-base font-semibold">Kết quả chi tiết</h3>
           </div>
 
           <div className="mb-8 space-y-3">
             {questions.map((q, index) => {
-              const isCorrect = selectedAnswers[index] === q.correctAnswer
+              const selectedIndex = selectedAnswers[index]
+              const selectedOption = typeof selectedIndex === 'number' ? q.options[selectedIndex] : undefined
+              const correctOption = q.options.find((option) => option.isCorrect)
+              const isCorrect = Boolean(selectedOption?.isCorrect)
               return (
                 <div
                   key={q.id}
@@ -233,13 +209,13 @@ export function QuizSystem({
                       )}
                     </div>
                     <div className="flex-1">
-                      <p className="font-medium text-sm">{q.question}</p>
+                      <p className="font-medium text-sm">Câu {index + 1}: {q.content}</p>
                       <p className="text-xs text-muted-foreground mt-2">
-                        <span className="font-medium">Your answer:</span> {q.options[selectedAnswers[index] ?? -1] ?? 'Not answered'}
+                        <span className="font-medium">Bạn chọn:</span> {selectedOption?.content ?? 'Chưa trả lời'}
                       </p>
                       {!isCorrect && (
                         <p className="text-xs text-accent mt-1">
-                          <span className="font-medium">Correct answer:</span> {q.options[q.correctAnswer]}
+                          <span className="font-medium">Đáp án đúng:</span> {correctOption?.content ?? 'N/A'}
                         </p>
                       )}
                     </div>
@@ -250,18 +226,23 @@ export function QuizSystem({
           </div>
 
           <div className="flex gap-3">
-            <Button
-              variant="outline"
-              className="flex-1 bg-transparent"
-              onClick={() => {
-                setCurrentQuestion(0)
-                setSelectedAnswers([])
-                setShowResults(false)
-              }}
-            >
-              Retake Quiz
-            </Button>
-            <AppButton className="flex-1">Continue to Next Lesson</AppButton>
+            {allowRetake ? (
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1 bg-transparent"
+                onClick={() => {
+                  setCurrentQuestion(0)
+                  setSelectedAnswers(Array.from({ length: questions.length }, () => null))
+                  setShowResults(false)
+                }}
+              >
+                Làm lại
+              </Button>
+            ) : null}
+            <AppButton type="button" className="flex-1" onClick={onContinue}>
+              Tiếp tục học
+            </AppButton>
           </div>
         </Card>
       </div>
@@ -294,12 +275,13 @@ export function QuizSystem({
 
         {/* Question */}
         <div className="mb-8">
-          <h2 className="text-lg font-semibold mb-6">{question.question}</h2>
+          <h2 className="text-lg font-semibold mb-6">{question.content}</h2>
 
           {/* Options */}
           <div className="space-y-3">
             {question.options.map((option, index) => (
               <button
+                type="button"
                 key={index}
                 onClick={() => handleSelectAnswer(index)}
                 className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
@@ -320,7 +302,7 @@ export function QuizSystem({
                       <div className="h-2 w-2 rounded-full bg-primary-foreground" />
                     )}
                   </div>
-                  <span className="flex-1">{option}</span>
+                  <span className="flex-1">{option.content}</span>
                 </div>
               </button>
             ))}
@@ -330,6 +312,7 @@ export function QuizSystem({
         {/* Navigation */}
         <div className="flex gap-3">
           <Button
+            type="button"
             variant="outline"
             onClick={handlePrevious}
             disabled={currentQuestion === 0}
@@ -340,14 +323,25 @@ export function QuizSystem({
 
           {currentQuestion === questions.length - 1 ? (
             <AppButton
-              onClick={handleSubmit}
-              disabled={selectedAnswers.some((a, i) => a === null && i <= currentQuestion)}
+              type="button"
+              onClick={() => {
+                void handleSubmit()
+              }}
+              disabled={
+                submitStatus === AppStatus.loading
+                || selectedAnswers.some((answer) => answer === null || answer === undefined)
+              }
               className="flex-1"
             >
-              Submit Quiz
+              {submitStatus === AppStatus.loading ? 'Submitting...' : 'Submit Quiz'}
             </AppButton>
           ) : (
-            <AppButton onClick={handleNext} className="flex-1">
+            <AppButton
+              type="button"
+              onClick={handleNext}
+              disabled={selectedAnswers[currentQuestion] === null}
+              className="flex-1"
+            >
               Next
             </AppButton>
           )}
@@ -357,6 +351,7 @@ export function QuizSystem({
         <div className="mt-6 flex gap-1 justify-center">
           {questions.map((_, index) => (
             <button
+              type="button"
               key={index}
               onClick={() => setCurrentQuestion(index)}
               className={`h-2 w-2 rounded-full transition-all ${

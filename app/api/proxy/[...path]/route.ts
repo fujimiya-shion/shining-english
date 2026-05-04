@@ -40,11 +40,13 @@ function buildPassthroughHeaders(sourceHeaders: Headers): Headers {
       normalizedKey === "content-type" ||
       normalizedKey === "content-length" ||
       normalizedKey === "content-disposition" ||
+      normalizedKey === "content-encoding" ||
       normalizedKey === "accept-ranges" ||
       normalizedKey === "content-range" ||
       normalizedKey === "cache-control" ||
       normalizedKey === "etag" ||
-      normalizedKey === "last-modified"
+      normalizedKey === "last-modified" ||
+      normalizedKey === "location"
     ) {
       headers.set(key, value);
     }
@@ -67,6 +69,11 @@ function buildUpstreamHeaders(request: NextRequest): Record<string, string> {
   }
 
   return headers;
+}
+
+function isMediaPath(path: string): boolean {
+  return /^\/lessons\/\d+\/video$/.test(path)
+    || /^\/lessons\/\d+\/documents\/\d+\/download$/.test(path)
 }
 
 function getUserAccessToken(request: NextRequest): string | null {
@@ -243,6 +250,11 @@ async function handleRequest(
   }
   const sanitizedBody = sanitizeRequestBody(path, body);
   const rememberUserAccessToken = shouldRememberUserAccessToken(path, body);
+  const upstreamHeaders = buildUpstreamHeaders(request);
+
+  if (isMediaPath(path)) {
+    upstreamHeaders.Accept = "*/*";
+  }
 
   let upstreamResponse: Response;
   try {
@@ -250,7 +262,7 @@ async function handleRequest(
       method,
       path,
       query,
-      headers: buildUpstreamHeaders(request),
+      headers: upstreamHeaders,
       body: sanitizedBody,
       accessToken,
       userAccessToken,
