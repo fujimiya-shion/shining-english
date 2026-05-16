@@ -6,6 +6,7 @@ import { AppCheckBox } from '@/shared/components/ui/app-checkbox'
 import { Button } from '@/shared/components/ui/button'
 import { Card, CardContent } from '@/shared/components/ui/card'
 import { Input } from '@/shared/components/ui/input'
+import { SlidersHorizontal } from 'lucide-react'
 
 type Category = { id?: number; name?: string }
 type Level = { value?: number; label?: string; count?: number }
@@ -37,6 +38,8 @@ export function CoursesPageFiltersSidebar({
   applyPriceFilters,
   setPriceMinFromSlider,
   setPriceMaxFromSlider,
+  mode = 'desktop',
+  onClose,
 }: {
   categories: Category[]
   levels: Level[]
@@ -63,15 +66,26 @@ export function CoursesPageFiltersSidebar({
   applyPriceFilters: () => Promise<void>
   setPriceMinFromSlider: (value: number) => void
   setPriceMaxFromSlider: (value: number) => void
+  mode?: 'desktop' | 'mobile'
+  onClose?: () => void
 }) {
+  const isMobile = mode === 'mobile'
+
   return (
-    <aside className="hidden lg:block">
-      <div className="sticky top-24 space-y-6">
-        <Card className="border-border/70 bg-white/90">
-          <CardContent className="max-h-[calc(100vh-7.5rem)] space-y-6 overflow-y-auto px-5 py-6 pr-3 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+    <aside className={isMobile ? 'block h-full' : 'hidden lg:block'}>
+      <div className={isMobile ? 'h-full' : 'sticky top-24 space-y-6'}>
+        <Card className={`border-border/70 bg-white/90 ${isMobile ? 'h-full rounded-none border-0 shadow-none' : ''}`}>
+          <CardContent
+            className={`space-y-6 px-5 py-6 pr-3 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden ${
+              isMobile ? 'h-full overflow-y-auto' : 'max-h-[calc(100vh-7.5rem)] overflow-y-auto'
+            }`}
+          >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-semibold text-[color:var(--brand-900)]">Bộ lọc</p>
+                <p className="inline-flex items-center gap-2 text-sm font-semibold text-[color:var(--brand-900)]">
+                  <SlidersHorizontal className="h-4 w-4" />
+                  Bộ lọc
+                </p>
                 <p className="text-xs text-muted-foreground">Chọn để thu gọn kết quả</p>
               </div>
               <Button variant="ghost" size="sm" className="text-xs" onClick={() => void resetFilters()}>

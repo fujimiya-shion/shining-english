@@ -45,7 +45,7 @@ export default function AboutPage() {
                 </Link>
               </AppButton>
               <AppButton asChild variant="outline" className="rounded-full">
-                <Link href="/blog">Đọc bài viết nền tảng</Link>
+                <Link href="/blogs">Đọc bài viết nền tảng</Link>
               </AppButton>
             </div>
           </div>

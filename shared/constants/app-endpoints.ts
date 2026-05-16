@@ -20,6 +20,11 @@ export const AppEndpoints = {
   dashboard: {
     overview: "/dashboard/overview",
   },
+  blog: {
+    index: "/blogs",
+    detail: (slug: string) => `/blogs/slug/${encodeURIComponent(slug)}`,
+    unlock: (blogId: number) => `/blogs/${blogId}/unlock`,
+  },
 
   course: {
     index: "/courses",

@@ -2,13 +2,11 @@
 
 import { useCallback, useEffect, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-import Link from "next/link";
-import { ShoppingCart } from "lucide-react";
+import Image from "next/image";
 import { Course } from "@/data/models/course.model";
 
 import { CourseCardItem } from "@/shared/components/ui/course/course-card-item";
 import { BannerStarfieldStatic } from "@/shared/components/ui/banner/banner-starfield-static";
-import { AppButton } from "@/shared/components/ui/app-button";
 import { Button } from "@/shared/components/ui/button";
 
 type FeaturedCoursesSectionProps = {
@@ -74,19 +72,15 @@ export const FeaturedCoursesSection = ({
                 >
                   <CourseCardItem
                     course={course}
-                    image={course.thumbnail || "/placeholder.svg"}
-                    metaNote="Có phản hồi trực tiếp"
                     href={`/courses/${course.slug ?? course.id}`}
                     className="h-full"
-                    actions={
-                      <>
-                        <AppButton asChild className="flex-1 rounded-full">
-                          <Link href={`/courses/${course.slug ?? course.id}`}>Xem Chi Tiết</Link>
-                        </AppButton>
+                    actionLabel={course.enrolled ? "Tiếp tục học" : "Xem Chi Tiết"}
+                    cartAction={
+                      course.enrolled ? null : (
                         <Button
                           variant="outline"
                           size="icon"
-                          className="group rounded-full bg-background hover:bg-background hover:text-foreground hover:border-primary/60"
+                          className="group h-11 w-14 rounded-full bg-background hover:bg-background hover:text-foreground hover:border-primary/60 sm:w-11"
                           onClick={() => {
                             if (typeof course.id === "number") {
                               onAddToCart(course.id);
@@ -95,9 +89,16 @@ export const FeaturedCoursesSection = ({
                           aria-label="Thêm vào giỏ"
                         >
                           <span className="sr-only">Thêm Vào Giỏ</span>
-                          <ShoppingCart className="h-5 w-5" aria-hidden="true" />
+                          <Image
+                            src="https://img.icons8.com/ios/50/add-shopping-cart--v1.png"
+                            alt=""
+                            width={20}
+                            height={20}
+                            className="h-5 w-5"
+                            aria-hidden="true"
+                          />
                         </Button>
-                      </>
+                      )
                     }
                   />
                 </div>
@@ -109,19 +110,15 @@ export const FeaturedCoursesSection = ({
                 <CourseCardItem
                   key={course.id}
                   course={course}
-                  image={course.thumbnail || "/placeholder.svg"}
-                  metaNote="Có phản hồi trực tiếp"
                   href={`/courses/${course.slug ?? course.id}`}
                   className="h-full"
-                  actions={
-                    <>
-                    <AppButton asChild className="flex-1 rounded-full">
-                      <Link href={`/courses/${course.slug ?? course.id}`}>Xem Chi Tiết</Link>
-                    </AppButton>
+                  actionLabel={course.enrolled ? "Tiếp tục học" : "Xem Chi Tiết"}
+                  cartAction={
+                    course.enrolled ? null : (
                     <Button
                       variant="outline"
                       size="icon"
-                      className="group rounded-full bg-background hover:bg-background hover:text-foreground hover:border-primary/60"
+                      className="group h-11 w-14 rounded-full bg-background hover:bg-background hover:text-foreground hover:border-primary/60 sm:w-11"
                       onClick={() => {
                         if (typeof course.id === "number") {
                           onAddToCart(course.id);
@@ -130,12 +127,19 @@ export const FeaturedCoursesSection = ({
                       aria-label="Thêm vào giỏ"
                     >
                       <span className="sr-only">Thêm Vào Giỏ</span>
-                      <ShoppingCart className="h-5 w-5" aria-hidden="true" />
+                      <Image
+                        src="https://img.icons8.com/ios/50/add-shopping-cart--v1.png"
+                        alt=""
+                        width={20}
+                        height={20}
+                        className="h-5 w-5"
+                        aria-hidden="true"
+                      />
                     </Button>
-                  </>
-                }
-              />
-            ))}
+                    )
+                  }
+                />
+              ))}
           </div>
           <div className="flex items-center justify-center gap-3 lg:hidden">
             <Button

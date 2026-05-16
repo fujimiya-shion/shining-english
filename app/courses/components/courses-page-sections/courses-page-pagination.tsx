@@ -19,17 +19,29 @@ export function CoursesPagePagination({
       <span>
         Trang {page} / {pageCount}
       </span>
-      <div className="flex items-center gap-2">
-        <Button variant="outline" size="sm" onClick={() => void onChangePage(page - 1)} disabled={page <= 1}>
+      <div className="flex flex-wrap items-center justify-center gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          className="min-w-0 px-3"
+          onClick={() => void onChangePage(page - 1)}
+          disabled={page <= 1}
+        >
           Trước
         </Button>
         {visiblePages.map((pageNumber) =>
           pageNumber === page ? (
-            <AppButton key={pageNumber} size="sm">
+            <AppButton key={pageNumber} size="sm" className="min-w-9 px-0">
               {pageNumber}
             </AppButton>
           ) : (
-            <Button key={pageNumber} variant="outline" size="sm" onClick={() => void onChangePage(pageNumber)}>
+            <Button
+              key={pageNumber}
+              variant="outline"
+              size="sm"
+              className="min-w-9 px-0"
+              onClick={() => void onChangePage(pageNumber)}
+            >
               {pageNumber}
             </Button>
           )
@@ -37,6 +49,7 @@ export function CoursesPagePagination({
         <Button
           variant="outline"
           size="sm"
+          className="min-w-0 px-3"
           onClick={() => void onChangePage(page + 1)}
           disabled={page >= pageCount}
         >

@@ -5,6 +5,7 @@ import { AppButton } from '@/shared/components/ui/app-button'
 import { AppStatus } from '@/shared/enums/app-status'
 import { useAuthStore } from '@/shared/stores/auth.store'
 import { useCartStore } from '@/shared/stores/cart.store'
+import { useStarStore } from '@/shared/stores/star.store'
 import { useEffect } from 'react'
 import {
   BookOpen,
@@ -15,6 +16,7 @@ import {
   NotebookPen,
   Phone,
   ShoppingBag,
+  Sparkles,
   Users2,
   LogIn,
   Menu,
@@ -30,10 +32,10 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { label: 'Trang chủ', icon: Home, href: '/' },
-  { label: 'Giới thiệu', icon: Info, href: '/about' },
+  { label: 'Giới thiệu', icon: Info, href: '/about', showFrom: 'lg' },
   { label: 'Khóa học', icon: BookOpen, href: '/courses' },
-  { label: 'Miễn phí', icon: NotebookPen, href: '/free' },
-  { label: 'Liên hệ', icon: Phone, href: '/contact' },
+  { label: 'Miễn phí', icon: NotebookPen, href: '/blogs' },
+  { label: 'Liên hệ', icon: Phone, href: '/contact', showFrom: 'lg' },
 ]
 
 function CartCountBadge({ count }: { count: number }) {
@@ -51,17 +53,34 @@ export function SiteHeader() {
   const countStatus = useCartStore((state) => state.countStatus)
   const fetchCartCount = useCartStore((state) => state.fetchCount)
   const resetCart = useCartStore((state) => state.reset)
+  const starBalance = useStarStore((state) => state.balance)
+  const starStatus = useStarStore((state) => state.status)
+  const fetchStarBalance = useStarStore((state) => state.initial)
+  const resetStars = useStarStore((state) => state.reset)
 
   useEffect(() => {
     if (!authenticated) {
       resetCart()
+      resetStars()
       return
     }
 
     if (countStatus === AppStatus.initial) {
       void fetchCartCount()
     }
-  }, [authenticated, countStatus, fetchCartCount, resetCart])
+
+    if (starStatus === AppStatus.initial) {
+      void fetchStarBalance()
+    }
+  }, [
+    authenticated,
+    countStatus,
+    fetchCartCount,
+    fetchStarBalance,
+    resetCart,
+    resetStars,
+    starStatus,
+  ])
 
   const closeMobileMenu = (event: React.MouseEvent<HTMLElement>) => {
     const details = event.currentTarget.closest('details')
@@ -124,7 +143,7 @@ export function SiteHeader() {
           <div className="md:hidden" />
         </div>
         <div className="flex items-center justify-end gap-3 lg:gap-6">
-          <div className="hidden md:block">
+          <div className="hidden lg:block">
             <AppButton asChild size="sm" className="gap-2">
               <Link
                 href={authenticated ? accountHref : '/login'}
@@ -136,7 +155,20 @@ export function SiteHeader() {
             </AppButton>
           </div>
 
-          <div className="relative hidden md:block">
+          {authenticated ? (
+            <div className="hidden md:block lg:block">
+              <Link
+                href="/blogs"
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-2 text-sm font-semibold text-[color:var(--brand-900)] shadow-sm transition-colors hover:border-primary/40 hover:text-primary"
+                aria-label="Số sao hiện có"
+              >
+                <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" />
+                <span>{typeof starBalance === 'number' ? `${starBalance} sao` : '...'}</span>
+              </Link>
+            </div>
+          ) : null}
+
+          <div className="relative hidden md:block lg:block">
             <Link href="/cart" className="relative" aria-label="Giỏ hàng">
               <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-background shadow-sm transition-colors hover:border-primary/40 hover:text-primary">
                 <ShoppingBag className="h-5 w-5" strokeWidth={2} aria-hidden="true" />
@@ -179,8 +211,8 @@ export function SiteHeader() {
                     </button>
                   )
                 )}
-                <div className="mt-2 flex items-center gap-3">
-                  <AppButton asChild size="sm" className="flex-1 gap-2">
+                <div className="mt-3 space-y-3 border-t border-border/70 pt-3">
+                  <AppButton asChild size="sm" className="w-full gap-2">
                     <Link
                       href={authenticated ? accountHref : '/login'}
                       onClick={closeMobileMenu}
@@ -190,17 +222,33 @@ export function SiteHeader() {
                       {authenticated ? accountLabel : 'Đăng Nhập'}
                     </Link>
                   </AppButton>
-                  <Link
-                    href="/cart"
-                    className="relative"
-                    aria-label="Giỏ hàng"
-                    onClick={closeMobileMenu}
-                  >
-                    <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-background shadow-sm">
-                      <ShoppingBag className="h-5 w-5" strokeWidth={2} aria-hidden="true" />
-                    </span>
-                    {cartCount > 0 ? <CartCountBadge count={cartCount} /> : null}
-                  </Link>
+                  <div className="flex items-center justify-between gap-3">
+                    {authenticated ? (
+                      <Link
+                        href="/blogs"
+                        className="inline-flex min-w-0 items-center gap-2 rounded-full border border-border bg-background px-3 py-2 text-sm font-semibold text-[color:var(--brand-900)] shadow-sm"
+                        onClick={closeMobileMenu}
+                      >
+                        <Sparkles className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                        <span className="leading-tight">
+                          {typeof starBalance === 'number' ? `${starBalance} sao` : '...'}
+                        </span>
+                      </Link>
+                    ) : (
+                      <div />
+                    )}
+                    <Link
+                      href="/cart"
+                      className="relative shrink-0"
+                      aria-label="Giỏ hàng"
+                      onClick={closeMobileMenu}
+                    >
+                      <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-background shadow-sm">
+                        <ShoppingBag className="h-5 w-5" strokeWidth={2} aria-hidden="true" />
+                      </span>
+                      {cartCount > 0 ? <CartCountBadge count={cartCount} /> : null}
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>

@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { BookOpen, Clock3, MessageCircle, ShoppingCart, Star, Users } from 'lucide-react'
+import { BookOpen, Clock3, MessageCircle, Star, Users } from 'lucide-react'
 import { Course, SerializedCourse } from '@/data/models/course.model'
 import { AppButton } from '@/shared/components/ui/app-button'
 import { Card } from '@/shared/components/ui/card'
@@ -22,17 +22,18 @@ export type CourseCardItemProps = {
   course: CourseCardItemCourse
   href?: string
   actionLabel?: string
-  cartAction?: React.ReactNode
+  cartAction?: React.ReactNode | null
   className?: string
 }
 
 export function CourseCardItem({
   course,
   href,
-  actionLabel = 'Xem chi tiết',
+  actionLabel,
   cartAction,
   className,
 }: CourseCardItemProps) {
+  const isEnrolled = Boolean((course as { enrolled?: boolean }).enrolled)
   const title = course.name ?? 'Khóa học'
   const category = course.category?.name
   const level = course.level?.name
@@ -74,6 +75,8 @@ export function CourseCardItem({
 
   const formattedLearned =
     typeof learned === 'number' ? learned.toLocaleString('vi-VN') : learned
+  const resolvedActionLabel = actionLabel ?? (isEnrolled ? 'Tiếp tục học' : 'Xem chi tiết')
+  const shouldRenderCartAction = cartAction === undefined ? !isEnrolled : cartAction !== null
 
   return (
     <Card
@@ -192,25 +195,35 @@ export function CourseCardItem({
             </div>
           </div>
 
-          <div className="mt-3 flex items-center justify-between gap-2">
+          <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
             {href ? (
               <AppButton
                 asChild
-                className="h-11 rounded-full px-4 text-sm font-semibold"
+                className="h-11 w-full rounded-full px-4 text-sm font-semibold sm:w-auto"
               >
-                <Link href={href}>{actionLabel}</Link>
+                <Link href={href}>{resolvedActionLabel}</Link>
               </AppButton>
             ) : null}
 
-            {cartAction ?? (
-              <button
-                type="button"
-                aria-label="Thêm vào giỏ hàng"
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-card text-card-foreground shadow-sm transition hover:bg-muted"
-              >
-                <ShoppingCart className="h-5 w-5" />
-              </button>
-            )}
+            {shouldRenderCartAction ? (
+              <div className="w-full self-end sm:w-auto sm:self-auto">
+                {cartAction ?? (
+                  <button
+                    type="button"
+                    aria-label="Thêm vào giỏ hàng"
+                    className="inline-flex h-11 w-full items-center justify-center rounded-full border border-border bg-card text-card-foreground shadow-sm transition hover:bg-muted sm:w-11"
+                  >
+                    <Image
+                      src="https://img.icons8.com/ios/50/add-shopping-cart--v1.png"
+                      alt=""
+                      width={20}
+                      height={20}
+                      className="h-5 w-5"
+                    />
+                  </button>
+                )}
+              </div>
+            ) : null}
           </div>
         </div>
       </div>

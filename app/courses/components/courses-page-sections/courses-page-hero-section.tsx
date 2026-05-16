@@ -16,15 +16,17 @@ export function CoursesPageHeroSection({
   onSubmitSearch,
 }: CoursesPageHeroSectionProps) {
   return (
-    <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+    <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
       <div>
         <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Khoá học</p>
-        <h1 className="mt-3 text-4xl font-semibold text-[color:var(--brand-900)]">Chọn khoá học phù hợp</h1>
-        <p className="mt-2 max-w-2xl text-muted-foreground">
+        <h1 className="mt-2 text-3xl font-semibold text-[color:var(--brand-900)] sm:mt-3 sm:text-4xl">
+          Chọn khoá học phù hợp
+        </h1>
+        <p className="mt-2 max-w-2xl text-sm text-muted-foreground sm:text-base">
           Lộ trình được thiết kế theo mục tiêu cụ thể - từ giao tiếp cơ bản đến luyện thi chuyên sâu.
         </p>
       </div>
-      <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+      <div className="flex w-full items-center gap-3 lg:w-[29rem] lg:flex-none">
         <Input
           value={searchKeyword}
           onChange={(event) => onChangeSearchKeyword(event.target.value)}
@@ -35,9 +37,9 @@ export function CoursesPageHeroSection({
             }
           }}
           placeholder="Tìm khóa học..."
-          className="h-10 w-full sm:w-72"
+          className="h-11 min-w-0 flex-1"
         />
-        <AppButton size="icon" className="h-10 w-10 rounded-full" onClick={() => void onSubmitSearch()}>
+        <AppButton size="icon" className="h-11 w-11 shrink-0 rounded-full" onClick={() => void onSubmitSearch()}>
           <Search className="h-4 w-4 text-white" />
           <span className="sr-only">Tìm kiếm</span>
         </AppButton>

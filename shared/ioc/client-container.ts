@@ -7,6 +7,8 @@ import { ICityRepository } from "@/data/repositories/remote/city/city.repository
 import { CityRepository } from "@/data/repositories/remote/city/city.repository";
 import { IDashboardRepository } from "@/data/repositories/remote/dashboard/dashboard.repository.interface";
 import { DashboardRepository } from "@/data/repositories/remote/dashboard/dashboard.repository";
+import { IBlogRepository } from "@/data/repositories/remote/blog/blog.repository.interface";
+import { BlogRepository } from "@/data/repositories/remote/blog/blog.repository";
 import { ICourseRepository } from "@/data/repositories/remote/course/course.repository.interface";
 import { CourseRepository } from "@/data/repositories/remote/course/course.repository";
 import { ICartRepository } from "@/data/repositories/remote/cart/cart.repository.interface";
@@ -36,6 +38,11 @@ function buildClientContainer(): IoCContainer {
   container.bind<IDashboardRepository>(
     IOC_TOKENS.DASHBOARD_REPOSITORY,
     () => new DashboardRepository(new ClientSideHttpClient()),
+  );
+
+  container.bind<IBlogRepository>(
+    IOC_TOKENS.BLOG_REPOSITORY,
+    () => new BlogRepository(new ClientSideHttpClient()),
   );
 
   container.bind<ICourseRepository>(
