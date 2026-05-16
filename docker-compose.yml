@@ -1,14 +1,6 @@
 services:
   shining_english_fe:
-    container_name: shining_english_fe
-    build:
-      context: .
-      dockerfile: Dockerfile
-    env_file:
-      - .env
-    environment:
-      NODE_ENV: production
-      PORT: ${APP_PORT:-3000}
+    image: fujimiyashion/shining-english:${IMAGE_TAG:-latest}
     ports:
-      - "${APP_PORT:-3000}:${APP_PORT:-3000}"
+      - "4000:4000" # hoặc APP_PORT:APP_PORT
     restart: unless-stopped
