@@ -148,6 +148,54 @@ function sanitizeRequestBody(path: string, body: unknown): unknown {
   return rest;
 }
 
+function isJsonRecord(value: unknown): value is Record<string, unknown> {
+  return !!value && typeof value === "object" && !Array.isArray(value);
+}
+
+function getClientIp(request: NextRequest): string | null {
+  const forwardedFor = request.headers.get("x-forwarded-for");
+  if (forwardedFor) {
+    const firstIp = forwardedFor.split(",")[0]?.trim();
+    if (firstIp) {
+      return firstIp;
+    }
+  }
+
+  const realIp = request.headers.get("x-real-ip")?.trim();
+  if (realIp) {
+    return realIp;
+  }
+
+  return null;
+}
+
+function enrichBodyWithClientMetadata(
+  path: string,
+  body: unknown,
+  request: NextRequest,
+): unknown {
+  if (path !== "/contact" || !isJsonRecord(body)) {
+    return body;
+  }
+
+  const enriched: Record<string, unknown> = { ...body };
+  if (typeof enriched.ip_address !== "string" || enriched.ip_address.trim().length === 0) {
+    const ip = getClientIp(request);
+    if (ip) {
+      enriched.ip_address = ip;
+    }
+  }
+
+  if (typeof enriched.user_agent !== "string" || enriched.user_agent.trim().length === 0) {
+    const userAgent = request.headers.get("user-agent");
+    if (userAgent) {
+      enriched.user_agent = userAgent;
+    }
+  }
+
+  return enriched;
+}
+
 function persistUserAccessToken(
   response: NextResponse,
   payload: unknown,
@@ -258,6 +306,7 @@ async function handleRequest(
     throw error;
   }
   const sanitizedBody = sanitizeRequestBody(path, body);
+  const forwardedBody = enrichBodyWithClientMetadata(path, sanitizedBody, request);
   const rememberUserAccessToken = shouldRememberUserAccessToken(path, body);
   const upstreamHeaders = buildUpstreamHeaders(request);
 
@@ -272,7 +321,7 @@ async function handleRequest(
       path,
       query,
       headers: upstreamHeaders,
-      body: sanitizedBody,
+      body: forwardedBody,
       accessToken,
       userAccessToken,
     });
