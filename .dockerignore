@@ -1,0 +1,11 @@
+.git
+.github
+.next
+node_modules
+npm-debug.log
+README.md
+docs
+.env
+.env.local
+.env.development
+.env.production
