@@ -29,7 +29,7 @@ export interface RegisterFormStoreState extends RegisterFormStoreProps {
   setAcceptTerms: (acceptTerms: boolean) => void;
   clearFeedback: () => void;
   setLocalError: (localError: string | null) => void;
-  register: () => Promise<boolean>;
+  register: (recaptchaToken: string) => Promise<boolean>;
   reset: () => void;
 }
 
@@ -65,7 +65,7 @@ export const useRegisterStore = create<RegisterFormStoreState>((set, get) => ({
   setAcceptTerms: (acceptTerms) => set({ acceptTerms }),
   clearFeedback: () => set({ message: null, errorMessage: null, localError: null }),
   setLocalError: (localError) => set({ localError }),
-  register: async () => {
+  register: async (recaptchaToken: string) => {
     if (get().status === AppStatus.loading) {
       return false;
     }
@@ -94,12 +94,22 @@ export const useRegisterStore = create<RegisterFormStoreState>((set, get) => ({
 
     set({ status: AppStatus.loading });
 
+    if (!recaptchaToken) {
+      set({
+        status: AppStatus.error,
+        errorMessage: "Không thể xác minh reCAPTCHA.",
+      });
+      return false;
+    }
+
     const repository = resolveUserRepository();
+
     const result = await repository.register(
       get().name,
       get().email,
       get().phone,
       get().password,
+      recaptchaToken,
     );
 
     if (!result.response) {

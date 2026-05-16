@@ -15,6 +15,8 @@ import { ILessonNoteRepository } from '@/data/repositories/remote/lesson-note/le
 import { LessonNoteRepository } from '@/data/repositories/remote/lesson-note/lesson-note.repository'
 import { EventBus } from "@/infra/events/event-bus";
 import { EventManager } from "@/infra/events/event-manager";
+import { IContactRepository } from "@/data/repositories/remote/contact/contact.repository.interface";
+import { ContactRepository } from "@/data/repositories/remote/contact/contact.repository";
 
 let serverContainer: IoCContainer | null = null;
 
@@ -42,6 +44,10 @@ function buildServerContainer(): IoCContainer {
   container.bind<ILessonNoteRepository>(
     IOC_TOKENS.LESSON_NOTE_REPOSITORY,
     () => new LessonNoteRepository(new ServerSideHttpClient()),
+  );
+  container.bind<IContactRepository>(
+    IOC_TOKENS.CONTACT_REPOSITORY,
+    () => new ContactRepository(new ServerSideHttpClient()),
   );
   container.bind<EventManager>(
     IOC_TOKENS.EVENT_MANAGER,

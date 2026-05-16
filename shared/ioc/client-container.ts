@@ -19,6 +19,8 @@ import { ILessonNoteRepository } from '@/data/repositories/remote/lesson-note/le
 import { LessonNoteRepository } from '@/data/repositories/remote/lesson-note/lesson-note.repository'
 import { EventManager } from "@/infra/events/event-manager";
 import { EventBus } from "@/infra/events/event-bus";
+import { IContactRepository } from "@/data/repositories/remote/contact/contact.repository.interface";
+import { ContactRepository } from "@/data/repositories/remote/contact/contact.repository";
 
 let clientContainer: IoCContainer | null = null;
 
@@ -63,6 +65,10 @@ function buildClientContainer(): IoCContainer {
   container.bind<ILessonNoteRepository>(
     IOC_TOKENS.LESSON_NOTE_REPOSITORY,
     () => new LessonNoteRepository(new ClientSideHttpClient()),
+  );
+  container.bind<IContactRepository>(
+    IOC_TOKENS.CONTACT_REPOSITORY,
+    () => new ContactRepository(new ClientSideHttpClient()),
   );
 
   container.bind<EventManager>(

@@ -14,7 +14,9 @@ import {
 import { Input } from "@/shared/components/ui/input";
 import { AppStatus } from "@/shared/enums/app-status";
 import { normalizeReturnTo, resolveReturnToFromReferrer } from "@/shared/utils/return-to-utils";
+import { RecaptchaProviderClient } from "@/shared/components/providers/recaptcha-provider.client";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, Suspense, useCallback, useEffect } from "react";
@@ -42,6 +44,7 @@ function RegisterPageContent() {
     reset,
     register,
   } = useRegisterStore();
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
   const { status: loginStoreStatus, loginWithGoogle, reset: loginStoreReset } = useLoginStore();
   const router = useRouter();
@@ -59,7 +62,19 @@ function RegisterPageContent() {
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    await register();
+    const recaptchaAction = process.env.NEXT_PUBLIC_RECAPTCHA_REGISTER_ACTION ?? "register";
+
+    if (!executeRecaptcha) {
+      toast.error("reCAPTCHA chưa sẵn sàng. Vui lòng thử lại.");
+      return;
+    }
+
+    try {
+      const token = await executeRecaptcha(recaptchaAction);
+      await register(token);
+    } catch {
+      toast.error("Không thể xác minh reCAPTCHA. Vui lòng thử lại.");
+    }
   };
 
   const isSubmitting = status === AppStatus.loading;
@@ -297,20 +312,22 @@ function RegisterPageContent() {
 
 export function RegisterPageClient() {
   return (
-    <Suspense
-      fallback={
-        <main className="relative min-h-full overflow-hidden bg-[radial-gradient(1200px_circle_at_top_left,var(--sky-110)_0%,var(--sky-60)_50%,var(--white)_100%)] py-12 lg:py-16">
-          <div className="mx-auto max-w-6xl px-4">
-            <Card className="mx-auto w-full max-w-lg border-border/70 bg-white/95 shadow-[0_24px_70px_-50px_rgba(15,43,82,0.35)]">
-              <CardContent className="p-8 text-center text-sm text-muted-foreground">
-                Đang tải trang đăng ký...
-              </CardContent>
-            </Card>
-          </div>
-        </main>
-      }
-    >
-      <RegisterPageContent />
-    </Suspense>
+    <RecaptchaProviderClient>
+      <Suspense
+        fallback={
+          <main className="relative min-h-full overflow-hidden bg-[radial-gradient(1200px_circle_at_top_left,var(--sky-110)_0%,var(--sky-60)_50%,var(--white)_100%)] py-12 lg:py-16">
+            <div className="mx-auto max-w-6xl px-4">
+              <Card className="mx-auto w-full max-w-lg border-border/70 bg-white/95 shadow-[0_24px_70px_-50px_rgba(15,43,82,0.35)]">
+                <CardContent className="p-8 text-center text-sm text-muted-foreground">
+                  Đang tải trang đăng ký...
+                </CardContent>
+              </Card>
+            </div>
+          </main>
+        }
+      >
+        <RegisterPageContent />
+      </Suspense>
+    </RecaptchaProviderClient>
   );
 }
