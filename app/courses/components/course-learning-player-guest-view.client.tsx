@@ -92,14 +92,7 @@ export function CourseLearningPlayerGuestView({
               inCart={false}
               progressPercentage={playerState.progressPercentage}
               onAddToCart={() => setLoginPromptOpen(true)}
-              onBuyNow={() => {
-                if (isFreeCourse) {
-                  router.push(`/login?returnTo=${encodeURIComponent(returnTo)}`)
-                  return
-                }
-
-                setLoginPromptOpen(true)
-              }}
+              onBuyNow={() => setLoginPromptOpen(true)}
               purchaseErrorMessage={undefined}
               purchaseMessage={undefined}
               isPurchaseActionLoading={false}

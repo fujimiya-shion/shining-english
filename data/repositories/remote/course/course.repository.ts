@@ -3,6 +3,8 @@ import { CourseAccess } from "@/data/models/course-access.model";
 import { CourseLearningProgress } from "@/data/models/course-learning-progress.model";
 import { QuizAttempt } from "@/data/models/quiz-attempt.model";
 import { Quiz } from "@/data/models/quiz.model";
+import { CourseReview } from "@/data/models/course-review.model";
+import { LessonComment } from "@/data/models/lesson-comment.model";
 import { PaginationResponse } from "@/data/dtos/common/pagination-response";
 import { BaseRepository } from "../base.repository";
 import { ICourseRepository } from "./course.repository.interface";
@@ -121,6 +123,38 @@ export class CourseRepository extends BaseRepository implements ICourseRepositor
       url: AppEndpoints.course.filterProps,
       map: (raw) =>
         ObjectResponse.fromApiJson<CourseFilterResponse>(raw, CourseFilterResponse),
+    });
+  }
+
+  async createReview(
+    courseId: number,
+    payload: {
+      rating: number;
+      content: string;
+    },
+  ): Promise<ApiResult<ObjectResponse<CourseReview>, ApiException>> {
+    return this.post({
+      url: AppEndpoints.course.reviews(courseId),
+      body: {
+        rating: payload.rating,
+        content: payload.content,
+      },
+      map: (raw) => ObjectResponse.fromApiJson<CourseReview>(raw, CourseReview),
+    });
+  }
+
+  async createComment(
+    lessonId: number,
+    payload: {
+      content: string;
+    },
+  ): Promise<ApiResult<ObjectResponse<LessonComment>, ApiException>> {
+    return this.post({
+      url: AppEndpoints.lesson.comments(lessonId),
+      body: {
+        content: payload.content,
+      },
+      map: (raw) => ObjectResponse.fromApiJson<LessonComment>(raw, LessonComment),
     });
   }
 }

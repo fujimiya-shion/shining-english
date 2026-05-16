@@ -24,6 +24,9 @@ export class CourseLearningProgress {
   @Expose({ name: 'progress_percentage' })
   progressPercentage = 0
 
+  @Expose({ name: 'has_reviewed' })
+  hasReviewed = false
+
   @Expose({ name: 'next_lesson' })
   @Type(() => CourseLearningProgressNextLesson)
   nextLesson?: CourseLearningProgressNextLesson

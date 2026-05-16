@@ -7,9 +7,13 @@ import { Button } from '@/shared/components/ui/button'
 export function CourseLearningPlayerReviewsSection({
   reviews,
   canWriteReview,
+  onOpenReviewModal,
+  hasReviewed,
 }: {
   reviews: CourseLearningPlayerReview[]
   canWriteReview: boolean
+  onOpenReviewModal?: () => void
+  hasReviewed?: boolean
 }) {
   return (
     <div className="mt-2 rounded-2xl border border-border/60 bg-card/70 p-6">
@@ -18,7 +22,11 @@ export function CourseLearningPlayerReviewsSection({
           <h3 className="text-lg font-semibold">Đánh giá khóa học</h3>
           <p className="text-sm text-muted-foreground">Phản hồi từ học viên đã tham gia khóa học</p>
         </div>
-        {canWriteReview ? <Button variant="outline">Viết đánh giá</Button> : null}
+        {canWriteReview ? (
+          <Button variant="outline" onClick={onOpenReviewModal}>
+            {hasReviewed ? 'Sửa đánh giá' : 'Viết đánh giá'}
+          </Button>
+        ) : null}
       </div>
       <div className="mt-6 grid gap-4">
         {reviews.map((review) => (

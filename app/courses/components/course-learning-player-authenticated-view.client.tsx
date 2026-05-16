@@ -10,12 +10,15 @@ import { useCoursePurchaseStore } from '../stores/course/course-purchase.store'
 import { useLessonNoteStore } from '@/shared/stores/lesson-note.store'
 import { useCourseLearningProgressStore } from '../stores/course/course-learning-progress.store'
 import { useCourseQuizStore } from '../stores/course/course-quiz.store'
+import { useCourseFeedbackStore } from '../stores/course/course-feedback.store'
 import { formatRelativeTime } from '@/shared/utils/date-time-utils'
+import { useAuthStore } from '@/shared/stores/auth.store'
 import {
   CourseLearningPlayerHeaderSection,
   CourseLearningPlayerLessonSection,
   CourseLearningPlayerLoadingState,
   CourseLearningPlayerLockedHero,
+  CourseLearningPlayerReviewModal,
   CourseLearningPlayerReviewsSection,
   CourseLearningPlayerScaffold,
   CourseLearningPlayerSidebar,
@@ -50,6 +53,7 @@ export function CourseLearningPlayerAuthenticatedView({
   const clearNoteFeedback = useLessonNoteStore((state) => state.clearFeedback)
   const progressCurrentLessonId = useCourseLearningProgressStore((state) => state.currentLessonId)
   const progressCompletedLessonIds = useCourseLearningProgressStore((state) => state.completedLessonIds)
+  const progressHasReviewed = useCourseLearningProgressStore((state) => state.hasReviewed)
   const fetchProgress = useCourseLearningProgressStore((state) => state.fetchProgress)
   const completeLessonProgress = useCourseLearningProgressStore((state) => state.completeLesson)
   const setCurrentLessonProgress = useCourseLearningProgressStore((state) => state.setCurrentLesson)
@@ -60,8 +64,26 @@ export function CourseLearningPlayerAuthenticatedView({
   const lessonQuizLatestAttempt = useCourseQuizStore((state) => state.latestAttempt)
   const fetchQuizByLesson = useCourseQuizStore((state) => state.fetchQuizByLesson)
   const fetchLatestAttempt = useCourseQuizStore((state) => state.fetchLatestAttempt)
+  const reviewRating = useCourseFeedbackStore((state) => state.reviewRating)
+  const reviewContent = useCourseFeedbackStore((state) => state.reviewContent)
+  const commentContent = useCourseFeedbackStore((state) => state.commentContent)
+  const reviewActionStatus = useCourseFeedbackStore((state) => state.reviewActionStatus)
+  const commentActionStatus = useCourseFeedbackStore((state) => state.commentActionStatus)
+  const reviewMessage = useCourseFeedbackStore((state) => state.reviewMessage)
+  const commentMessage = useCourseFeedbackStore((state) => state.commentMessage)
+  const reviewErrorMessage = useCourseFeedbackStore((state) => state.reviewErrorMessage)
+  const commentErrorMessage = useCourseFeedbackStore((state) => state.commentErrorMessage)
+  const setReviewRating = useCourseFeedbackStore((state) => state.setReviewRating)
+  const setReviewContent = useCourseFeedbackStore((state) => state.setReviewContent)
+  const setCommentContent = useCourseFeedbackStore((state) => state.setCommentContent)
+  const submitReview = useCourseFeedbackStore((state) => state.submitReview)
+  const submitComment = useCourseFeedbackStore((state) => state.submitComment)
+  const clearCourseFeedback = useCourseFeedbackStore((state) => state.clearFeedback)
+  const resetCourseFeedback = useCourseFeedbackStore((state) => state.reset)
+  const currentUser = useAuthStore((state) => state.currentUser)
   const [quizPromptLessonId, setQuizPromptLessonId] = useState<number | null>(null)
   const [freeEnrollConfirmOpen, setFreeEnrollConfirmOpen] = useState(false)
+  const [reviewModalOpen, setReviewModalOpen] = useState(false)
 
   const playerState = useCourseLearningPlayerState({
     course,
@@ -74,17 +96,21 @@ export function CourseLearningPlayerAuthenticatedView({
   const isAccessLoading = purchaseStatus === AppStatus.initial || purchaseStatus === AppStatus.loading
   const isPurchaseActionLoading = purchaseActionStatus === AppStatus.loading
   const canWatchCourse = enrolled
+  const currentUserId = Number(currentUser?.id ?? 0)
+  const myExistingReview = (course.reviews ?? []).find((review) => Number(review.userId ?? review.user?.id ?? 0) === currentUserId)
+  const hasReviewed = progressHasReviewed || Boolean(myExistingReview)
 
   useEffect(() => {
     resetPurchaseState()
     resetLearningProgress()
+    resetCourseFeedback()
 
     if (!courseId) {
       return
     }
 
     void syncAccess(courseId)
-  }, [courseId, resetLearningProgress, resetPurchaseState, syncAccess])
+  }, [courseId, resetCourseFeedback, resetLearningProgress, resetPurchaseState, syncAccess])
 
   useEffect(() => {
     if (!canWatchCourse || !courseId) {
@@ -229,8 +255,19 @@ export function CourseLearningPlayerAuthenticatedView({
     }
 
     const completed = await completeLessonProgress(courseId, playerState.currentLesson)
-    if (!completed) {
+    if (!completed.success) {
       playerState.handleCompleteLesson()
+      return
+    }
+
+    if (completed.shouldPromptReview) {
+      if (myExistingReview?.content) {
+        setReviewContent(myExistingReview.content)
+      }
+      if (typeof myExistingReview?.rating === 'number') {
+        setReviewRating(myExistingReview.rating)
+      }
+      setReviewModalOpen(true)
     }
   }
 
@@ -285,6 +322,43 @@ export function CourseLearningPlayerAuthenticatedView({
     openQuizForLesson(playerState.currentLesson, 'result')
   }
 
+  const handleSubmitReview = async () => {
+    clearCourseFeedback()
+    if (!courseId) {
+      return
+    }
+
+    const submitted = await submitReview(courseId)
+    if (submitted) {
+      setReviewModalOpen(false)
+      router.refresh()
+    }
+  }
+
+  const openReviewModal = () => {
+    clearCourseFeedback()
+    if (myExistingReview?.content) {
+      setReviewContent(myExistingReview.content)
+    }
+    if (typeof myExistingReview?.rating === 'number') {
+      setReviewRating(myExistingReview.rating)
+    }
+    setReviewModalOpen(true)
+  }
+
+  const handleSubmitComment = async () => {
+    clearCourseFeedback()
+    const lessonId = playerState.currentLesson
+    if (!lessonId) {
+      return
+    }
+
+    const submitted = await submitComment(lessonId)
+    if (submitted) {
+      router.refresh()
+    }
+  }
+
   return (
     <>
       <CourseLearningPlayerScaffold
@@ -329,6 +403,12 @@ export function CourseLearningPlayerAuthenticatedView({
                   : undefined
               }
               shouldShowVideo={playerState.shouldShowVideo}
+              commentContent={commentContent}
+              commentActionStatus={commentActionStatus}
+              commentMessage={commentMessage}
+              commentErrorMessage={commentErrorMessage}
+              onCommentContentChange={setCommentContent}
+              onSubmitComment={handleSubmitComment}
             />
           ) : (
             <CourseLearningPlayerLockedHero
@@ -396,10 +476,21 @@ export function CourseLearningPlayerAuthenticatedView({
               }
               shouldShowVideo={playerState.shouldShowVideo}
               showLessonOnlyContent
+              commentContent={commentContent}
+              commentActionStatus={commentActionStatus}
+              commentMessage={commentMessage}
+              commentErrorMessage={commentErrorMessage}
+              onCommentContentChange={setCommentContent}
+              onSubmitComment={handleSubmitComment}
             />
           ) : null}
 
-          <CourseLearningPlayerReviewsSection reviews={playerState.reviews} canWriteReview={canWatchCourse} />
+          <CourseLearningPlayerReviewsSection
+            reviews={playerState.reviews}
+            canWriteReview={canWatchCourse}
+            hasReviewed={hasReviewed}
+            onOpenReviewModal={openReviewModal}
+          />
         </>
       }
       sidebar={
@@ -442,6 +533,19 @@ export function CourseLearningPlayerAuthenticatedView({
           }}
         />
       ) : null}
+      <CourseLearningPlayerReviewModal
+        open={reviewModalOpen}
+        title={hasReviewed ? 'Cập nhật đánh giá khóa học' : 'Đánh giá khóa học'}
+        rating={reviewRating}
+        content={reviewContent}
+        actionStatus={reviewActionStatus}
+        message={reviewMessage}
+        errorMessage={reviewErrorMessage}
+        onClose={() => setReviewModalOpen(false)}
+        onRatingChange={setReviewRating}
+        onContentChange={setReviewContent}
+        onSubmit={handleSubmitReview}
+      />
     </>
   )
 }

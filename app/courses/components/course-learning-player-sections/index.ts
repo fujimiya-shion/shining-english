@@ -3,6 +3,7 @@ export { CourseLearningPlayerLessonSection } from './course-learning-player-less
 export { CourseLearningPlayerLoadingState } from './course-learning-player-loading-state'
 export { CourseLearningPlayerLockedHero } from './course-learning-player-locked-hero'
 export { CourseLearningPlayerLoginPromptModal } from './course-learning-player-login-prompt-modal'
+export { CourseLearningPlayerReviewModal } from './course-learning-player-review-modal'
 export { CourseLearningPlayerReviewsSection } from './course-learning-player-reviews-section'
 export { CourseLearningPlayerScaffold } from './course-learning-player-scaffold'
 export { CourseLearningPlayerSidebar } from './course-learning-player-sidebar'

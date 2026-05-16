@@ -20,11 +20,15 @@ export interface CourseLearningProgressStoreProps {
   progressPercentage: number;
   totalLessons: number;
   pendingQuiz: PendingQuiz;
+  hasReviewed: boolean;
 }
 
 export interface CourseLearningProgressStoreState extends CourseLearningProgressStoreProps {
   fetchProgress: (courseId: number) => Promise<boolean>;
-  completeLesson: (courseId: number, lessonId: number) => Promise<boolean>;
+  completeLesson: (
+    courseId: number,
+    lessonId: number,
+  ) => Promise<{ success: boolean; shouldPromptReview: boolean }>;
   setCurrentLesson: (courseId: number, lessonId: number) => Promise<boolean>;
   shouldPromptQuizForLesson: (lessonId: number) => Promise<boolean>;
   consumePendingQuiz: () => void;
@@ -40,13 +44,14 @@ const initState: CourseLearningProgressStoreProps = {
   progressPercentage: 0,
   totalLessons: 0,
   pendingQuiz: null,
+  hasReviewed: false,
 };
 
 function resolveCourseRepository(): ICourseRepository {
   return resolveClient<ICourseRepository>(IOC_TOKENS.COURSE_REPOSITORY);
 }
 
-export const useCourseLearningProgressStore = create<CourseLearningProgressStoreState>((set) => ({
+export const useCourseLearningProgressStore = create<CourseLearningProgressStoreState>((set, get) => ({
   ...initState,
 
   fetchProgress: async (courseId) => {
@@ -71,6 +76,7 @@ export const useCourseLearningProgressStore = create<CourseLearningProgressStore
       completedLessonIds: data.completedLessonIds ?? [],
       progressPercentage: data.progressPercentage ?? 0,
       totalLessons: data.totalLessons ?? 0,
+      hasReviewed: Boolean(data.hasReviewed),
       errorMessage: null,
     });
 
@@ -78,6 +84,7 @@ export const useCourseLearningProgressStore = create<CourseLearningProgressStore
   },
 
   completeLesson: async (courseId, lessonId) => {
+    const beforeCompletedCount = get().completedLessonIds.length;
     set({
       actionStatus: AppStatus.loading,
       errorMessage: null,
@@ -89,16 +96,22 @@ export const useCourseLearningProgressStore = create<CourseLearningProgressStore
         actionStatus: AppStatus.error,
         errorMessage: resolveApiErrorMessage(result.exception),
       });
-      return false;
+      return { success: false, shouldPromptReview: false };
     }
 
     const data = result.response.data;
+    const hasReviewed = Boolean(data.hasReviewed);
+    const afterCompletedCount = data.completedLessonIds?.length ?? 0;
+    const justCompletedFirstLesson = beforeCompletedCount === 0 && afterCompletedCount === 1;
+    const shouldPromptReview = !hasReviewed && (justCompletedFirstLesson || afterCompletedCount > 1);
+
     set({
       actionStatus: AppStatus.done,
       currentLessonId: data.currentLessonId ?? null,
       completedLessonIds: data.completedLessonIds ?? [],
       progressPercentage: data.progressPercentage ?? 0,
       totalLessons: data.totalLessons ?? 0,
+      hasReviewed,
       pendingQuiz:
         data.nextLesson?.hasQuiz && typeof data.nextLesson.id === "number"
           ? { lessonId: data.nextLesson.id }
@@ -106,7 +119,7 @@ export const useCourseLearningProgressStore = create<CourseLearningProgressStore
       errorMessage: null,
     });
 
-    return true;
+    return { success: true, shouldPromptReview };
   },
 
   setCurrentLesson: async (courseId, lessonId) => {
@@ -126,6 +139,7 @@ export const useCourseLearningProgressStore = create<CourseLearningProgressStore
       completedLessonIds: data.completedLessonIds ?? [],
       progressPercentage: data.progressPercentage ?? 0,
       totalLessons: data.totalLessons ?? 0,
+      hasReviewed: Boolean(data.hasReviewed),
       errorMessage: null,
     });
     return true;
