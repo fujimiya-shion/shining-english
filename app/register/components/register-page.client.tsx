@@ -17,10 +17,10 @@ import { normalizeReturnTo, resolveReturnToFromReferrer } from "@/shared/utils/r
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { FormEvent, useCallback, useEffect } from "react";
+import { FormEvent, Suspense, useCallback, useEffect } from "react";
 import toast, { Toaster } from "react-hot-toast";
 
-export function RegisterPageClient() {
+function RegisterPageContent() {
   const {
     status,
     name,
@@ -292,5 +292,25 @@ export function RegisterPageClient() {
         </div>
       </div>
     </main>
+  );
+}
+
+export function RegisterPageClient() {
+  return (
+    <Suspense
+      fallback={
+        <main className="relative min-h-full overflow-hidden bg-[radial-gradient(1200px_circle_at_top_left,var(--sky-110)_0%,var(--sky-60)_50%,var(--white)_100%)] py-12 lg:py-16">
+          <div className="mx-auto max-w-6xl px-4">
+            <Card className="mx-auto w-full max-w-lg border-border/70 bg-white/95 shadow-[0_24px_70px_-50px_rgba(15,43,82,0.35)]">
+              <CardContent className="p-8 text-center text-sm text-muted-foreground">
+                Đang tải trang đăng ký...
+              </CardContent>
+            </Card>
+          </div>
+        </main>
+      }
+    >
+      <RegisterPageContent />
+    </Suspense>
   );
 }

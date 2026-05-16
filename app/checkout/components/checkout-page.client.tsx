@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo } from 'react'
+import { Suspense, useEffect, useMemo } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { AppStatus } from '@/shared/enums/app-status'
 import { useAuthStore } from '@/shared/stores/auth.store'
@@ -32,7 +32,7 @@ function parseBuyNowCourse(searchParams: URLSearchParams) {
   }
 }
 
-export function CheckoutPageClient() {
+function CheckoutPageContent() {
   const searchParams = useSearchParams()
   const authStatus = useAuthStore((state) => state.status)
   const authenticated = useAuthStore((state) => state.authenticated)
@@ -202,5 +202,21 @@ export function CheckoutPageClient() {
         </div>
       </div>
     </main>
+  )
+}
+
+export function CheckoutPageClient() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-full bg-[radial-gradient(1200px_circle_at_top_left,var(--sky-90)_0%,var(--sky-50)_52%,var(--white)_100%)] py-10">
+          <div className="mx-auto max-w-7xl px-4 text-center text-muted-foreground sm:px-6 lg:px-8">
+            Đang tải dữ liệu checkout...
+          </div>
+        </main>
+      }
+    >
+      <CheckoutPageContent />
+    </Suspense>
   )
 }

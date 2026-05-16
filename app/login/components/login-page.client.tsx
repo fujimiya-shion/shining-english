@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect } from "react";
+import { FormEvent, Suspense, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AppButton } from "@/shared/components/ui/app-button";
@@ -21,7 +21,7 @@ import {
   resolveReturnToFromReferrer,
 } from "@/shared/utils/return-to-utils";
 
-export function LoginPageClient() {
+function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const {
@@ -246,5 +246,25 @@ export function LoginPageClient() {
         </Card>
       </div>
     </main>
+  );
+}
+
+export function LoginPageClient() {
+  return (
+    <Suspense
+      fallback={
+        <main className="relative min-h-full overflow-hidden bg-[radial-gradient(1200px_circle_at_top_left,var(--sky-110)_0%,var(--sky-60)_50%,var(--white)_100%)] py-12 lg:py-16">
+          <div className="mx-auto max-w-6xl px-4">
+            <Card className="mx-auto w-full max-w-lg border-border/70 bg-white/95 shadow-[0_24px_70px_-50px_rgba(15,43,82,0.35)]">
+              <CardContent className="p-8 text-center text-sm text-muted-foreground">
+                Đang tải trang đăng nhập...
+              </CardContent>
+            </Card>
+          </div>
+        </main>
+      }
+    >
+      <LoginPageContent />
+    </Suspense>
   );
 }
