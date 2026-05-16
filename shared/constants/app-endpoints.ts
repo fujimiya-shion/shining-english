@@ -17,6 +17,9 @@ export const AppEndpoints = {
   city: {
     index: "/cities",
   },
+  contact: {
+    submit: "/contact",
+  },
   dashboard: {
     overview: "/dashboard/overview",
   },

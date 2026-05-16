@@ -12,6 +12,7 @@ export class UserRepository extends BaseRepository implements IUserRepository {
     email: string,
     phone: string,
     password: string,
+    recaptchaToken: string,
   ): Promise<ApiResult<ObjectResponse<unknown>, ApiException>> {
     return this.post({
       url: AppEndpoints.auth.register,
@@ -20,6 +21,7 @@ export class UserRepository extends BaseRepository implements IUserRepository {
         email,
         phone,
         password,
+        recaptcha_token: recaptchaToken,
       },
       map: (raw) => ObjectResponse.fromApiJson(raw),
     });

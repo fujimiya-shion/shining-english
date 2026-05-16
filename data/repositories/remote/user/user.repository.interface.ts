@@ -9,6 +9,7 @@ export interface IUserRepository {
     email: string,
     phone: string,
     password: string,
+    recaptchaToken: string,
   ): Promise<ApiResult<ObjectResponse<unknown>, ApiException>>;
 
   login(

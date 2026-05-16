@@ -6,6 +6,7 @@ import { resolveClient } from "@/shared/ioc/client-container";
 import { IOC_TOKENS } from "@/shared/ioc/tokens";
 import { IUserRepository } from "@/data/repositories/remote/user/user.repository.interface";
 import { resolveApiErrorMessage } from "@/shared/utils/api-error-message";
+import { getRecaptchaToken } from "@/shared/utils/recaptcha-v3";
 
 export interface RegisterFormStoreProps {
   status: AppStatus;
@@ -95,11 +96,28 @@ export const useRegisterStore = create<RegisterFormStoreState>((set, get) => ({
     set({ status: AppStatus.loading });
 
     const repository = resolveUserRepository();
+    const recaptchaAction = process.env.NEXT_PUBLIC_RECAPTCHA_REGISTER_ACTION ?? "register";
+    let recaptchaToken = "";
+
+    try {
+      recaptchaToken = await getRecaptchaToken(recaptchaAction);
+    } catch (error) {
+      set({
+        status: AppStatus.error,
+        errorMessage: resolveErrorMessage({
+          message: error instanceof Error ? error.message : "Không thể xác minh reCAPTCHA.",
+          httpStatus: null,
+        }),
+      });
+      return false;
+    }
+
     const result = await repository.register(
       get().name,
       get().email,
       get().phone,
       get().password,
+      recaptchaToken,
     );
 
     if (!result.response) {
