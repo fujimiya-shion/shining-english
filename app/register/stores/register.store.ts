@@ -6,7 +6,6 @@ import { resolveClient } from "@/shared/ioc/client-container";
 import { IOC_TOKENS } from "@/shared/ioc/tokens";
 import { IUserRepository } from "@/data/repositories/remote/user/user.repository.interface";
 import { resolveApiErrorMessage } from "@/shared/utils/api-error-message";
-import { getRecaptchaToken } from "@/shared/utils/recaptcha-v3";
 
 export interface RegisterFormStoreProps {
   status: AppStatus;
@@ -30,7 +29,7 @@ export interface RegisterFormStoreState extends RegisterFormStoreProps {
   setAcceptTerms: (acceptTerms: boolean) => void;
   clearFeedback: () => void;
   setLocalError: (localError: string | null) => void;
-  register: () => Promise<boolean>;
+  register: (recaptchaToken: string) => Promise<boolean>;
   reset: () => void;
 }
 
@@ -66,7 +65,7 @@ export const useRegisterStore = create<RegisterFormStoreState>((set, get) => ({
   setAcceptTerms: (acceptTerms) => set({ acceptTerms }),
   clearFeedback: () => set({ message: null, errorMessage: null, localError: null }),
   setLocalError: (localError) => set({ localError }),
-  register: async () => {
+  register: async (recaptchaToken: string) => {
     if (get().status === AppStatus.loading) {
       return false;
     }
@@ -95,22 +94,15 @@ export const useRegisterStore = create<RegisterFormStoreState>((set, get) => ({
 
     set({ status: AppStatus.loading });
 
-    const repository = resolveUserRepository();
-    const recaptchaAction = process.env.NEXT_PUBLIC_RECAPTCHA_REGISTER_ACTION ?? "register";
-    let recaptchaToken = "";
-
-    try {
-      recaptchaToken = await getRecaptchaToken(recaptchaAction);
-    } catch (error) {
+    if (!recaptchaToken) {
       set({
         status: AppStatus.error,
-        errorMessage: resolveErrorMessage({
-          message: error instanceof Error ? error.message : "Không thể xác minh reCAPTCHA.",
-          httpStatus: null,
-        }),
+        errorMessage: "Không thể xác minh reCAPTCHA.",
       });
       return false;
     }
+
+    const repository = resolveUserRepository();
 
     const result = await repository.register(
       get().name,

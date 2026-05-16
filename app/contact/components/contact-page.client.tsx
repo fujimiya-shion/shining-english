@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useEffect } from "react";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import { AppButton } from "@/shared/components/ui/app-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Input } from "@/shared/components/ui/input";
@@ -22,6 +23,7 @@ export function ContactPageClient() {
     submitContact,
     clearFeedback,
   } = useContactStore();
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
   useEffect(() => {
     clearFeedback();
@@ -31,7 +33,19 @@ export function ContactPageClient() {
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    await submitContact();
+    const recaptchaAction = process.env.NEXT_PUBLIC_RECAPTCHA_CONTACT_ACTION ?? "contact";
+
+    if (!executeRecaptcha) {
+      await submitContact("");
+      return;
+    }
+
+    try {
+      const token = await executeRecaptcha(recaptchaAction);
+      await submitContact(token);
+    } catch {
+      await submitContact("");
+    }
   };
 
   return (
@@ -111,4 +125,3 @@ export function ContactPageClient() {
     </main>
   );
 }
-

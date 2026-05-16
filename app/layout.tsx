@@ -7,6 +7,7 @@ import { Analytics } from '@vercel/analytics/next'
 import { SiteHeader } from '@/shared/components/ui/layout/site-header'
 import { SiteFooter } from '@/shared/components/ui/layout/site-footer'
 import { IoCBootstrapClient } from '@/shared/components/providers/ioc-bootstrap.client'
+import { RecaptchaProviderClient } from '@/shared/components/providers/recaptcha-provider.client'
 import { ensureServerBindings } from '@/shared/ioc/server-container'
 import './globals.css'
 
@@ -78,11 +79,13 @@ export default async function RootLayout({
       <body
         className={`${gilroy.variable} ${robotoMono.variable} ${francoisOne.variable} font-sans antialiased min-h-screen flex flex-col`}
       >
-        <IoCBootstrapClient />
-        <SiteHeader />
-        <main className="flex-1">{children}</main>
-        <SiteFooter />
-        <Analytics />
+        <RecaptchaProviderClient>
+          <IoCBootstrapClient />
+          <SiteHeader />
+          <main className="flex-1">{children}</main>
+          <SiteFooter />
+          <Analytics />
+        </RecaptchaProviderClient>
       </body>
     </html>
   )

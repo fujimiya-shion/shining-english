@@ -15,6 +15,7 @@ import { Input } from "@/shared/components/ui/input";
 import { AppStatus } from "@/shared/enums/app-status";
 import { normalizeReturnTo, resolveReturnToFromReferrer } from "@/shared/utils/return-to-utils";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, Suspense, useCallback, useEffect } from "react";
@@ -42,6 +43,7 @@ function RegisterPageContent() {
     reset,
     register,
   } = useRegisterStore();
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
   const { status: loginStoreStatus, loginWithGoogle, reset: loginStoreReset } = useLoginStore();
   const router = useRouter();
@@ -59,7 +61,19 @@ function RegisterPageContent() {
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    await register();
+    const recaptchaAction = process.env.NEXT_PUBLIC_RECAPTCHA_REGISTER_ACTION ?? "register";
+
+    if (!executeRecaptcha) {
+      toast.error("reCAPTCHA chưa sẵn sàng. Vui lòng thử lại.");
+      return;
+    }
+
+    try {
+      const token = await executeRecaptcha(recaptchaAction);
+      await register(token);
+    } catch {
+      toast.error("Không thể xác minh reCAPTCHA. Vui lòng thử lại.");
+    }
   };
 
   const isSubmitting = status === AppStatus.loading;
