@@ -38,7 +38,7 @@ const navItems: NavItem[] = [
 
 function CartCountBadge({ count }: { count: number }) {
   return (
-    <span className="absolute right-0 top-0 md:-top-2.5 inline-flex h-5 min-w-5 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-background bg-[color:var(--brand-900)] px-0 text-[10px] font-semibold leading-none tabular-nums text-white shadow-sm">
+    <span className="absolute right-0 top-0 md:-top-2.5 inline-flex h-5 min-w-5 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-background bg-(--brand-900) px-0 text-[10px] font-semibold leading-none tabular-nums text-white shadow-sm">
       {count > 99 ? '99+' : count}
     </span>
   )
@@ -71,7 +71,7 @@ export function SiteHeader() {
   }
 
   const accountLabel = currentUserName?.trim() || 'Tài khoản'
-  const accountHref = '/profile'
+  const accountHref = '/dashboard'
   const AccountIcon = authenticated ? CircleUserRound : LogIn
 
   return (
@@ -79,7 +79,7 @@ export function SiteHeader() {
       <div className="mx-auto grid max-w-7xl grid-cols-[auto_1fr_auto] items-center px-4 py-3 sm:px-6 lg:px-8">
         <Link
           href="/"
-          className="font-bold text-xl bg-gradient-to-r from-[color:var(--brand-900)] via-[color:var(--brand-800)] via-[60%] to-primary bg-clip-text text-transparent"
+          className="font-bold text-xl bg-linear-to-r from-(--brand-900) via-(--brand-800) via-60% to-primary bg-clip-text text-transparent"
         >
           Shining English
         </Link>

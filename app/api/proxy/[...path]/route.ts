@@ -114,7 +114,15 @@ function shouldPersistUserAccessToken(path: string, payload: unknown): boolean {
 }
 
 function shouldClearUserAccessToken(path: string, status: number): boolean {
-  return status === 401 || (path === "/auth/logout" && status >= 200 && status < 300);
+  if (path === "/auth/logout" && status >= 200 && status < 300) {
+    return true;
+  }
+
+  if (path === "/auth/me" && status === 401) {
+    return true;
+  }
+
+  return false;
 }
 
 function shouldRememberUserAccessToken(path: string, body: unknown): boolean {
@@ -229,9 +237,10 @@ async function handleRequest(
     request.cookies.get(PROXY_GUARD_COOKIE_NAME)?.value,
   );
 
-  if (!verification.valid && verification.reason !== "expired") {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-  }
+  // Self-heal proxy guard cookie to avoid dropping user session on reload
+  // when the guard cookie is missing/expired/invalid.
+  const shouldRefreshProxyGuard =
+    verification.shouldRefresh || verification.reason !== "valid";
 
   const accessToken = shouldAttachAccessToken(pathSegments)
     ? await getBackendAccessToken()
@@ -288,7 +297,7 @@ async function handleRequest(
       clearUserAccessToken(response);
     }
 
-    if (verification.shouldRefresh || verification.reason === "expired") {
+    if (shouldRefreshProxyGuard) {
       applyProxyGuardCookie(response);
     }
 
@@ -304,7 +313,7 @@ async function handleRequest(
     clearUserAccessToken(response);
   }
 
-  if (verification.shouldRefresh || verification.reason === "expired") {
+  if (shouldRefreshProxyGuard) {
     applyProxyGuardCookie(response);
   }
 

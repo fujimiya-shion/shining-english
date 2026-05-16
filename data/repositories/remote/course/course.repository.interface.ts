@@ -9,6 +9,8 @@ import { ApiResult } from "@/data/types/api-result";
 import { ApiException } from "@/data/types/api-exception";
 import { ObjectResponse } from "@/data/dtos/common/object-response";
 import { CourseFilterRequest, CourseFilterResponse } from "@/data/dtos/course/course.dto";
+import { CourseReview } from "@/data/models/course-review.model";
+import { LessonComment } from "@/data/models/lesson-comment.model";
 
 export interface ICourseRepository {
   getAll(request?: CommonRequest): Promise<ApiResult<PaginationResponse<Course>, ApiException>>;
@@ -37,4 +39,17 @@ export interface ICourseRepository {
     request?: CourseFilterRequest,
   ): Promise<ApiResult<PaginationResponse<Course>, ApiException>>;
   getFilterProps(): Promise<ApiResult<ObjectResponse<CourseFilterResponse>, ApiException>>;
+  createReview(
+    courseId: number,
+    payload: {
+      rating: number;
+      content: string;
+    },
+  ): Promise<ApiResult<ObjectResponse<CourseReview>, ApiException>>;
+  createComment(
+    lessonId: number,
+    payload: {
+      content: string;
+    },
+  ): Promise<ApiResult<ObjectResponse<LessonComment>, ApiException>>;
 }

@@ -38,6 +38,12 @@ export function CourseLearningPlayerLessonSection({
   quizSummary,
   shouldShowVideo,
   showLessonOnlyContent = false,
+  commentContent,
+  commentActionStatus = AppStatus.initial,
+  commentMessage,
+  commentErrorMessage,
+  onCommentContentChange,
+  onSubmitComment,
 }: {
   comments: CourseLearningPlayerComment[]
   currentLesson: number
@@ -69,6 +75,12 @@ export function CourseLearningPlayerLessonSection({
   }
   shouldShowVideo: boolean
   showLessonOnlyContent?: boolean
+  commentContent?: string
+  commentActionStatus?: AppStatus
+  commentMessage?: string | null
+  commentErrorMessage?: string | null
+  onCommentContentChange?: (value: string) => void
+  onSubmitComment?: () => void
 }) {
   if (!showLessonOnlyContent) {
     return (
@@ -307,7 +319,26 @@ export function CourseLearningPlayerLessonSection({
               Hỏi đáp trong bài học {currentLessonData?.title?.toLowerCase() ?? 'đang xem'}
             </p>
           </div>
-          <Button variant="outline">Viết bình luận</Button>
+          <Button variant="outline" disabled={commentActionStatus === AppStatus.loading}>
+            {commentActionStatus === AppStatus.loading ? 'Đang gửi...' : 'Viết bình luận'}
+          </Button>
+        </div>
+        <div className="mt-4 space-y-3 rounded-xl border border-border/60 bg-background p-4">
+          <textarea
+            value={commentContent ?? ''}
+            onChange={(event) => onCommentContentChange?.(event.target.value)}
+            placeholder="Viết bình luận hoặc câu hỏi của bạn..."
+            className="h-24 w-full resize-none rounded-lg border border-border bg-background p-3 text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+          <Button
+            variant="outline"
+            onClick={onSubmitComment}
+            disabled={commentActionStatus === AppStatus.loading || !(commentContent ?? '').trim()}
+          >
+            {commentActionStatus === AppStatus.loading ? 'Đang gửi...' : 'Gửi bình luận'}
+          </Button>
+          {commentMessage ? <p className="text-sm text-emerald-600">{commentMessage}</p> : null}
+          {commentErrorMessage ? <p className="text-sm text-destructive">{commentErrorMessage}</p> : null}
         </div>
         <div className="mt-6 space-y-4">
           {comments.map((comment) => (

@@ -14,6 +14,12 @@ export const AppEndpoints = {
   user: {
     update: "/user/update",
   },
+  city: {
+    index: "/cities",
+  },
+  dashboard: {
+    overview: "/dashboard/overview",
+  },
 
   course: {
     index: "/courses",
@@ -22,11 +28,13 @@ export const AppEndpoints = {
     learningProgress: (courseId: number) => `/courses/${courseId}/learning-progress`,
     completeLesson: (courseId: number, lessonId: number) => `/courses/${courseId}/lessons/${lessonId}/complete`,
     setCurrentLesson: (courseId: number) => `/courses/${courseId}/current-lesson`,
+    reviews: (courseId: number) => `/courses/${courseId}/reviews`,
     filter: "/courses/filter",
     filterProps: "/courses/filter-props",
   },
   lesson: {
     quiz: (lessonId: number) => `/lessons/${lessonId}/quiz`,
+    comments: (lessonId: number) => `/lessons/${lessonId}/comments`,
   },
   quizAttempt: {
     latest: (quizId: number) => `/quizzes/${quizId}/attempts/latest`,

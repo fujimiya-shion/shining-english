@@ -9,13 +9,14 @@ import {
   buildCourseFilterRequest,
   buildVisiblePages,
   clamp,
+  formatNumberInput,
   parseOptionalNumber,
-  sanitizeNumberInput,
 } from '../utils/course-page-utils'
 
 type ApplyFiltersOverrides = {
   categoryId?: number
   levelIds?: number[]
+  durationKeys?: string[]
   priceMin?: string
   priceMax?: string
   query?: string
@@ -37,12 +38,14 @@ export function useCoursesPage() {
 
   const categories = filterProps?.categories ?? []
   const levels = filterProps?.levels ?? []
+  const durationOptions = filterProps?.durationHours ?? []
 
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | undefined>(undefined)
   const [selectedLevelIds, setSelectedLevelIds] = useState<number[]>([])
   const [searchKeyword, setSearchKeyword] = useState('')
   const [priceMinInput, setPriceMinInput] = useState('')
   const [priceMaxInput, setPriceMaxInput] = useState('')
+  const [selectedDurationKeys, setSelectedDurationKeys] = useState<string[]>([])
 
   const priceBoundMin = filterProps?.price?.min ?? 0
   const rawPriceBoundMax = filterProps?.price?.max ?? 0
@@ -52,21 +55,29 @@ export function useCoursesPage() {
   const activeLevels = levels.filter(
     (item) => item.value !== undefined && selectedLevelIds.includes(item.value)
   )
+  const activeDurations = durationOptions.filter(
+    (item) =>
+      item.minHours !== undefined &&
+      item.maxHours !== undefined &&
+      selectedDurationKeys.includes(`${item.minHours ?? 'n'}-${item.maxHours ?? 'n'}`)
+  )
 
   const selectedFilters = [
     activeCategory?.name,
     ...activeLevels.map((item) => item.label),
+    ...activeDurations.map((item) => item.label),
   ].filter((item): item is string => Boolean(item))
 
   const hasAnyFilters = useMemo(() => {
     return (
       selectedCategoryId !== undefined ||
       selectedLevelIds.length > 0 ||
+      selectedDurationKeys.length > 0 ||
       searchKeyword.trim() !== '' ||
       priceMinInput.trim() !== '' ||
       priceMaxInput.trim() !== ''
     )
-  }, [priceMaxInput, priceMinInput, searchKeyword, selectedCategoryId, selectedLevelIds])
+  }, [priceMaxInput, priceMinInput, searchKeyword, selectedCategoryId, selectedDurationKeys, selectedLevelIds])
 
   const parsedMinPrice = parseOptionalNumber(priceMinInput)
   const parsedMaxPrice = parseOptionalNumber(priceMaxInput)
@@ -88,6 +99,8 @@ export function useCoursesPage() {
       overrides && 'categoryId' in overrides ? overrides.categoryId : selectedCategoryId
     const levelIds =
       overrides && 'levelIds' in overrides ? overrides.levelIds ?? [] : selectedLevelIds
+    const durationKeys =
+      overrides && 'durationKeys' in overrides ? overrides.durationKeys ?? [] : selectedDurationKeys
     const priceMinRaw =
       overrides && 'priceMin' in overrides ? overrides.priceMin ?? '' : priceMinInput
     const priceMaxRaw =
@@ -97,10 +110,25 @@ export function useCoursesPage() {
     const priceMin = parseOptionalNumber(priceMinRaw)
     const priceMax = parseOptionalNumber(priceMaxRaw)
     const query = queryRaw.trim() === '' ? undefined : queryRaw.trim()
+    const selectedDurations = durationOptions.filter((item) => {
+      if (item.minHours === undefined || item.maxHours === undefined) {
+        return false
+      }
+
+      const key = `${item.minHours ?? 'n'}-${item.maxHours ?? 'n'}`
+      return durationKeys.includes(key)
+    })
+    const durationMinHours = selectedDurations.length > 0
+      ? Math.min(...selectedDurations.map((item) => item.minHours ?? 0))
+      : undefined
+    const durationMaxHours = selectedDurations.length > 0
+      ? Math.max(...selectedDurations.map((item) => item.maxHours ?? 0))
+      : undefined
 
     if (
       categoryId === undefined &&
       levelIds.length === 0 &&
+      durationKeys.length === 0 &&
       query === undefined &&
       priceMin === undefined &&
       priceMax === undefined
@@ -117,6 +145,8 @@ export function useCoursesPage() {
         levelIds,
         priceMin,
         priceMax,
+        durationMinHours,
+        durationMaxHours,
         query,
         page: targetPage,
       })
@@ -134,6 +164,7 @@ export function useCoursesPage() {
   const resetFilters = async () => {
     setSelectedCategoryId(undefined)
     setSelectedLevelIds([])
+    setSelectedDurationKeys([])
     setSearchKeyword('')
     setPriceMinInput('')
     setPriceMaxInput('')
@@ -160,22 +191,36 @@ export function useCoursesPage() {
     await applyFilters({ categoryId: nextCategoryId, page: 1 })
   }
 
+  const toggleDuration = async (minHours?: number | null, maxHours?: number | null) => {
+    if (minHours === undefined || maxHours === undefined || minHours === null || maxHours === null) {
+      return
+    }
+
+    const key = `${minHours}-${maxHours}`
+    const nextDurationKeys = selectedDurationKeys.includes(key)
+      ? selectedDurationKeys.filter((item) => item !== key)
+      : [...selectedDurationKeys, key]
+
+    setSelectedDurationKeys(nextDurationKeys)
+    await applyFilters({ durationKeys: nextDurationKeys, page: 1 })
+  }
+
   const updatePriceMinInput = (value: string) => {
-    setPriceMinInput(sanitizeNumberInput(value))
+    setPriceMinInput(formatNumberInput(value))
   }
 
   const updatePriceMaxInput = (value: string) => {
-    setPriceMaxInput(sanitizeNumberInput(value))
+    setPriceMaxInput(formatNumberInput(value))
   }
 
   const setPriceMinFromSlider = (value: number) => {
     const nextMin = Math.min(value, sliderMaxValue)
-    setPriceMinInput(String(nextMin))
+    setPriceMinInput(formatNumberInput(String(nextMin)))
   }
 
   const setPriceMaxFromSlider = (value: number) => {
     const nextMax = Math.max(value, sliderMinValue)
-    setPriceMaxInput(String(nextMax))
+    setPriceMaxInput(formatNumberInput(String(nextMax)))
   }
 
   useEffect(() => {
@@ -200,6 +245,7 @@ export function useCoursesPage() {
     handlePageChange,
     hasAnyFilters,
     levels,
+    durationOptions,
     page,
     pageCount,
     parsedMaxPrice,
@@ -211,6 +257,7 @@ export function useCoursesPage() {
     searchKeyword,
     resetFilters,
     selectedCategoryId,
+    selectedDurationKeys,
     selectedFilters,
     selectedLevelIds,
     setPriceMaxFromSlider,
@@ -221,6 +268,7 @@ export function useCoursesPage() {
     sliderMinValue,
     sliderWidthPercent,
     toggleCategory,
+    toggleDuration,
     toggleLevel,
     updatePriceMaxInput,
     updatePriceMinInput,

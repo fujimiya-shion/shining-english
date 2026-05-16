@@ -12,4 +12,10 @@ export class CourseAccess {
 
   @Expose({ name: 'in_cart' })
   inCart = false
+
+  @Expose({ name: 'is_free_course' })
+  isFreeCourse = false
+
+  @Expose({ name: 'can_enroll_free' })
+  canEnrollFree = false
 }

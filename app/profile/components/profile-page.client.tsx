@@ -24,6 +24,7 @@ export function ProfilePageClient() {
         nickname={user?.nickname}
         email={user?.email}
         phone={user?.phone}
+        avatar={user?.avatar}
         createdAt={user?.createdAt}
         emailVerifiedAt={user?.emailVerifiedAt ?? user?.email_verified_at}
       />
@@ -36,6 +37,7 @@ type ProfilePageContentProps = {
   nickname?: string | null;
   email?: string | null;
   phone?: string | null;
+  avatar?: string | null;
   createdAt?: Date | null;
   emailVerifiedAt?: Date | string | null;
 };
@@ -45,6 +47,7 @@ function ProfilePageContent({
   nickname,
   email,
   phone,
+  avatar,
   createdAt,
   emailVerifiedAt,
 }: ProfilePageContentProps) {
@@ -96,7 +99,16 @@ function ProfilePageContent({
                   </p>
                 </div>
                 <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/10 text-xl font-semibold">
-                  {initials}
+                  {avatar ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={avatar}
+                      alt={displayName}
+                      className="h-full w-full rounded-2xl object-cover"
+                    />
+                  ) : (
+                    initials
+                  )}
                 </div>
               </div>
 

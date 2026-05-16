@@ -1,7 +1,5 @@
 import { CourseFilterRequest } from '@/data/dtos/course/course.dto'
 
-export const durationFilters = ['< 4 tuần', '4-8 tuần', '> 8 tuần']
-
 export function formatPricePlaceholder(value: number | null | undefined, fallback: string): string {
   if (value === null || value === undefined) {
     return fallback
@@ -12,6 +10,15 @@ export function formatPricePlaceholder(value: number | null | undefined, fallbac
 
 export function sanitizeNumberInput(value: string): string {
   return value.replace(/[^\d]/g, '')
+}
+
+export function formatNumberInput(value: string): string {
+  const sanitized = sanitizeNumberInput(value)
+  if (sanitized === '') {
+    return ''
+  }
+
+  return Number.parseInt(sanitized, 10).toLocaleString('vi-VN')
 }
 
 export function clamp(value: number, min: number, max: number): number {
@@ -50,6 +57,8 @@ export function buildCourseFilterRequest({
   levelIds,
   priceMin,
   priceMax,
+  durationMinHours,
+  durationMaxHours,
   query,
   page,
 }: {
@@ -57,6 +66,8 @@ export function buildCourseFilterRequest({
   levelIds: number[]
   priceMin?: number
   priceMax?: number
+  durationMinHours?: number
+  durationMaxHours?: number
   query?: string
   page: number
 }) {
@@ -66,6 +77,8 @@ export function buildCourseFilterRequest({
     levelIds[0],
     priceMin,
     priceMax,
+    durationMinHours,
+    durationMaxHours,
     query,
     page
   )

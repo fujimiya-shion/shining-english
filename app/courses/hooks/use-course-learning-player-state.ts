@@ -36,6 +36,7 @@ export function useCourseLearningPlayerState({
         group: lesson.groupName?.trim() || 'Danh sách bài học',
         description: lesson.description ? stripHtml(lesson.description) : '',
         hasQuiz: Boolean(lesson.hasQuiz),
+        isPreviewFree: Boolean(lesson.isPreviewFree),
         videoUrl: resolveLessonVideoUrl(lesson.id, lesson.videoUrl),
         duration: lesson.durationMinutes,
         comments: lesson.comments ?? [],
@@ -56,8 +57,18 @@ export function useCourseLearningPlayerState({
   )
 
   const initialLessonId = useMemo(() => {
+    const unlockedWithVideo = lessonSources.find((lesson) => (enrolled || lesson.isPreviewFree) && lesson.videoUrl)
+    if (unlockedWithVideo) {
+      return unlockedWithVideo.id
+    }
+
+    const firstUnlocked = lessonSources.find((lesson) => enrolled || lesson.isPreviewFree)
+    if (firstUnlocked) {
+      return firstUnlocked.id
+    }
+
     return lessonSources.find((lesson) => lesson.videoUrl)?.id ?? lessonSources[0]?.id ?? 0
-  }, [lessonSources])
+  }, [enrolled, lessonSources])
 
   const [currentLesson, setCurrentLesson] = useState(progressCurrentLessonId ?? initialLessonId)
   const [completedLessonIds, setCompletedLessonIds] = useState<number[]>(progressCompletedLessonIds ?? [])
@@ -107,11 +118,23 @@ export function useCourseLearningPlayerState({
     setCompletedLessonIds(normalized)
   }, [enrolled, lessonSources, progressCompletedLessonIds])
 
-  const modules = useMemo<CourseLearningPlayerModule[]>(() => {
-    const grouped = new Map<string, CourseListItemData[]>()
-    const isLocked = !enrolled
+  const isLessonUnlocked = useMemo(() => {
+    const unlocked = new Set<number>()
 
     for (const lesson of lessonSources) {
+      if (enrolled || lesson.isPreviewFree) {
+        unlocked.add(lesson.id)
+      }
+    }
+
+    return unlocked
+  }, [enrolled, lessonSources])
+
+  const modules = useMemo<CourseLearningPlayerModule[]>(() => {
+    const grouped = new Map<string, CourseListItemData[]>()
+
+    for (const lesson of lessonSources) {
+      const locked = !isLessonUnlocked.has(lesson.id)
       if (!grouped.has(lesson.group)) {
         grouped.set(lesson.group, [])
       }
@@ -121,8 +144,8 @@ export function useCourseLearningPlayerState({
         title: lesson.title,
         duration: lesson.duration,
         completed: completedLessonIds.includes(lesson.id),
-        locked: isLocked,
-        statusLabel: enrolled ? undefined : 'Bị khóa',
+        locked,
+        statusLabel: locked ? 'Bị khóa' : undefined,
       })
     }
 
@@ -131,7 +154,7 @@ export function useCourseLearningPlayerState({
       title,
       lessons,
     }))
-  }, [completedLessonIds, enrolled, lessonSources])
+  }, [completedLessonIds, isLessonUnlocked, lessonSources])
 
   const allLessons = modules.flatMap((module) => module.lessons)
   const lessonIds = allLessons.map((lesson) => lesson.id)
@@ -140,7 +163,7 @@ export function useCourseLearningPlayerState({
   const currentLessonDetail = currentLesson ? lessonMap.get(currentLesson) : undefined
   const currentLessonHasQuiz = Boolean(currentLessonDetail?.hasQuiz)
   const currentLessonVideoUrl = currentLessonDetail?.videoUrl ?? ''
-  const shouldShowVideo = enrolled && Boolean(
+  const shouldShowVideo = isLessonUnlocked.has(currentLesson) && Boolean(
     currentLessonVideoUrl && !unavailableVideoIds.includes(currentLesson)
   )
 
