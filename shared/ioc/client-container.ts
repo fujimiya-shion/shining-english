@@ -21,6 +21,8 @@ import { EventManager } from "@/infra/events/event-manager";
 import { EventBus } from "@/infra/events/event-bus";
 import { IContactRepository } from "@/data/repositories/remote/contact/contact.repository.interface";
 import { ContactRepository } from "@/data/repositories/remote/contact/contact.repository";
+import { IHomeRepository } from "@/data/repositories/remote/home/home.repository.interface";
+import { HomeRepository } from "@/data/repositories/remote/home/home.repository";
 
 let clientContainer: IoCContainer | null = null;
 
@@ -36,6 +38,10 @@ function buildClientContainer(): IoCContainer {
   container.bind<ICityRepository>(
     IOC_TOKENS.CITY_REPOSITORY,
     () => new CityRepository(new ClientSideHttpClient()),
+  );
+  container.bind<IHomeRepository>(
+    IOC_TOKENS.HOME_REPOSITORY,
+    () => new HomeRepository(new ClientSideHttpClient()),
   );
   container.bind<IDashboardRepository>(
     IOC_TOKENS.DASHBOARD_REPOSITORY,

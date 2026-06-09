@@ -20,6 +20,9 @@ export const AppEndpoints = {
   contact: {
     submit: "/contact",
   },
+  home: {
+    index: "/home",
+  },
   dashboard: {
     overview: "/dashboard/overview",
   },
