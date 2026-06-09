@@ -11,6 +11,15 @@ function asString(value: unknown): string | undefined {
   return typeof value === 'string' ? value : undefined
 }
 
+function normalizeButtonType(value: unknown): 'primary' | 'secondary' {
+  if (typeof value !== 'string') {
+    return 'primary'
+  }
+
+  const normalized = value.trim().toLowerCase()
+  return normalized === 'secondary' ? 'secondary' : 'primary'
+}
+
 class HomeReviewUserModel {
   id?: number | string
   name?: string
@@ -26,6 +35,12 @@ export class HomeActionButtonModel {
   title = ''
   action = ''
   type = 'primary'
+
+  static fromApiJson(data: unknown): HomeActionButtonModel {
+    const button = mapToModel(data, HomeActionButtonModel)
+    button.type = normalizeButtonType(button.type)
+    return button
+  }
 }
 
 export class HomeHighlightModel {
@@ -232,9 +247,13 @@ export class HomePageModel {
       switch (type) {
         case 'banner':
           page.banner = mapToModel(sectionData, HomeBannerSectionModel)
+          page.banner.bannerActionButtons = normalizeHomeActionButtons(
+            page.banner.bannerActionButtons
+          )
           break
         case 'hero':
           page.hero = mapToModel(sectionData, HomeHeroSectionModel)
+          page.hero.actions = normalizeHomeActionButtons(page.hero.actions)
           break
         case 'courses':
           page.courseListing = mapToModel(sectionData, HomeCourseListingSectionModel)
@@ -254,6 +273,9 @@ export class HomePageModel {
           break
         case 'cta':
           page.cta = mapToModel(sectionData, HomeCtaSectionModel)
+          page.cta.actionButtons = normalizeHomeActionButtons(
+            page.cta.actionButtons
+          )
           break
         default:
           break
@@ -262,4 +284,10 @@ export class HomePageModel {
 
     return page
   }
+}
+
+export function normalizeHomeActionButtons(
+  buttons: HomeActionButtonModel[],
+): HomeActionButtonModel[] {
+  return buttons.map((button) => HomeActionButtonModel.fromApiJson(button))
 }

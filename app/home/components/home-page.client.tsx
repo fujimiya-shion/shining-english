@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { Toaster, toast } from 'react-hot-toast'
 import gsap from 'gsap'
 import {
@@ -17,6 +17,7 @@ import { useHomeStore } from '@/app/home/stores/home.store'
 import { AppStatus } from '@/shared/enums/app-status'
 
 export function HomePageClient() {
+  const hasAnimatedRef = useRef(false)
   const status = useHomeStore((state) => state.status)
   const actionStatus = useHomeStore((state) => state.actionStatus)
   const homePage = useHomeStore((state) => state.homePage)
@@ -34,118 +35,130 @@ export function HomePageClient() {
   }, [initial, status])
 
   useEffect(() => {
-    const bannerTimeline = gsap.timeline()
-
-    bannerTimeline.fromTo(
-      '.banner-kicker',
-      { opacity: 0, y: 18 },
-      { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }
-    )
-    bannerTimeline.fromTo(
-      '.banner-title',
-      { opacity: 0, y: 26 },
-      { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' },
-      '-=0.3'
-    )
-    bannerTimeline.fromTo(
-      '.banner-subtitle',
-      { opacity: 0, y: 18 },
-      { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' },
-      '-=0.35'
-    )
-    bannerTimeline.fromTo(
-      '.banner-buttons',
-      { opacity: 0, y: 12 },
-      { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
-      '-=0.35'
-    )
-
-    if (document.querySelector('.hero-kicker')) {
-      const heroTimeline = gsap.timeline({ delay: 0.1 })
-
-      heroTimeline.fromTo(
-        '.hero-kicker',
-        { opacity: 0, y: 16 },
-        { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }
-      )
-      heroTimeline.fromTo(
-        '.hero-title',
-        { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }
-      )
-      heroTimeline.fromTo(
-        '.hero-subtitle',
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' },
-        '-=0.4'
-      )
-      heroTimeline.fromTo(
-        '.hero-buttons',
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' },
-        '-=0.4'
-      )
-      heroTimeline.fromTo(
-        '.hero-stats',
-        { opacity: 0, scale: 0.9 },
-        { opacity: 1, scale: 1, duration: 0.8, ease: 'back.out' },
-        '-=0.4'
-      )
+    if (!homePage || hasAnimatedRef.current) {
+      return
     }
 
-    gsap.to('.hero-float', {
-      y: -12,
-      duration: 4,
-      ease: 'sine.inOut',
-      repeat: -1,
-      yoyo: true,
-    })
-    gsap.to('.hero-glow', {
-      opacity: 0.7,
-      duration: 2.8,
-      ease: 'sine.inOut',
-      repeat: -1,
-      yoyo: true,
-    })
+    hasAnimatedRef.current = true
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const target = entry.target as HTMLElement
-            const items = target.querySelectorAll('.reveal-item')
-            if (items.length > 0) {
-              gsap.fromTo(
-                items,
-                { opacity: 0, y: 36, scale: 0.98 },
-                {
-                  opacity: 1,
-                  y: 0,
-                  scale: 1,
-                  duration: 0.7,
-                  ease: 'power3.out',
-                  stagger: 0.12,
-                }
-              )
-            } else {
-              gsap.fromTo(
-                target,
-                { opacity: 0, y: 36, scale: 0.98 },
-                { opacity: 1, y: 0, scale: 1, duration: 0.7, ease: 'power3.out' }
-              )
+    let observer: IntersectionObserver | null = null
+    let animationFrameId = window.requestAnimationFrame(() => {
+      const bannerTimeline = gsap.timeline()
+
+      bannerTimeline.fromTo(
+        '.banner-kicker',
+        { opacity: 0, y: 18 },
+        { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }
+      )
+      bannerTimeline.fromTo(
+        '.banner-title',
+        { opacity: 0, y: 26 },
+        { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' },
+        '-=0.3'
+      )
+      bannerTimeline.fromTo(
+        '.banner-subtitle',
+        { opacity: 0, y: 18 },
+        { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' },
+        '-=0.35'
+      )
+      bannerTimeline.fromTo(
+        '.banner-buttons',
+        { opacity: 0, y: 12 },
+        { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' },
+        '-=0.35'
+      )
+
+      if (document.querySelector('.hero-kicker')) {
+        const heroTimeline = gsap.timeline({ delay: 0.1 })
+
+        heroTimeline.fromTo(
+          '.hero-kicker',
+          { opacity: 0, y: 16 },
+          { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }
+        )
+        heroTimeline.fromTo(
+          '.hero-title',
+          { opacity: 0, y: 30 },
+          { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }
+        )
+        heroTimeline.fromTo(
+          '.hero-subtitle',
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' },
+          '-=0.4'
+        )
+        heroTimeline.fromTo(
+          '.hero-buttons',
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' },
+          '-=0.4'
+        )
+        heroTimeline.fromTo(
+          '.hero-stats',
+          { opacity: 0, scale: 0.9 },
+          { opacity: 1, scale: 1, duration: 0.8, ease: 'back.out' },
+          '-=0.4'
+        )
+      }
+
+      gsap.to('.hero-float', {
+        y: -12,
+        duration: 4,
+        ease: 'sine.inOut',
+        repeat: -1,
+        yoyo: true,
+      })
+      gsap.to('.hero-glow', {
+        opacity: 0.7,
+        duration: 2.8,
+        ease: 'sine.inOut',
+        repeat: -1,
+        yoyo: true,
+      })
+
+      observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const target = entry.target as HTMLElement
+              const items = target.querySelectorAll('.reveal-item')
+              if (items.length > 0) {
+                gsap.fromTo(
+                  items,
+                  { opacity: 0, y: 36, scale: 0.98 },
+                  {
+                    opacity: 1,
+                    y: 0,
+                    scale: 1,
+                    duration: 0.7,
+                    ease: 'power3.out',
+                    stagger: 0.12,
+                  }
+                )
+              } else {
+                gsap.fromTo(
+                  target,
+                  { opacity: 0, y: 36, scale: 0.98 },
+                  { opacity: 1, y: 0, scale: 1, duration: 0.7, ease: 'power3.out' }
+                )
+              }
+              observer?.unobserve(target)
             }
-            observer.unobserve(target)
-          }
-        })
-      },
-      { threshold: 0.15 }
-    )
+          })
+        },
+        { threshold: 0.15 }
+      )
 
-    const revealGroups = document.querySelectorAll('[data-animate="stagger"], .reveal-once')
-    revealGroups.forEach((group) => observer.observe(group))
+      const revealGroups = document.querySelectorAll('[data-animate="stagger"], .reveal-once')
+      revealGroups.forEach((group) => observer?.observe(group))
+    })
 
-    return () => observer.disconnect()
-  }, [])
+    return () => {
+      window.cancelAnimationFrame(animationFrameId)
+      observer?.disconnect()
+    }
+  }, [homePage])
 
   useEffect(() => {
     if (status === AppStatus.error && errorMessage) {
@@ -170,7 +183,7 @@ export function HomePageClient() {
     }
   }, [actionMessage, actionStatus, clearActionFeedback])
 
-  if (status === AppStatus.loading && !homePage) {
+  if (!homePage && status !== AppStatus.error) {
     return (
       <main className="min-h-screen bg-[radial-gradient(1200px_circle_at_top_left,var(--sky-100)_0%,var(--sky-80)_55%,var(--white)_100%)] px-4 py-24">
         <Toaster position="top-right" />

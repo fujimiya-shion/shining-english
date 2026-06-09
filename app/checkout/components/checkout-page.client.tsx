@@ -49,6 +49,7 @@ function CheckoutPageContent() {
   const email = useCheckoutStore((state) => state.email)
   const phone = useCheckoutStore((state) => state.phone)
   const order = useCheckoutStore((state) => state.order)
+  const paymentRedirectUrl = useCheckoutStore((state) => state.paymentRedirectUrl)
   const buyNowCourse = useCheckoutStore((state) => state.buyNowCourse)
   const errorMessage = useCheckoutStore((state) => state.errorMessage)
   const initialize = useCheckoutStore((state) => state.initialize)
@@ -57,6 +58,7 @@ function CheckoutPageContent() {
   const setEmail = useCheckoutStore((state) => state.setEmail)
   const setPhone = useCheckoutStore((state) => state.setPhone)
   const submitOrder = useCheckoutStore((state) => state.submitOrder)
+  const clearPaymentRedirect = useCheckoutStore((state) => state.clearPaymentRedirect)
   const resetCheckout = useCheckoutStore((state) => state.reset)
 
   const buyNowPayload = useMemo(() => parseBuyNowCourse(searchParams), [searchParams])
@@ -88,6 +90,15 @@ function CheckoutPageContent() {
       void refreshCart()
     }
   }, [authenticated, cartStatus, mode, refreshCart])
+
+  useEffect(() => {
+    if (!paymentRedirectUrl) {
+      return
+    }
+
+    window.location.assign(paymentRedirectUrl)
+    clearPaymentRedirect()
+  }, [clearPaymentRedirect, paymentRedirectUrl])
 
   const displayItems = useMemo<CheckoutDisplayItem[]>(() => {
     if (order?.items?.length) {
@@ -151,7 +162,17 @@ function CheckoutPageContent() {
     )
   }
 
-  if (order) {
+  if (paymentRedirectUrl) {
+    return (
+      <main className="min-h-full bg-[radial-gradient(1200px_circle_at_top_left,var(--sky-90)_0%,var(--sky-50)_52%,var(--white)_100%)] py-10">
+        <div className="mx-auto max-w-7xl px-4 text-center text-muted-foreground sm:px-6 lg:px-8">
+          Đang chuyển tới cổng thanh toán PayOS...
+        </div>
+      </main>
+    )
+  }
+
+  if (order && (paymentMethod === 'cod' || order.status === 'paid')) {
     return (
       <main className="min-h-full bg-[radial-gradient(1200px_circle_at_top_left,var(--sky-90)_0%,var(--sky-50)_52%,var(--white)_100%)] py-10">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
