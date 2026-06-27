@@ -1,21 +1,18 @@
 'use client'
 
+import { SerializedCourse } from '@/data/models/course.model'
 import { CourseLearningPlayerRatingStars } from '@/app/courses/components/course-learning-player-sections/course-learning-player-rating-stars'
-import { CourseLearningPlayerMeta } from '@/app/courses/components/course-learning-player-sections/course-learning-player-types'
 import { AppButton } from '@/shared/components/ui/app-button'
 import { Button } from '@/shared/components/ui/button'
 import { formatPrice } from '@/shared/utils/currency-utils'
+import { stripHtml } from '@/shared/utils/string-utils'
 
 export function CourseLearningPlayerHeaderSection({
   authenticated,
   canWatchCourse,
   pendingAccess,
-  courseMeta,
-  coursePrice,
-  isFreeCourse,
+  course,
   inCart,
-  allowStarPayment,
-  starPrice,
   starBalance,
   progressPercentage,
   onAddToCart,
@@ -28,12 +25,8 @@ export function CourseLearningPlayerHeaderSection({
   authenticated: boolean
   canWatchCourse: boolean
   pendingAccess: boolean
-  courseMeta: CourseLearningPlayerMeta
-  coursePrice?: number
-  isFreeCourse: boolean
+  course: SerializedCourse
   inCart: boolean
-  allowStarPayment?: boolean
-  starPrice?: number
   starBalance?: number
   progressPercentage: number
   onAddToCart: () => void
@@ -43,6 +36,14 @@ export function CourseLearningPlayerHeaderSection({
   purchaseMessage?: string | null
   isPurchaseActionLoading: boolean
 }) {
+  const coursePrice = course.price
+  const isFreeCourse = Number(course.price ?? 0) === 0
+  const allowStarPayment = course.allowStarPayment
+  const starPrice = course.starPrice
+  const normalizedDescription = course.description ? stripHtml(course.description) : ''
+  const totalLessons = course.lessons?.length ?? 0
+  const totalDurationMinutes = course.lessons?.reduce((sum, l) => sum + (l.durationMinutes ?? 0), 0) ?? 0
+  const totalHours = Number((totalDurationMinutes / 60).toFixed(1))
   const hasEnoughStars = typeof starBalance === 'number' && typeof starPrice === 'number'
     ? starBalance >= starPrice
     : false
@@ -53,30 +54,30 @@ export function CourseLearningPlayerHeaderSection({
       <div className="flex flex-wrap items-start justify-between gap-6">
         <div className="space-y-4">
           <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-muted/60 px-3 py-1 text-xs text-muted-foreground">
-            Lộ trình cá nhân • {courseMeta.level}
+            Lộ trình cá nhân • {course.level?.name ?? 'Tiếng Anh tổng quát'}
           </div>
           <div>
-            <h1 className="text-3xl font-semibold tracking-tight">{courseMeta.title}</h1>
-            <p className="mt-2 line-clamp-4 text-muted-foreground">{courseMeta.subtitle}</p>
+            <h1 className="text-3xl font-semibold tracking-tight">{course.name ?? 'Khóa học tiếng Anh'}</h1>
+            <p className="mt-2 line-clamp-4 text-muted-foreground">{normalizedDescription || 'Lộ trình ngắn gọn, dễ hiểu, phù hợp tự học'}</p>
           </div>
           <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-            <span>Giảng viên: {courseMeta.instructor}</span>
+            <span>Giảng viên: Shining English</span>
             <span>•</span>
-            <span>{courseMeta.totalLessons} bài học</span>
-            {courseMeta.totalHours > 0 ? (
+            <span>{totalLessons} bài học</span>
+            {totalHours > 0 ? (
               <>
                 <span>•</span>
-                <span>{courseMeta.totalHours} giờ học</span>
+                <span>{totalHours} giờ học</span>
               </>
             ) : null}
           </div>
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-1">
-              <CourseLearningPlayerRatingStars rating={courseMeta.rating} />
+              <CourseLearningPlayerRatingStars rating={course.rating ?? 0} />
             </div>
-            <span className="text-sm font-medium">{courseMeta.rating}</span>
+            <span className="text-sm font-medium">{course.rating}</span>
             <span className="text-sm text-muted-foreground">
-              ({courseMeta.reviewCount.toLocaleString()} đánh giá)
+              ({(course.reviews?.length ?? 0).toLocaleString()} đánh giá)
             </span>
           </div>
         </div>
@@ -137,7 +138,7 @@ export function CourseLearningPlayerHeaderSection({
             <div className="mt-4 rounded-2xl border border-primary/15 bg-white/80 px-4 py-3">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Quyền lợi sau khi mở khóa</span>
-                <span className="font-medium text-[color:var(--brand-900)]">{courseMeta.totalLessons} bài học</span>
+                <span className="font-medium text-[color:var(--brand-900)]">{totalLessons} bài học</span>
               </div>
               <div className="mt-3 grid gap-2 text-sm text-[color:var(--brand-900)]">
                 <div>Toàn bộ video theo lộ trình</div>

@@ -1,12 +1,11 @@
 'use client'
 
-import {
-  CourseLearningPlayerComment,
-  CourseLearningPlayerLessonDetail,
-  CourseLearningPlayerNote,
-  CourseLearningPlayerLessonSummary,
-} from '@/app/courses/components/course-learning-player-sections/course-learning-player-types'
+import { SerializedLessonComment } from '@/data/models/lesson-comment.model'
+import { SerializedLessonNote } from '@/data/models/lesson-note.model'
+import { CourseListItemData } from '@/shared/components/ui/course/course-list-item'
 import { AppButton } from '@/shared/components/ui/app-button'
+import { AppUtils } from '@/shared/utils/app-utils'
+import { formatRelativeTime } from '@/shared/utils/date-time-utils'
 import { Button } from '@/shared/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs'
 import { AppStatus } from '@/shared/enums/app-status'
@@ -45,14 +44,17 @@ export function CourseLearningPlayerLessonSection({
   onCommentContentChange,
   onSubmitComment,
 }: {
-  comments: CourseLearningPlayerComment[]
+  comments: SerializedLessonComment[]
   currentLesson: number
-  currentLessonData?: CourseLearningPlayerLessonSummary
-  currentLessonDetail?: CourseLearningPlayerLessonDetail
+  currentLessonData?: CourseListItemData
+  currentLessonDetail?: {
+    description?: string
+    resources: { id: string; name: string; url: string }[]
+  }
   currentLessonIndex: number
   currentLessonVideoUrl: string
   lessonIds: number[]
-  lessonNotes: CourseLearningPlayerNote[]
+  lessonNotes: SerializedLessonNote[]
   lessonNotesStatus: AppStatus
   notes: string
   noteActionStatus: AppStatus
@@ -176,8 +178,8 @@ export function CourseLearningPlayerLessonSection({
                 <div key={note.id} className="rounded-lg border border-border/60 bg-card p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="text-sm font-semibold">{note.lessonName}</p>
-                      <p className="text-xs text-muted-foreground">{note.time}</p>
+                      <p className="text-sm font-semibold">{note.lesson?.name?.trim() || 'Bài học hiện tại'}</p>
+                      <p className="text-xs text-muted-foreground">{note.createdAt ? formatRelativeTime(note.createdAt) : ''}</p>
                     </div>
                     <Button
                       variant="ghost"
@@ -188,7 +190,7 @@ export function CourseLearningPlayerLessonSection({
                       Xóa
                     </Button>
                   </div>
-                  <p className="mt-3 whitespace-pre-line text-sm text-muted-foreground">{note.content}</p>
+                  <p className="mt-3 whitespace-pre-line text-sm text-muted-foreground">{note.content?.trim() || 'Ghi chú đang được cập nhật.'}</p>
                 </div>
               ))}
               {lessonNotesStatus !== AppStatus.loading && lessonNotes.length === 0 ? (
@@ -341,22 +343,35 @@ export function CourseLearningPlayerLessonSection({
           {commentErrorMessage ? <p className="text-sm text-destructive">{commentErrorMessage}</p> : null}
         </div>
         <div className="mt-6 space-y-4">
-          {comments.map((comment) => (
-            <div key={comment.id} className="rounded-xl border border-border/60 bg-background p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent/20 font-semibold text-accent-foreground">
-                    {comment.name.slice(0, 1)}
-                  </div>
-                  <div>
-                    <p className="font-medium">{comment.name}</p>
-                    <p className="text-xs text-muted-foreground">{comment.time}</p>
+          {comments.map((comment) => {
+            const name = comment.user?.name?.trim() || 'Học viên'
+            return (
+              <div key={comment.id} className="rounded-xl border border-border/60 bg-background p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {comment.user?.avatar ? (
+                      <img
+                        src={AppUtils.getHostUrl(comment.user.avatar)}
+                        alt={name}
+                        className="h-9 w-9 rounded-full object-cover"
+                        loading="lazy"
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : (
+                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent/20 font-semibold text-accent-foreground">
+                        {name.slice(0, 1)}
+                      </div>
+                    )}
+                    <div>
+                      <p className="font-medium">{name}</p>
+                      <p className="text-xs text-muted-foreground">{comment.createdAt ? formatRelativeTime(comment.createdAt) : ''}</p>
+                    </div>
                   </div>
                 </div>
+                <p className="mt-3 text-sm text-muted-foreground">{comment.content?.trim() || 'Bình luận đang được cập nhật.'}</p>
               </div>
-              <p className="mt-3 text-sm text-muted-foreground">{comment.content}</p>
-            </div>
-          ))}
+            )
+          })}
           {comments.length === 0 ? (
             <div className="rounded-xl border border-border/60 bg-background p-4 text-sm text-muted-foreground">
               Bài học này chưa có thảo luận.
