@@ -1,4 +1,4 @@
-export { CoursesPageFiltersSidebar } from './courses-page-filters-sidebar'
+export { CourseFiltersSidebar as CoursesPageFiltersSidebar } from '@/shared/components/ui/course/course-filters-sidebar'
 export { CoursesPageGrid } from './courses-page-grid'
 export { CoursesPageHeroSection } from './courses-page-hero-section'
 export { CoursesPageMobileCategories } from './courses-page-mobile-categories'

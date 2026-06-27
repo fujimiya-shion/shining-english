@@ -40,6 +40,7 @@ export const AppEndpoints = {
     completeLesson: (courseId: number, lessonId: number) => `/courses/${courseId}/lessons/${lessonId}/complete`,
     setCurrentLesson: (courseId: number) => `/courses/${courseId}/current-lesson`,
     reviews: (courseId: number) => `/courses/${courseId}/reviews`,
+    free: "/courses/free",
     filter: "/courses/filter",
     filterProps: "/courses/filter-props",
   },

@@ -33,7 +33,7 @@ const navItems: NavItem[] = [
   { label: 'Trang chủ', icon: Home, href: '/' },
   { label: 'Giới thiệu', icon: Info, href: '/about', showFrom: 'lg' },
   { label: 'Khóa học', icon: BookOpen, href: '/courses' },
-  { label: 'Miễn phí', icon: LucideCircleDollarSign, href: '/courses' },
+  { label: 'Miễn phí', icon: LucideCircleDollarSign, href: '/courses/free' },
   { label: 'Blog', icon: Newspaper, href: '/blogs' },
   { label: 'Liên hệ', icon: Phone, href: '/contact', showFrom: 'lg' },
 ]
