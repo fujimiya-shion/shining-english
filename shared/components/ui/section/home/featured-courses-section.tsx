@@ -10,11 +10,15 @@ import { BannerStarfieldStatic } from "@/shared/components/ui/banner/banner-star
 import { Button } from "@/shared/components/ui/button";
 
 type FeaturedCoursesSectionProps = {
+  title: string;
+  description: string;
   courses: Course[];
-  onAddToCart: (courseId: number) => void;
+  onAddToCart: (courseId: number) => void | Promise<unknown>;
 };
 
 export const FeaturedCoursesSection = ({
+  title,
+  description,
   courses,
   onAddToCart,
 }: FeaturedCoursesSectionProps) => {
@@ -57,9 +61,9 @@ export const FeaturedCoursesSection = ({
       </div>
       <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="mb-12 reveal-item text-center lg:text-left">
-          <h2 className="text-3xl font-bold">Khóa Học Mình Tự Làm</h2>
+          <h2 className="text-3xl font-bold">{title}</h2>
           <p className="mt-2 text-white/70">
-            Nội dung tự quay – tự dạy, tập trung vào hiệu quả thực tế
+            {description}
           </p>
         </div>
         <div className="space-y-6">

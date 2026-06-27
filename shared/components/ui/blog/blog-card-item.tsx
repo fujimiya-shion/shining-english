@@ -1,10 +1,9 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { Calendar, Clock, ArrowRight, Lock, Sparkles } from 'lucide-react'
+import { Calendar, Clock, ArrowRight } from 'lucide-react'
 import { AppButton } from '@/shared/components/ui/app-button'
 import { Card } from '@/shared/components/ui/card'
 import { Blog } from '@/data/models/blog.model'
-import { cn } from '@/lib/utils'
 import { AppUtils } from '@/shared/utils/app-utils'
 import { toPlainText } from '@/shared/utils/text-utils'
 
@@ -30,9 +29,6 @@ type BlogCardItemProps = {
 }
 
 export function BlogCardItem({ post }: BlogCardItemProps) {
-  const requiredStar = Math.max(0, post.requiredStar ?? 0)
-  const badgeLabel = post.isFree ? 'Miễn phí' : `${requiredStar} sao`
-  const canRead = post.canView || post.isUnlocked || post.isFree
   const descriptionSource =
     post.shortDescription?.trim() ? post.shortDescription : post.description
   const description = toPlainText(descriptionSource)
@@ -76,19 +72,6 @@ export function BlogCardItem({ post }: BlogCardItemProps) {
           <span className="rounded-full bg-[color:var(--sky-70)] px-2.5 py-1 text-[10px] font-semibold uppercase text-[color:var(--brand-900)]">
             {post.tag?.name ?? 'Blog'}
           </span>
-          <span
-            className={cn(
-              'inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-semibold',
-              post.isFree
-                ? 'bg-emerald-50 text-emerald-700'
-                : canRead
-                  ? 'bg-(--sky-70) text-[color:var(--brand-900)]'
-                  : 'bg-amber-50 text-amber-700'
-            )}
-          >
-            {post.isFree ? <Sparkles className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
-            {badgeLabel}
-          </span>
           <span className="inline-flex items-center gap-1">
             <Calendar className="h-3.5 w-3.5" />
             {formatDate(post.publishedAt)}
@@ -122,7 +105,7 @@ export function BlogCardItem({ post }: BlogCardItemProps) {
 
         <AppButton asChild className="mt-4 w-full rounded-full">
           <Link href={`/blogs/${post.slug}`}>
-            {canRead ? 'Đọc bài viết' : 'Xem chi tiết'}
+            Đọc bài viết
             <ArrowRight className="h-4 w-4" />
           </Link>
         </AppButton>

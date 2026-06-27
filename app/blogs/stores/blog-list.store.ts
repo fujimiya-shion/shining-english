@@ -5,7 +5,6 @@ import { IBlogRepository } from '@/data/repositories/remote/blog/blog.repository
 import { AppStatus } from '@/shared/enums/app-status'
 import { resolveClient } from '@/shared/ioc/client-container'
 import { IOC_TOKENS } from '@/shared/ioc/tokens'
-import { useStarStore } from '@/shared/stores/star.store'
 import { resolveApiErrorMessage } from '@/shared/utils/api-error-message'
 import { create } from 'zustand'
 
@@ -13,7 +12,6 @@ type BlogListStoreProps = {
   status: AppStatus
   blogs: Blog[]
   topics: BlogTagModel[]
-  starBalance: number | null
   query: string
   errorMessage: string | null
 }
@@ -28,7 +26,6 @@ const initState: BlogListStoreProps = {
   status: AppStatus.initial,
   blogs: [],
   topics: [],
-  starBalance: null,
   query: '',
   errorMessage: null,
 }
@@ -64,14 +61,9 @@ export const useBlogListStore = create<BlogListStoreState>((set, get) => ({
       status: AppStatus.done,
       blogs: result.response.data.items,
       topics: result.response.data.topics,
-      starBalance:
-        typeof result.response.data.starBalance === 'number'
-          ? result.response.data.starBalance
-          : null,
       errorMessage: null,
     })
 
-    useStarStore.getState().syncBalance(result.response.data.starBalance)
     return true
   },
 

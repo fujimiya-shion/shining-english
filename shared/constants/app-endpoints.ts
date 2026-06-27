@@ -20,6 +20,9 @@ export const AppEndpoints = {
   contact: {
     submit: "/contact",
   },
+  home: {
+    index: "/home",
+  },
   dashboard: {
     overview: "/dashboard/overview",
   },
@@ -56,10 +59,17 @@ export const AppEndpoints = {
   },
   order: {
     index: "/orders",
+    detail: (orderId: number) => `/orders/${orderId}`,
+    cancel: (orderId: number) => `/orders/${orderId}/cancel`,
   },
   lessonNote: {
     index: '/notes',
     byLesson: (lessonId: number) => `/lessons/${lessonId}/notes`,
     detail: (noteId: number) => `/notes/${noteId}`,
+  },
+  star: {
+    balance: '/stars/balance',
+    checkIn: '/stars/check-in',
+    payForCourse: (courseId: number) => `/stars/courses/${courseId}/pay`,
   },
 } as const;

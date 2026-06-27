@@ -2,12 +2,54 @@
 
 import { useCallback, useEffect, useState } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-import Image from "next/image";
-
+import { HomeTestimonialItemModel, HomeTestimonialSectionModel } from "@/data/models/home.model";
 import { Card } from "@/shared/components/ui/card";
-import { testimonials } from "@/data/mock";
+import { AppUtils } from "@/shared/utils/app-utils";
 
-export const TestimonialsSection = () => {
+type TestimonialsSectionProps = {
+    testimonials: HomeTestimonialSectionModel;
+}
+
+function buildInitials(name?: string): string {
+    if (!name) {
+        return "SE";
+    }
+
+    return name
+        .split(" ")
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part.charAt(0).toUpperCase())
+        .join("");
+}
+
+function renderStars(item: HomeTestimonialItemModel) {
+    const totalStars = Math.max(1, Math.min(5, Math.round(item.rating ?? 5)))
+
+    return [...Array(totalStars)].map((_, index) => <span key={index}>★</span>)
+}
+
+function TestimonialAvatar({ item }: { item: HomeTestimonialItemModel }) {
+    if (!item.user?.avatar) {
+        return (
+            <div className="flex h-full w-full items-center justify-center bg-[color:var(--sky-70)] text-sm font-semibold text-[color:var(--brand-900)]">
+                {buildInitials(item.user?.name)}
+            </div>
+        )
+    }
+
+    return (
+        <img
+            src={AppUtils.getHostUrl(item.user.avatar)}
+            alt={item.user.name ?? "Học viên"}
+            className="h-full w-full object-cover"
+            loading="lazy"
+            referrerPolicy="no-referrer"
+        />
+    )
+}
+
+export const TestimonialsSection = ({ testimonials }: TestimonialsSectionProps) => {
     const [emblaRef, emblaApi] = useEmblaCarousel({
         align: "start",
         dragFree: true,
@@ -55,39 +97,31 @@ export const TestimonialsSection = () => {
         >
             <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
                 <div className="mb-12 text-center reveal-item">
-                    <h2 className="text-3xl font-bold mb-4">Người Học Nói Gì?</h2>
+                    <h2 className="text-3xl font-bold mb-4">{testimonials.title}</h2>
                     <p className="text-muted-foreground max-w-2xl mx-auto">
-                        Những phản hồi thật từ người học sau khi theo lộ trình
+                        {testimonials.description}
                     </p>
                 </div>
                 <div className="space-y-6">
                     <div className="overflow-hidden md:hidden" ref={emblaRef}>
                         <div className="flex gap-4">
-                            {testimonials.map((testimonial) => (
-                                <div key={testimonial.id} className="min-w-0 shrink-0 basis-full">
+                            {testimonials.items.map((testimonial) => (
+                                <div key={testimonial.id ?? `${testimonial.user?.name}-${testimonial.content}`} className="min-w-0 shrink-0 basis-full">
                                     <Card className="course-card reveal-item p-6 rounded-2xl border-(--border)/80 bg-white/95 shadow-[0_18px_45px_-32px_rgba(15,23,42,0.35)]">
                                         <div className="flex items-start gap-4 mb-4">
                                             <div className="h-12 w-12 overflow-hidden rounded-full border border-border">
-                                                <Image
-                                                    src={testimonial.image}
-                                                    alt={testimonial.name}
-                                                    width={48}
-                                                    height={48}
-                                                    className="h-full w-full object-cover"
-                                                />
+                                                <TestimonialAvatar item={testimonial} />
                                             </div>
                                             <div>
-                                                <h3 className="font-semibold">{testimonial.name}</h3>
-                                                <p className="text-xs text-muted-foreground">{testimonial.role}</p>
+                                                <h3 className="font-semibold">{testimonial.user?.name ?? "Học viên"}</h3>
+                                                <p className="text-xs text-muted-foreground">{testimonial.course?.name ?? "Shining English"}</p>
                                             </div>
                                         </div>
                                         <p className="text-sm text-muted-foreground italic leading-relaxed">
                                             &ldquo;{testimonial.content}&rdquo;
                                         </p>
                                         <div className="flex gap-1 mt-4 text-primary">
-                                            {[...Array(5)].map((_, i) => (
-                                                <span key={i}>★</span>
-                                            ))}
+                                            {renderStars(testimonial)}
                                         </div>
                                     </Card>
                                 </div>
@@ -95,33 +129,25 @@ export const TestimonialsSection = () => {
                         </div>
                     </div>
                     <div className="hidden gap-8 md:grid md:grid-cols-3">
-                        {testimonials.map((testimonial) => (
+                        {testimonials.items.map((testimonial) => (
                             <Card
-                                key={testimonial.id}
+                                key={testimonial.id ?? `${testimonial.user?.name}-${testimonial.content}`}
                                 className="course-card reveal-item p-6 rounded-2xl border-(--border)/80 bg-white/95 shadow-[0_18px_45px_-32px_rgba(15,23,42,0.35)]"
                             >
                                 <div className="flex items-start gap-4 mb-4">
                                     <div className="h-12 w-12 overflow-hidden rounded-full border border-border">
-                                        <Image
-                                            src={testimonial.image}
-                                            alt={testimonial.name}
-                                            width={48}
-                                            height={48}
-                                            className="h-full w-full object-cover"
-                                        />
+                                        <TestimonialAvatar item={testimonial} />
                                     </div>
                                     <div>
-                                        <h3 className="font-semibold">{testimonial.name}</h3>
-                                        <p className="text-xs text-muted-foreground">{testimonial.role}</p>
+                                        <h3 className="font-semibold">{testimonial.user?.name ?? "Học viên"}</h3>
+                                        <p className="text-xs text-muted-foreground">{testimonial.course?.name ?? "Shining English"}</p>
                                     </div>
                                 </div>
                                 <p className="text-sm text-muted-foreground italic leading-relaxed">
                                     &ldquo;{testimonial.content}&rdquo;
                                 </p>
                                 <div className="flex gap-1 mt-4 text-primary">
-                                    {[...Array(5)].map((_, i) => (
-                                        <span key={i}>★</span>
-                                    ))}
+                                    {renderStars(testimonial)}
                                 </div>
                             </Card>
                         ))}

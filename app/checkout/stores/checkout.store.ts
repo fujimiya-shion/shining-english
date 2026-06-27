@@ -1,5 +1,6 @@
 'use client'
 
+import { CheckoutOrderResponse } from '@/data/models/order-checkout-response.model'
 import { Order } from '@/data/models/order.model'
 import { IOrderRepository } from '@/data/repositories/remote/order/order.repository.interface'
 import { AppStatus } from '@/shared/enums/app-status'
@@ -28,7 +29,9 @@ export interface CheckoutStoreProps {
   email: string
   phone: string
   buyNowCourse: CheckoutBuyNowCourse | null
+  checkout: CheckoutOrderResponse | null
   order: Order | null
+  paymentRedirectUrl: string | null
   errorMessage: string | null
 }
 
@@ -45,6 +48,7 @@ export interface CheckoutStoreState extends CheckoutStoreProps {
   setPhone: (value: string) => void
   setPaymentMethod: (value: CheckoutPaymentMethod) => void
   submitOrder: () => Promise<boolean>
+  clearPaymentRedirect: () => void
   reset: () => void
 }
 
@@ -57,7 +61,9 @@ const initState: CheckoutStoreProps = {
   email: '',
   phone: '',
   buyNowCourse: null,
+  checkout: null,
   order: null,
+  paymentRedirectUrl: null,
   errorMessage: null,
 }
 
@@ -76,7 +82,9 @@ export const useCheckoutStore = create<CheckoutStoreState>((set, get) => ({
       email: email?.trim() ?? '',
       phone: phone?.trim() ?? '',
       buyNowCourse: buyNowCourse ?? null,
+      checkout: null,
       order: null,
+      paymentRedirectUrl: null,
       errorMessage: null,
       actionStatus: AppStatus.initial,
     }),
@@ -96,8 +104,16 @@ export const useCheckoutStore = create<CheckoutStoreState>((set, get) => ({
 
     const result =
       state.mode === 'buy_now' && state.buyNowCourse
-        ? await resolveOrderRepository().createBuyNow(state.buyNowCourse.id, 1, state.paymentMethod)
-        : await resolveOrderRepository().createFromCart(state.paymentMethod)
+        ? await resolveOrderRepository().createBuyNow(state.buyNowCourse.id, 1, state.paymentMethod, {
+            buyerName: state.fullName.trim(),
+            buyerEmail: state.email.trim(),
+            buyerPhone: state.phone.trim(),
+          })
+        : await resolveOrderRepository().createFromCart(state.paymentMethod, {
+            buyerName: state.fullName.trim(),
+            buyerEmail: state.email.trim(),
+            buyerPhone: state.phone.trim(),
+          })
 
     if (!result.response) {
       set({
@@ -107,9 +123,15 @@ export const useCheckoutStore = create<CheckoutStoreState>((set, get) => ({
       return false
     }
 
+    const checkout = result.response.data
+    const order = checkout.order ?? null
+    const paymentRedirectUrl = checkout.paymentAction?.type === 'redirect' ? (checkout.paymentAction.url ?? null) : null
+
     set({
       actionStatus: AppStatus.success,
-      order: result.response.data,
+      checkout,
+      order,
+      paymentRedirectUrl,
       errorMessage: null,
     })
 
@@ -121,6 +143,8 @@ export const useCheckoutStore = create<CheckoutStoreState>((set, get) => ({
 
     return true
   },
+
+  clearPaymentRedirect: () => set({ paymentRedirectUrl: null }),
 
   reset: () => set({ ...initState }),
 }))
