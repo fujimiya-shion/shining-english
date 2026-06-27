@@ -8,10 +8,7 @@ export { CourseLearningPlayerReviewsSection } from './course-learning-player-rev
 export { CourseLearningPlayerScaffold } from './course-learning-player-scaffold'
 export { CourseLearningPlayerSidebar } from './course-learning-player-sidebar'
 export type {
-  CourseLearningPlayerComment,
   CourseLearningPlayerLessonDetail,
-  CourseLearningPlayerLessonSummary,
   CourseLearningPlayerMeta,
   CourseLearningPlayerModule,
-  CourseLearningPlayerReview,
 } from './course-learning-player-types'

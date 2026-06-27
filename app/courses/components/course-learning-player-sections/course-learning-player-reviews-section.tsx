@@ -1,7 +1,9 @@
 'use client'
 
+import { SerializedCourseReview } from '@/data/models/course-review.model'
 import { CourseLearningPlayerRatingStars } from '@/app/courses/components/course-learning-player-sections/course-learning-player-rating-stars'
-import { CourseLearningPlayerReview } from '@/app/courses/components/course-learning-player-sections/course-learning-player-types'
+import { AppUtils } from '@/shared/utils/app-utils'
+import { formatRelativeTime } from '@/shared/utils/date-time-utils'
 import { Button } from '@/shared/components/ui/button'
 
 export function CourseLearningPlayerReviewsSection({
@@ -10,7 +12,7 @@ export function CourseLearningPlayerReviewsSection({
   onOpenReviewModal,
   hasReviewed,
 }: {
-  reviews: CourseLearningPlayerReview[]
+  reviews: SerializedCourseReview[]
   canWriteReview: boolean
   onOpenReviewModal?: () => void
   hasReviewed?: boolean
@@ -29,25 +31,38 @@ export function CourseLearningPlayerReviewsSection({
         ) : null}
       </div>
       <div className="mt-6 grid gap-4">
-        {reviews.map((review) => (
-          <div key={review.id} className="rounded-xl border border-border/60 bg-background p-4">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary">
-                  {review.name.slice(0, 1)}
+        {reviews.map((review) => {
+          const name = review.user?.name?.trim() || 'Học viên'
+          return (
+            <div key={review.id} className="rounded-xl border border-border/60 bg-background p-4">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  {review.user?.avatar ? (
+                    <img
+                      src={AppUtils.getHostUrl(review.user.avatar)}
+                      alt={name}
+                      className="h-10 w-10 rounded-full object-cover"
+                      loading="lazy"
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary">
+                      {name.slice(0, 1)}
+                    </div>
+                  )}
+                  <div>
+                    <p className="font-medium">{name}</p>
+                    <p className="text-xs text-muted-foreground">{review.createdAt ? formatRelativeTime(review.createdAt) : ''}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-medium">{review.name}</p>
-                  <p className="text-xs text-muted-foreground">{review.time}</p>
+                <div className="flex items-center gap-1">
+                  <CourseLearningPlayerRatingStars rating={review.rating ?? 0} />
                 </div>
               </div>
-              <div className="flex items-center gap-1">
-                <CourseLearningPlayerRatingStars rating={review.rating} />
-              </div>
+              <p className="mt-3 text-sm text-muted-foreground">{review.content?.trim() || 'Đánh giá đang được cập nhật.'}</p>
             </div>
-            <p className="mt-3 text-sm text-muted-foreground">{review.content}</p>
-          </div>
-        ))}
+          )
+        })}
         {reviews.length === 0 ? (
           <div className="rounded-xl border border-border/60 bg-background p-4 text-sm text-muted-foreground">
             Chưa có đánh giá cho khóa học này.

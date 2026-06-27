@@ -2,7 +2,6 @@
 
 import { SerializedCourse } from '@/data/models/course.model'
 import { CourseListItemData } from '@/shared/components/ui/course/course-list-item'
-import { formatRelativeTime } from '@/shared/utils/date-time-utils'
 import { stripHtml } from '@/shared/utils/string-utils'
 import { resolveProxyLessonDocumentUrl, resolveProxyVideoUrl } from '@/shared/utils/video-utils'
 import { useEffect, useMemo, useState } from 'react'
@@ -184,28 +183,9 @@ export function useCourseLearningPlayerState({
     ? (allLessons.filter((lesson) => lesson.completed).length / allLessons.length) * 100
     : 0
 
-  const reviews = useMemo(
-    () =>
-      (course.reviews ?? []).map((review, index) => ({
-        id: review.id ?? `review-${index}`,
-        name: review.user?.name?.trim() || 'Học viên',
-        rating: review.rating ?? 0,
-        content: review.content?.trim() || 'Đánh giá đang được cập nhật.',
-        time: formatRelativeTime(review.createdAt),
-      })),
-    [course.reviews]
-  )
+  const reviews = course.reviews ?? []
 
-  const comments = useMemo(
-    () =>
-      (currentLessonDetail?.comments ?? []).map((comment, index) => ({
-        id: comment.id ?? `comment-${index}`,
-        name: comment.user?.name?.trim() || 'Học viên',
-        content: comment.content?.trim() || 'Bình luận đang được cập nhật.',
-        time: formatRelativeTime(comment.createdAt),
-      })),
-    [currentLessonDetail?.comments]
-  )
+  const comments = currentLessonDetail?.comments ?? []
 
   const notes = currentLesson > 0 ? (noteDrafts[currentLesson] ?? '') : ''
 

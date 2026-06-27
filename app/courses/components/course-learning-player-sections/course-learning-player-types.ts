@@ -8,31 +8,6 @@ export type CourseLearningPlayerModule = {
   lessons: CourseListItemData[]
 }
 
-export type CourseLearningPlayerComment = {
-  id: number | string
-  name: string
-  content: string
-  time: string
-}
-
-export type CourseLearningPlayerNote = {
-  id: number | string
-  content: string
-  time: string
-  lessonName: string
-  courseName?: string
-}
-
-export type CourseLearningPlayerReview = {
-  id: number | string
-  name: string
-  rating: number
-  content: string
-  time: string
-}
-
-export type CourseLearningPlayerLessonSummary = CourseListItemData
-
 export type CourseLearningPlayerLessonResource = {
   id: string
   name: string

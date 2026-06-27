@@ -11,7 +11,6 @@ import { useLessonNoteStore } from '@/shared/stores/lesson-note.store'
 import { useCourseLearningProgressStore } from '../stores/course/course-learning-progress.store'
 import { useCourseQuizStore } from '../stores/course/course-quiz.store'
 import { useCourseFeedbackStore } from '../stores/course/course-feedback.store'
-import { formatRelativeTime } from '@/shared/utils/date-time-utils'
 import { useAuthStore } from '@/shared/stores/auth.store'
 import {
   CourseLearningPlayerHeaderSection,
@@ -211,15 +210,7 @@ export function CourseLearningPlayerAuthenticatedView({
     await addToCart(courseId)
   }
 
-  const mappedLessonNotes = lessonNotes.map((note) => ({
-    id: note.id ?? '',
-    content: note.content?.trim() || 'Ghi chú đang được cập nhật.',
-    time: formatRelativeTime(
-      note.createdAt instanceof Date ? note.createdAt.toISOString() : note.createdAt,
-    ),
-    lessonName: note.lesson?.name?.trim() || playerState.currentLessonData?.title || 'Bài học hiện tại',
-    courseName: note.lesson?.course?.name?.trim() || course.name,
-  }))
+  const serializedLessonNotes = lessonNotes.map((note) => note.serialize())
 
   const handleSaveNote = async () => {
     const lessonId = playerState.currentLesson
@@ -388,7 +379,7 @@ export function CourseLearningPlayerAuthenticatedView({
               currentLessonIndex={playerState.currentLessonIndex}
               currentLessonVideoUrl={playerState.currentLessonVideoUrl}
               lessonIds={playerState.lessonIds}
-              lessonNotes={mappedLessonNotes}
+              lessonNotes={serializedLessonNotes}
               lessonNotesStatus={lessonNotesStatus}
               notes={playerState.notes}
               noteActionStatus={noteActionStatus}
@@ -468,7 +459,7 @@ export function CourseLearningPlayerAuthenticatedView({
               currentLessonIndex={playerState.currentLessonIndex}
               currentLessonVideoUrl={playerState.currentLessonVideoUrl}
               lessonIds={playerState.lessonIds}
-              lessonNotes={mappedLessonNotes}
+              lessonNotes={serializedLessonNotes}
               lessonNotesStatus={lessonNotesStatus}
               notes={playerState.notes}
               noteActionStatus={noteActionStatus}
