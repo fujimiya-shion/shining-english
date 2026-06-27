@@ -11,6 +11,7 @@ export const IOC_TOKENS = {
   CONTACT_REPOSITORY: Symbol("CONTACT_REPOSITORY"),
   EVENT_MANAGER: Symbol("EVENT_MANAGER"),
   EVENT_BUS: Symbol("EVENT_BUS"),
+  STAR_REPOSITORY: Symbol("STAR_REPOSITORY"),
 } as const;
 
 export type IoCToken = (typeof IOC_TOKENS)[keyof typeof IOC_TOKENS];

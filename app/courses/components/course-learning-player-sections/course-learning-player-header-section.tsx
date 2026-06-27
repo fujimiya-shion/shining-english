@@ -14,9 +14,13 @@ export function CourseLearningPlayerHeaderSection({
   coursePrice,
   isFreeCourse,
   inCart,
+  allowStarPayment,
+  starPrice,
+  starBalance,
   progressPercentage,
   onAddToCart,
   onBuyNow,
+  onPayWithStars,
   purchaseErrorMessage,
   purchaseMessage,
   isPurchaseActionLoading,
@@ -28,13 +32,22 @@ export function CourseLearningPlayerHeaderSection({
   coursePrice?: number
   isFreeCourse: boolean
   inCart: boolean
+  allowStarPayment?: boolean
+  starPrice?: number
+  starBalance?: number
   progressPercentage: number
   onAddToCart: () => void
   onBuyNow: () => void
+  onPayWithStars?: () => void
   purchaseErrorMessage?: string | null
   purchaseMessage?: string | null
   isPurchaseActionLoading: boolean
 }) {
+  const hasEnoughStars = typeof starBalance === 'number' && typeof starPrice === 'number'
+    ? starBalance >= starPrice
+    : false
+  const showStarOption = allowStarPayment && !canWatchCourse && !pendingAccess
+
   return (
     <div className="rounded-2xl border border-border/60 bg-card/80 p-6">
       <div className="flex flex-wrap items-start justify-between gap-6">
@@ -87,6 +100,11 @@ export function CourseLearningPlayerHeaderSection({
               >
                 {canWatchCourse ? `${Math.round(progressPercentage)}%` : isFreeCourse ? 'Miễn phí' : formatPrice(coursePrice)}
               </p>
+              {showStarOption && !isFreeCourse ? (
+                <p className="mt-1 text-sm text-muted-foreground">
+                  hoặc {starPrice} sao
+                </p>
+              ) : null}
             </div>
             {!canWatchCourse ? (
               <div className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
@@ -153,8 +171,22 @@ export function CourseLearningPlayerHeaderSection({
           ) : pendingAccess ? null : (
             <div className="mt-5 grid gap-3">
               <AppButton className="h-11 w-full rounded-full text-base font-semibold" onClick={onBuyNow}>
-                Mua ngay
+                Mua ngay ({formatPrice(coursePrice)})
               </AppButton>
+              {showStarOption ? (
+                <AppButton
+                  className="h-11 w-full rounded-full text-base font-semibold"
+                  variant="outline"
+                  disabled={!hasEnoughStars || isPurchaseActionLoading}
+                  onClick={onPayWithStars}
+                >
+                  {isPurchaseActionLoading
+                    ? 'Đang xử lý...'
+                    : hasEnoughStars
+                      ? `Mở bằng ${starPrice} sao`
+                      : `Không đủ sao (cần ${starPrice}, có ${starBalance})`}
+                </AppButton>
+              ) : null}
               <Button
                 variant="outline"
                 className="h-11 w-full rounded-full border-primary/25 bg-white/80 text-[color:var(--brand-900)] hover:border-primary/45 hover:bg-primary/5"

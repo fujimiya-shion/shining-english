@@ -37,11 +37,15 @@ export function CourseLearningPlayerAuthenticatedView({
   const enrolled = useCoursePurchaseStore((state) => state.enrolled)
   const pendingAccess = useCoursePurchaseStore((state) => state.pendingAccess)
   const inCart = useCoursePurchaseStore((state) => state.inCart)
+  const allowStarPayment = useCoursePurchaseStore((state) => state.allowStarPayment)
+  const starPrice = useCoursePurchaseStore((state) => state.starPrice)
+  const starBalance = useCoursePurchaseStore((state) => state.starBalance)
   const purchaseMessage = useCoursePurchaseStore((state) => state.message)
   const purchaseErrorMessage = useCoursePurchaseStore((state) => state.errorMessage)
   const syncAccess = useCoursePurchaseStore((state) => state.syncAccess)
   const addToCart = useCoursePurchaseStore((state) => state.addToCart)
   const activateFreeCourse = useCoursePurchaseStore((state) => state.activateFreeCourse)
+  const payWithStars = useCoursePurchaseStore((state) => state.payWithStars)
   const clearPurchaseFeedback = useCoursePurchaseStore((state) => state.clearFeedback)
   const resetPurchaseState = useCoursePurchaseStore((state) => state.reset)
   const lessonNotes = useLessonNoteStore((state) => state.lessonNotes)
@@ -169,6 +173,15 @@ export function CourseLearningPlayerAuthenticatedView({
     })
 
     router.push(`/checkout?${query.toString()}`)
+  }
+
+  const handlePayWithStars = async () => {
+    clearPurchaseFeedback()
+    if (!courseId) {
+      return
+    }
+
+    await payWithStars(courseId)
   }
 
   const handleConfirmActivateFreeCourse = async () => {
@@ -430,11 +443,17 @@ export function CourseLearningPlayerAuthenticatedView({
             coursePrice={course.price}
             isFreeCourse={(course.price ?? 0) <= 0}
             inCart={inCart}
+            allowStarPayment={allowStarPayment}
+            starPrice={starPrice}
+            starBalance={starBalance}
             progressPercentage={playerState.progressPercentage}
             onAddToCart={() => {
               void handleAddToCart()
             }}
             onBuyNow={handleBuyNow}
+            onPayWithStars={() => {
+              void handlePayWithStars()
+            }}
             purchaseErrorMessage={purchaseErrorMessage}
             purchaseMessage={purchaseMessage}
             isPurchaseActionLoading={isPurchaseActionLoading}

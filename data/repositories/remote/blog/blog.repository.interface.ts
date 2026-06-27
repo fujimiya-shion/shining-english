@@ -6,5 +6,4 @@ import { ApiException } from '@/data/types/api-exception'
 export interface IBlogRepository {
   getAll(): Promise<ApiResult<ObjectResponse<BlogListResponseModel>, ApiException>>
   getBySlug(slug: string): Promise<ApiResult<ObjectResponse<BlogDetailResponseModel>, ApiException>>
-  unlock(blogId: number): Promise<ApiResult<ObjectResponse<BlogDetailResponseModel>, ApiException>>
 }

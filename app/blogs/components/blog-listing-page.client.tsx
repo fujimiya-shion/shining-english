@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo } from 'react'
 import Link from 'next/link'
-import { BookOpenText, Search, Sparkles } from 'lucide-react'
+import { BookOpenText, Search } from 'lucide-react'
 import { toast, Toaster } from 'react-hot-toast'
 import { BlogCardItem } from '@/shared/components/ui/blog/blog-card-item'
 import { AppButton } from '@/shared/components/ui/app-button'
@@ -17,7 +17,6 @@ export function BlogListingPageClient() {
   const blogs = useBlogListStore((state) => state.blogs)
   const topics = useBlogListStore((state) => state.topics)
   const query = useBlogListStore((state) => state.query)
-  const starBalance = useBlogListStore((state) => state.starBalance)
   const errorMessage = useBlogListStore((state) => state.errorMessage)
   const initial = useBlogListStore((state) => state.initial)
   const setQuery = useBlogListStore((state) => state.setQuery)
@@ -61,20 +60,16 @@ export function BlogListingPageClient() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">Miễn phí & mở bằng sao</p>
+            <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground">Miễn phí</p>
             <h1 className="mt-3 text-4xl font-semibold text-[color:var(--brand-900)]">
               Blog học tiếng Anh dễ áp dụng
             </h1>
             <p className="mt-2 max-w-2xl text-muted-foreground">
-              Bài viết miễn phí để đọc ngay, và các bài chuyên sâu có thể mở bằng sao của bạn.
+              Tất cả bài viết đều miễn phí để đọc. Chọn chủ đề bạn quan tâm và bắt đầu học ngay.
             </p>
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-white/90 px-4 py-2 text-sm font-semibold text-[color:var(--brand-900)] shadow-sm">
-              <Sparkles className="h-4 w-4 text-primary" />
-              {typeof starBalance === 'number' ? `${starBalance} sao hiện có` : 'Đăng nhập để xem số sao'}
-            </div>
             <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
               <Input
                 placeholder="Tìm bài viết..."

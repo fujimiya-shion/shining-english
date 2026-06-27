@@ -22,13 +22,4 @@ export class BlogRepository extends BaseRepository implements IBlogRepository {
       map: (raw) => ObjectResponse.fromApiJson(raw, BlogDetailResponseModel),
     })
   }
-
-  async unlock(
-    blogId: number,
-  ): Promise<ApiResult<ObjectResponse<BlogDetailResponseModel>, ApiException>> {
-    return this.post({
-      url: AppEndpoints.blog.unlock(blogId),
-      map: (raw) => ObjectResponse.fromApiJson(raw, BlogDetailResponseModel),
-    })
-  }
 }

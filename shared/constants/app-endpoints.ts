@@ -67,4 +67,9 @@ export const AppEndpoints = {
     byLesson: (lessonId: number) => `/lessons/${lessonId}/notes`,
     detail: (noteId: number) => `/notes/${noteId}`,
   },
+  star: {
+    balance: '/stars/balance',
+    checkIn: '/stars/check-in',
+    payForCourse: (courseId: number) => `/stars/courses/${courseId}/pay`,
+  },
 } as const;

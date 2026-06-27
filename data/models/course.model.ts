@@ -18,6 +18,8 @@ export type SerializedCourse = {
   lessonsCount?: number;
   commentsCount?: number;
   totalDurationMinutes?: number;
+  allowStarPayment?: boolean;
+  starPrice?: number;
   category?: {
     id?: number | string;
     name?: string;
@@ -65,6 +67,12 @@ export class Course extends BaseModel implements Serializable<SerializedCourse> 
   @Expose({ name: "level_id" })
   levelId?: number;
 
+  @Expose({ name: 'allow_star_payment' })
+  allowStarPayment = false;
+
+  @Expose({ name: 'star_price' })
+  starPrice = 0;
+
   description?: string;
   rating?: number;
   learned?: number;
@@ -92,6 +100,8 @@ export class Course extends BaseModel implements Serializable<SerializedCourse> 
       price: this.price,
       thumbnail: this.thumbnail,
       enrolled: this.enrolled,
+      allowStarPayment: this.allowStarPayment,
+      starPrice: this.starPrice,
       lessonsCount: this.lessonsCount,
       commentsCount: this.commentsCount,
       totalDurationMinutes: this.totalDurationMinutes,
