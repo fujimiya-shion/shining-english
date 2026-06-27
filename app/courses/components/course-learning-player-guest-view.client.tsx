@@ -4,6 +4,7 @@ import { useCourseLearningPlayerState } from '@/app/courses/hooks/use-course-lea
 import { SerializedCourse } from '@/data/models/course.model'
 import { AppStatus } from '@/shared/enums/app-status'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { stripHtml } from '@/shared/utils/string-utils'
 import { useState } from 'react'
 import {
   CourseLearningPlayerHeaderSection,
@@ -71,32 +72,31 @@ export function CourseLearningPlayerGuestView({
                 shouldShowVideo={playerState.shouldShowVideo}
               />
             ) : (
-              <CourseLearningPlayerLockedHero
-                title={playerState.courseMeta.title}
-                subtitle={playerState.courseMeta.subtitle}
-                lessonTitle={playerState.currentLessonData?.title}
-                totalLessons={playerState.courseMeta.totalLessons}
-                totalHours={playerState.courseMeta.totalHours}
-                authenticated={authenticated}
-                thumbnail={course.thumbnail}
-              />
+              <>
+                <CourseLearningPlayerLockedHero
+                  title={course.name ?? 'Khóa học tiếng Anh'}
+                  subtitle={course.description ? stripHtml(course.description) : ''}
+                  lessonTitle={playerState.currentLessonData?.title}
+                  totalLessons={course.lessons?.length ?? 0}
+                  totalHours={Number(((course.lessons?.reduce((sum, l) => sum + (l.durationMinutes ?? 0), 0) ?? 0) / 60).toFixed(1))}
+                  authenticated={authenticated}
+                  thumbnail={course.thumbnail}
+                />
+                <CourseLearningPlayerHeaderSection
+                  authenticated={authenticated}
+                  canWatchCourse={false}
+                  pendingAccess={false}
+                  course={course}
+                  inCart={false}
+                  progressPercentage={playerState.progressPercentage}
+                  onAddToCart={() => setLoginPromptOpen(true)}
+                  onBuyNow={() => setLoginPromptOpen(true)}
+                  purchaseErrorMessage={undefined}
+                  purchaseMessage={undefined}
+                  isPurchaseActionLoading={false}
+                />
+              </>
             )}
-
-            <CourseLearningPlayerHeaderSection
-              authenticated={authenticated}
-              canWatchCourse={false}
-              pendingAccess={false}
-              courseMeta={playerState.courseMeta}
-              coursePrice={course.price}
-              isFreeCourse={isFreeCourse}
-              inCart={false}
-              progressPercentage={playerState.progressPercentage}
-              onAddToCart={() => setLoginPromptOpen(true)}
-              onBuyNow={() => setLoginPromptOpen(true)}
-              purchaseErrorMessage={undefined}
-              purchaseMessage={undefined}
-              isPurchaseActionLoading={false}
-            />
 
             <CourseLearningPlayerReviewsSection reviews={playerState.reviews} canWriteReview={false} />
           </>

@@ -5,6 +5,7 @@ import { useCourseLearningPlayerState } from '@/app/courses/hooks/use-course-lea
 import { AppStatus } from '@/shared/enums/app-status'
 import { AppConfirmModal } from '@/shared/components/ui/app-confirm-modal'
 import { useRouter } from 'next/navigation'
+import { stripHtml } from '@/shared/utils/string-utils'
 import { useEffect, useState } from 'react'
 import { useCoursePurchaseStore } from '../stores/course/course-purchase.store'
 import { useLessonNoteStore } from '@/shared/stores/lesson-note.store'
@@ -166,7 +167,7 @@ export function CourseLearningPlayerAuthenticatedView({
     const query = new URLSearchParams({
       mode: 'buy_now',
       courseId: `${courseId}`,
-      title: playerState.courseMeta.title,
+      title: course.name ?? 'Khóa học tiếng Anh',
       price: `${course.price ?? 0}`,
       image: course.thumbnail ?? '',
     })
@@ -416,11 +417,11 @@ export function CourseLearningPlayerAuthenticatedView({
             />
           ) : (
             <CourseLearningPlayerLockedHero
-              title={playerState.courseMeta.title}
-              subtitle={playerState.courseMeta.subtitle}
+              title={course.name ?? 'Khóa học tiếng Anh'}
+              subtitle={course.description ? stripHtml(course.description) : ''}
               lessonTitle={playerState.currentLessonData?.title}
-              totalLessons={playerState.courseMeta.totalLessons}
-              totalHours={playerState.courseMeta.totalHours}
+              totalLessons={course.lessons?.length ?? 0}
+              totalHours={Number(((course.lessons?.reduce((sum, l) => sum + (l.durationMinutes ?? 0), 0) ?? 0) / 60).toFixed(1))}
               authenticated
               thumbnail={course.thumbnail}
             />
@@ -430,12 +431,8 @@ export function CourseLearningPlayerAuthenticatedView({
             authenticated
             canWatchCourse={canWatchCourse}
             pendingAccess={pendingAccess}
-            courseMeta={playerState.courseMeta}
-            coursePrice={course.price}
-            isFreeCourse={(course.price ?? 0) <= 0}
+            course={course}
             inCart={inCart}
-            allowStarPayment={allowStarPayment}
-            starPrice={starPrice}
             starBalance={starBalance}
             progressPercentage={playerState.progressPercentage}
             onAddToCart={() => {

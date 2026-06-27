@@ -6,12 +6,6 @@ import { stripHtml } from '@/shared/utils/string-utils'
 import { resolveProxyLessonDocumentUrl, resolveProxyVideoUrl } from '@/shared/utils/video-utils'
 import { useEffect, useMemo, useState } from 'react'
 
-type CourseLearningPlayerModule = {
-  id: number
-  title: string
-  lessons: CourseListItemData[]
-}
-
 function resolveLessonVideoUrl(lessonId?: number | string, value?: string): string {
   return resolveProxyVideoUrl('lessons', lessonId, value)
 }
@@ -73,8 +67,6 @@ export function useCourseLearningPlayerState({
   const [completedLessonIds, setCompletedLessonIds] = useState<number[]>(progressCompletedLessonIds ?? [])
   const [unavailableVideoIds, setUnavailableVideoIds] = useState<number[]>([])
   const [noteDrafts, setNoteDrafts] = useState<Record<number, string>>({})
-  const normalizedDescription = course.description ? stripHtml(course.description) : ''
-
   const lessonMap = useMemo(() => {
     const map = new Map<number, (typeof lessonSources)[number]>()
     for (const lesson of lessonSources) {
@@ -129,7 +121,7 @@ export function useCourseLearningPlayerState({
     return unlocked
   }, [enrolled, lessonSources])
 
-  const modules = useMemo<CourseLearningPlayerModule[]>(() => {
+  const modules = useMemo(() => {
     const grouped = new Map<string, CourseListItemData[]>()
 
     for (const lesson of lessonSources) {
@@ -165,19 +157,6 @@ export function useCourseLearningPlayerState({
   const shouldShowVideo = isLessonUnlocked.has(currentLesson) && Boolean(
     currentLessonVideoUrl && !unavailableVideoIds.includes(currentLesson)
   )
-
-  const totalDurationMinutes = lessonSources.reduce((total, lesson) => total + (lesson.duration ?? 0), 0)
-
-  const courseMeta = {
-    title: course.name ?? 'Khóa học tiếng Anh',
-    subtitle: normalizedDescription || 'Lộ trình ngắn gọn, dễ hiểu, phù hợp tự học',
-    instructor: 'Shining English',
-    level: course.level?.name ?? 'Tiếng Anh tổng quát',
-    rating: course.rating ?? 0,
-    reviewCount: course.reviews?.length ?? 0,
-    totalLessons: lessonSources.length,
-    totalHours: Number((totalDurationMinutes / 60).toFixed(1)),
-  }
 
   const progressPercentage = allLessons.length
     ? (allLessons.filter((lesson) => lesson.completed).length / allLessons.length) * 100
@@ -228,7 +207,6 @@ export function useCourseLearningPlayerState({
 
   return {
     comments,
-    courseMeta,
     currentLesson,
     currentLessonData,
     currentLessonDetail,

@@ -3,9 +3,6 @@
 import { SerializedLessonComment } from '@/data/models/lesson-comment.model'
 import { SerializedLessonNote } from '@/data/models/lesson-note.model'
 import { CourseListItemData } from '@/shared/components/ui/course/course-list-item'
-import {
-  CourseLearningPlayerLessonDetail,
-} from '@/app/courses/components/course-learning-player-sections/course-learning-player-types'
 import { AppButton } from '@/shared/components/ui/app-button'
 import { AppUtils } from '@/shared/utils/app-utils'
 import { formatRelativeTime } from '@/shared/utils/date-time-utils'
@@ -50,7 +47,10 @@ export function CourseLearningPlayerLessonSection({
   comments: SerializedLessonComment[]
   currentLesson: number
   currentLessonData?: CourseListItemData
-  currentLessonDetail?: CourseLearningPlayerLessonDetail
+  currentLessonDetail?: {
+    description?: string
+    resources: { id: string; name: string; url: string }[]
+  }
   currentLessonIndex: number
   currentLessonVideoUrl: string
   lessonIds: number[]

@@ -1,7 +1,6 @@
 'use client'
 
-import { CourseLearningPlayerModule } from '@/app/courses/components/course-learning-player-sections/course-learning-player-types'
-import { CourseListItem } from '@/shared/components/ui/course/course-list-item'
+import { CourseListItem, CourseListItemData } from '@/shared/components/ui/course/course-list-item'
 
 export function CourseLearningPlayerSidebar({
   canWatchCourse,
@@ -12,7 +11,7 @@ export function CourseLearningPlayerSidebar({
 }: {
   canWatchCourse: boolean
   currentLesson: number
-  modules: CourseLearningPlayerModule[]
+  modules: { id: number; title: string; lessons: CourseListItemData[] }[]
   onSelectLesson: (lessonId: number) => void
   progressPercentage: number
 }) {
