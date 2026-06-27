@@ -12,7 +12,7 @@ type Category = { id?: number; name?: string }
 type Level = { value?: number; label?: string; count?: number }
 type DurationOption = { minHours?: number | null; maxHours?: number | null; label?: string; count?: number }
 
-export function CoursesPageFiltersSidebar({
+export function CourseFiltersSidebar({
   categories,
   levels,
   durationOptions,

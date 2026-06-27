@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { useCoursesFreePage } from '@/app/courses/free/hooks/use-courses-free-page'
+import { CourseFiltersSidebar } from '@/shared/components/ui/course/course-filters-sidebar'
 import {
-  CoursesPageFiltersSidebar,
   CoursesPageGrid,
   CoursesPagePagination,
   CoursesPageResultsToolbar,
@@ -96,7 +96,7 @@ export function CoursesFreePageClient() {
         </div>
 
         <div className="mt-10 grid gap-8 lg:grid-cols-[280px_1fr]">
-          <CoursesPageFiltersSidebar
+          <CourseFiltersSidebar
             categories={categories}
             levels={levels}
             durationOptions={durationOptions}
@@ -198,7 +198,7 @@ export function CoursesFreePageClient() {
               <span className="sr-only">Đóng bộ lọc</span>
             </AppButton>
           </div>
-          <CoursesPageFiltersSidebar
+          <CourseFiltersSidebar
             mode="mobile"
             categories={categories}
             levels={levels}
