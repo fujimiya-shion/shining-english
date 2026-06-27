@@ -1,27 +1,26 @@
 'use client'
 
-import Link from 'next/link'
 import { AppButton } from '@/shared/components/ui/app-button'
 import { AppStatus } from '@/shared/enums/app-status'
 import { useAuthStore } from '@/shared/stores/auth.store'
 import { useCartStore } from '@/shared/stores/cart.store'
 import { useStarStore } from '@/shared/stores/star.store'
-import { useEffect } from 'react'
 import {
   BookOpen,
   CircleUserRound,
   Home,
   Info,
-  Map,
-  NotebookPen,
+  LogIn,
+  LucideCircleDollarSign,
+  Menu,
+  Newspaper,
   Phone,
   ShoppingBag,
   Sparkles,
-  Users2,
-  LogIn,
-  Menu,
-  X,
+  X
 } from 'lucide-react'
+import Link from 'next/link'
+import { useEffect } from 'react'
 
 type NavItem = {
   label: string
@@ -34,7 +33,8 @@ const navItems: NavItem[] = [
   { label: 'Trang chủ', icon: Home, href: '/' },
   { label: 'Giới thiệu', icon: Info, href: '/about', showFrom: 'lg' },
   { label: 'Khóa học', icon: BookOpen, href: '/courses' },
-  { label: 'Miễn phí', icon: NotebookPen, href: '/blogs' },
+  { label: 'Miễn phí', icon: LucideCircleDollarSign, href: '/courses' },
+  { label: 'Blog', icon: Newspaper, href: '/blogs' },
   { label: 'Liên hệ', icon: Phone, href: '/contact', showFrom: 'lg' },
 ]
 
