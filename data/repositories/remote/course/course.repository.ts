@@ -108,6 +108,16 @@ export class CourseRepository extends BaseRepository implements ICourseRepositor
     });
   }
 
+  async getFree(
+    page?: number,
+  ): Promise<ApiResult<PaginationResponse<Course>, ApiException>> {
+    return this.get({
+      url: AppEndpoints.course.free,
+      query: page ? { page } : undefined,
+      map: (raw) => PaginationResponse.fromJson(raw, Course),
+    });
+  }
+
   async filter(
     request?: CourseFilterRequest,
   ): Promise<ApiResult<PaginationResponse<Course>, ApiException>> {

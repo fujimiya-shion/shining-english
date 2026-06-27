@@ -35,6 +35,8 @@ export interface ICourseRepository {
       submittedAt?: string;
     },
   ): Promise<ApiResult<ObjectResponse<QuizAttempt>, ApiException>>;
+  getFree(page?: number): Promise<ApiResult<PaginationResponse<Course>, ApiException>>;
+
   filter(
     request?: CourseFilterRequest,
   ): Promise<ApiResult<PaginationResponse<Course>, ApiException>>;
