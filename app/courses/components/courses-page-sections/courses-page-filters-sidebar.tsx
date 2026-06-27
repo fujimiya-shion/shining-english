@@ -38,6 +38,7 @@ export function CoursesPageFiltersSidebar({
   applyPriceFilters,
   setPriceMinFromSlider,
   setPriceMaxFromSlider,
+  showPriceFilter = true,
   mode = 'desktop',
   onClose,
 }: {
@@ -47,25 +48,26 @@ export function CoursesPageFiltersSidebar({
   filterPriceMin?: number | null
   filterPriceMax?: number | null
   hasAnyFilters: boolean
-  priceMaxInput: string
-  priceMinInput: string
+  priceMaxInput?: string
+  priceMinInput?: string
   resetFilters: () => Promise<void>
   selectedCategoryId?: number
   selectedDurationKeys: string[]
   selectedFilters: string[]
   selectedLevelIds: number[]
-  sliderLeftPercent: number
-  sliderMaxValue: number
-  sliderMinValue: number
-  sliderWidthPercent: number
+  sliderLeftPercent?: number
+  sliderMaxValue?: number
+  sliderMinValue?: number
+  sliderWidthPercent?: number
   toggleCategory: (categoryId?: number) => Promise<void>
   toggleDuration: (minHours?: number | null, maxHours?: number | null) => Promise<void>
   toggleLevel: (levelValue?: number) => Promise<void>
-  updatePriceMaxInput: (value: string) => void
-  updatePriceMinInput: (value: string) => void
-  applyPriceFilters: () => Promise<void>
-  setPriceMinFromSlider: (value: number) => void
-  setPriceMaxFromSlider: (value: number) => void
+  updatePriceMaxInput?: (value: string) => void
+  updatePriceMinInput?: (value: string) => void
+  applyPriceFilters?: () => Promise<void>
+  setPriceMinFromSlider?: (value: number) => void
+  setPriceMaxFromSlider?: (value: number) => void
+  showPriceFilter?: boolean
   mode?: 'desktop' | 'mobile'
   onClose?: () => void
 }) {
@@ -180,60 +182,62 @@ export function CoursesPageFiltersSidebar({
               </div>
             </div>
 
-            <div className="rounded-2xl border border-border/70 bg-white p-4">
-              <p className="text-sm font-semibold">Mức giá</p>
-              <div className="mt-3 grid grid-cols-2 gap-3">
-                <Input
-                  placeholder={formatPricePlaceholder(filterPriceMin, 'Từ giá thấp')}
-                  value={priceMinInput}
-                  onChange={(event) => updatePriceMinInput(event.target.value)}
-                  onBlur={() => void applyPriceFilters()}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter') {
-                      void applyPriceFilters()
-                    }
-                  }}
-                  className="h-9 text-xs"
-                />
-                <Input
-                  placeholder={formatPricePlaceholder(filterPriceMax, 'Đến giá cao')}
-                  value={priceMaxInput}
-                  onChange={(event) => updatePriceMaxInput(event.target.value)}
-                  onBlur={() => void applyPriceFilters()}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter') {
-                      void applyPriceFilters()
-                    }
-                  }}
-                  className="h-9 text-xs"
-                />
+            {showPriceFilter ? (
+              <div className="rounded-2xl border border-border/70 bg-white p-4">
+                <p className="text-sm font-semibold">Mức giá</p>
+                <div className="mt-3 grid grid-cols-2 gap-3">
+                  <Input
+                    placeholder={formatPricePlaceholder(filterPriceMin, 'Từ giá thấp')}
+                    value={priceMinInput ?? ''}
+                    onChange={(event) => updatePriceMinInput?.(event.target.value)}
+                    onBlur={() => void applyPriceFilters?.()}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter') {
+                        void applyPriceFilters?.()
+                      }
+                    }}
+                    className="h-9 text-xs"
+                  />
+                  <Input
+                    placeholder={formatPricePlaceholder(filterPriceMax, 'Đến giá cao')}
+                    value={priceMaxInput ?? ''}
+                    onChange={(event) => updatePriceMaxInput?.(event.target.value)}
+                    onBlur={() => void applyPriceFilters?.()}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter') {
+                        void applyPriceFilters?.()
+                      }
+                    }}
+                    className="h-9 text-xs"
+                  />
+                </div>
+                <div className="relative mt-3 h-6">
+                  <SliderPrimitive.Root
+                    min={filterPriceMin ?? 0}
+                    max={filterPriceMax ?? 0}
+                    step={25000}
+                    value={[sliderMinValue ?? 0, sliderMaxValue ?? 0]}
+                    onValueChange={(value) => {
+                      const [nextMin, nextMax] = value
+                      if (typeof nextMin === 'number') {
+                        setPriceMinFromSlider?.(nextMin)
+                      }
+                      if (typeof nextMax === 'number') {
+                        setPriceMaxFromSlider?.(nextMax)
+                      }
+                    }}
+                    onValueCommit={() => void applyPriceFilters?.()}
+                    className="relative flex h-6 w-full touch-none select-none items-center"
+                  >
+                    <SliderPrimitive.Track className="relative h-1.5 w-full grow overflow-hidden rounded-full bg-muted">
+                      <SliderPrimitive.Range className="absolute h-full bg-primary/70" />
+                    </SliderPrimitive.Track>
+                    <SliderPrimitive.Thumb className="block h-4 w-4 rounded-full border border-primary/70 bg-white shadow-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:pointer-events-none disabled:opacity-50" />
+                    <SliderPrimitive.Thumb className="block h-4 w-4 rounded-full border border-primary/70 bg-white shadow-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:pointer-events-none disabled:opacity-50" />
+                  </SliderPrimitive.Root>
+                </div>
               </div>
-              <div className="relative mt-3 h-6">
-                <SliderPrimitive.Root
-                  min={filterPriceMin ?? 0}
-                  max={filterPriceMax ?? 0}
-                  step={25000}
-                  value={[sliderMinValue, sliderMaxValue]}
-                  onValueChange={(value) => {
-                    const [nextMin, nextMax] = value
-                    if (typeof nextMin === 'number') {
-                      setPriceMinFromSlider(nextMin)
-                    }
-                    if (typeof nextMax === 'number') {
-                      setPriceMaxFromSlider(nextMax)
-                    }
-                  }}
-                  onValueCommit={() => void applyPriceFilters()}
-                  className="relative flex h-6 w-full touch-none select-none items-center"
-                >
-                  <SliderPrimitive.Track className="relative h-1.5 w-full grow overflow-hidden rounded-full bg-muted">
-                    <SliderPrimitive.Range className="absolute h-full bg-primary/70" />
-                  </SliderPrimitive.Track>
-                  <SliderPrimitive.Thumb className="block h-4 w-4 rounded-full border border-primary/70 bg-white shadow-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:pointer-events-none disabled:opacity-50" />
-                  <SliderPrimitive.Thumb className="block h-4 w-4 rounded-full border border-primary/70 bg-white shadow-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 disabled:pointer-events-none disabled:opacity-50" />
-                </SliderPrimitive.Root>
-              </div>
-            </div>
+            ) : null}
           </CardContent>
         </Card>
       </div>

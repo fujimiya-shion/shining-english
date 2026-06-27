@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from 'react'
 import { useCoursesFreePage } from '@/app/courses/free/hooks/use-courses-free-page'
-import { CoursesFreeFiltersSidebar } from '@/app/courses/free/components/courses-free-filters-sidebar'
-import { CoursesPageGrid } from '@/app/courses/components/courses-page-sections'
-import { CoursesPagePagination } from '@/app/courses/components/courses-page-sections'
-import { CoursesPageResultsToolbar } from '@/app/courses/components/courses-page-sections'
-import { CoursesPageMobileCategories } from '@/app/courses/components/courses-page-sections'
+import {
+  CoursesPageFiltersSidebar,
+  CoursesPageGrid,
+  CoursesPagePagination,
+  CoursesPageResultsToolbar,
+  CoursesPageMobileCategories,
+} from '@/app/courses/components/courses-page-sections'
 import { Toaster } from 'react-hot-toast'
 import { AppButton } from '@/shared/components/ui/app-button'
 import { AppStatus } from '@/shared/enums/app-status'
@@ -94,7 +96,7 @@ export function CoursesFreePageClient() {
         </div>
 
         <div className="mt-10 grid gap-8 lg:grid-cols-[280px_1fr]">
-          <CoursesFreeFiltersSidebar
+          <CoursesPageFiltersSidebar
             categories={categories}
             levels={levels}
             durationOptions={durationOptions}
@@ -107,6 +109,7 @@ export function CoursesFreePageClient() {
             toggleCategory={toggleCategory}
             toggleDuration={toggleDuration}
             toggleLevel={toggleLevel}
+            showPriceFilter={false}
           />
 
           <section className="space-y-6">
@@ -195,7 +198,7 @@ export function CoursesFreePageClient() {
               <span className="sr-only">Đóng bộ lọc</span>
             </AppButton>
           </div>
-          <CoursesFreeFiltersSidebar
+          <CoursesPageFiltersSidebar
             mode="mobile"
             categories={categories}
             levels={levels}
@@ -209,6 +212,7 @@ export function CoursesFreePageClient() {
             toggleCategory={toggleCategory}
             toggleDuration={toggleDuration}
             toggleLevel={toggleLevel}
+            showPriceFilter={false}
           />
         </div>
       </div>
