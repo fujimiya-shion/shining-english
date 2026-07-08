@@ -94,7 +94,7 @@ function PaymentReturnPageContent({ outcome }: { outcome: 'success' | 'fail' }) 
           <Card className="border-border/70 bg-white/95 text-center shadow-[0_24px_70px_-50px_rgba(15,43,82,0.35)]">
             <CardHeader className="space-y-2">
               <CardTitle className="text-3xl">Không tìm thấy mã đơn hàng</CardTitle>
-              <CardDescription>Return URL không có `orderCode`, nên frontend chưa thể đối chiếu trạng thái giao dịch.</CardDescription>
+              <CardDescription>Không thể xác nhận trạng thái thanh toán vì thiếu thông tin đơn hàng.</CardDescription>
             </CardHeader>
             <CardContent className="flex justify-center gap-3">
               <Button asChild variant="outline" className="h-11 rounded-full bg-transparent">

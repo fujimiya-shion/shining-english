@@ -95,7 +95,7 @@ function ProfilePageContent({
                     {displayName}
                   </h1>
                   <p className="mt-3 text-sm text-white/70">
-                    Đây là thông tin tài khoản hiện được đồng bộ từ backend qua proxy.
+                    Thông tin tài khoản được đồng bộ từ dữ liệu đăng nhập.
                   </p>
                 </div>
                 <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-white/10 bg-white/10 text-xl font-semibold">
