@@ -20,6 +20,7 @@ import {
   X
 } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useEffect } from 'react'
 
 type NavItem = {
@@ -96,11 +97,15 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background">
       <div className="mx-auto grid max-w-7xl grid-cols-[auto_1fr_auto] items-center px-4 py-3 sm:px-6 lg:px-8">
-        <Link
-          href="/"
-          className="font-bold text-xl bg-linear-to-r from-(--brand-900) via-(--brand-800) via-60% to-primary bg-clip-text text-transparent"
-        >
-          Shining English
+        <Link href="/" className="flex items-center">
+          <Image
+            src="/images/header_logo.svg"
+            alt="Shining English"
+            width={120}
+            height={64}
+            className="h-16 w-auto"
+            priority
+          />
         </Link>
         <div className="flex items-center justify-center gap-3 lg:gap-6">
           <div className="hidden items-center gap-3 md:flex lg:gap-4">

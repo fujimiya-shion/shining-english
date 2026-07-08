@@ -3,21 +3,26 @@
 import { CheckoutOrderResponse } from '@/data/models/order-checkout-response.model'
 import { Order } from '@/data/models/order.model'
 import { IOrderRepository } from '@/data/repositories/remote/order/order.repository.interface'
+import { IStarRepository } from '@/data/repositories/remote/star/star.repository.interface'
 import { AppStatus } from '@/shared/enums/app-status'
 import { resolveClient } from '@/shared/ioc/client-container'
 import { IOC_TOKENS } from '@/shared/ioc/tokens'
 import { useCartStore } from '@/shared/stores/cart.store'
+import { useStarStore } from '@/shared/stores/star.store'
 import { resolveApiErrorMessage } from '@/shared/utils/api-error-message'
 import { create } from 'zustand'
 
 export type CheckoutMode = 'cart' | 'buy_now'
-export type CheckoutPaymentMethod = 'payos' | 'cod'
+export type CheckoutPaymentMethod = 'payos' | 'cod' | 'star'
 
 export type CheckoutBuyNowCourse = {
   id: number
   title: string
   price: number
   image?: string
+  slug?: string
+  allowStarPayment?: boolean
+  starPrice?: number
 }
 
 export interface CheckoutStoreProps {
@@ -71,6 +76,10 @@ function resolveOrderRepository(): IOrderRepository {
   return resolveClient<IOrderRepository>(IOC_TOKENS.ORDER_REPOSITORY)
 }
 
+function resolveStarRepository(): IStarRepository {
+  return resolveClient<IStarRepository>(IOC_TOKENS.STAR_REPOSITORY)
+}
+
 export const useCheckoutStore = create<CheckoutStoreState>((set, get) => ({
   ...initState,
 
@@ -102,14 +111,38 @@ export const useCheckoutStore = create<CheckoutStoreState>((set, get) => ({
       errorMessage: null,
     })
 
+    if (state.paymentMethod === 'star' && state.mode === 'buy_now' && state.buyNowCourse) {
+      const result = await resolveStarRepository().payForCourse(state.buyNowCourse.id)
+
+      if (!result.response) {
+        set({
+          actionStatus: AppStatus.error,
+          errorMessage: resolveApiErrorMessage(result.exception),
+        })
+        return false
+      }
+
+      useStarStore.getState().syncBalance(result.response.data.star_balance)
+
+      set({
+        actionStatus: AppStatus.success,
+        paymentRedirectUrl: null,
+        errorMessage: null,
+      })
+
+      void useCartStore.getState().fetchCount()
+      return true
+    }
+
+    const pm = state.paymentMethod as 'payos' | 'cod'
     const result =
       state.mode === 'buy_now' && state.buyNowCourse
-        ? await resolveOrderRepository().createBuyNow(state.buyNowCourse.id, 1, state.paymentMethod, {
+        ? await resolveOrderRepository().createBuyNow(state.buyNowCourse.id, 1, pm, {
             buyerName: state.fullName.trim(),
             buyerEmail: state.email.trim(),
             buyerPhone: state.phone.trim(),
           })
-        : await resolveOrderRepository().createFromCart(state.paymentMethod, {
+        : await resolveOrderRepository().createFromCart(pm, {
             buyerName: state.fullName.trim(),
             buyerEmail: state.email.trim(),
             buyerPhone: state.phone.trim(),

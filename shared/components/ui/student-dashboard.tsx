@@ -195,7 +195,7 @@ export function StudentDashboard() {
 
               <TabsContent value="certificates" className="space-y-4">
                 <Card className="border-border/60 bg-white p-4 text-sm text-muted-foreground">
-                  Chứng nhận sẽ được hiển thị khi backend cung cấp dữ liệu này.
+                  Chứng nhận sẽ được hiển thị tại đây sau khi hoàn thành khóa học.
                 </Card>
               </TabsContent>
             </Tabs>

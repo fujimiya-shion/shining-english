@@ -1,7 +1,7 @@
 'use client'
 
 import { Suspense, useEffect, useMemo } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { AppStatus } from '@/shared/enums/app-status'
 import { useAuthStore } from '@/shared/stores/auth.store'
 import { useCartStore } from '@/shared/stores/cart.store'
@@ -29,10 +29,14 @@ function parseBuyNowCourse(searchParams: URLSearchParams) {
     title,
     price: Number(searchParams.get('price') ?? 0),
     image: searchParams.get('image') ?? '',
+    slug: searchParams.get('slug') ?? '',
+    allowStarPayment: searchParams.get('allowStarPayment') === 'true',
+    starPrice: Number(searchParams.get('starPrice') ?? 0),
   }
 }
 
 function CheckoutPageContent() {
+  const router = useRouter()
   const searchParams = useSearchParams()
   const authStatus = useAuthStore((state) => state.status)
   const authenticated = useAuthStore((state) => state.authenticated)
@@ -99,6 +103,15 @@ function CheckoutPageContent() {
     window.location.assign(paymentRedirectUrl)
     clearPaymentRedirect()
   }, [clearPaymentRedirect, paymentRedirectUrl])
+
+  const starPaymentSuccess = actionStatus === AppStatus.success && paymentMethod === 'star'
+  useEffect(() => {
+    if (!starPaymentSuccess || !buyNowCourse?.slug) {
+      return
+    }
+
+    router.push(`/courses/${buyNowCourse.slug}`)
+  }, [buyNowCourse?.slug, router, starPaymentSuccess])
 
   const displayItems = useMemo<CheckoutDisplayItem[]>(() => {
     if (order?.items?.length) {
@@ -172,6 +185,16 @@ function CheckoutPageContent() {
     )
   }
 
+  if (actionStatus === AppStatus.success && paymentMethod === 'star') {
+    return (
+      <main className="min-h-full bg-[radial-gradient(1200px_circle_at_top_left,var(--sky-90)_0%,var(--sky-50)_52%,var(--white)_100%)] py-10">
+        <div className="mx-auto max-w-7xl px-4 text-center text-muted-foreground sm:px-6 lg:px-8">
+          Mở khóa thành công! Đang chuyển hướng tới khóa học...
+        </div>
+      </main>
+    )
+  }
+
   if (order && (paymentMethod === 'cod' || order.status === 'paid')) {
     return (
       <main className="min-h-full bg-[radial-gradient(1200px_circle_at_top_left,var(--sky-90)_0%,var(--sky-50)_52%,var(--white)_100%)] py-10">
@@ -208,6 +231,7 @@ function CheckoutPageContent() {
             email={email}
             errorMessage={errorMessage}
             fullName={fullName}
+            mode={mode}
             onEmailChange={setEmail}
             onFullNameChange={setFullName}
             onPhoneChange={setPhone}
@@ -217,6 +241,7 @@ function CheckoutPageContent() {
             paymentMethod={paymentMethod}
             phone={phone}
             setPaymentMethod={setPaymentMethod}
+            starPrice={buyNowCourse?.starPrice}
             submitDisabled={submitDisabled}
           />
           <CheckoutSummaryCard items={displayItems} mode={mode} />
