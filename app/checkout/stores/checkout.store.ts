@@ -2,6 +2,7 @@
 
 import { CheckoutOrderResponse } from '@/data/models/order-checkout-response.model'
 import { Order } from '@/data/models/order.model'
+import { ICourseRepository } from '@/data/repositories/remote/course/course.repository.interface'
 import { IOrderRepository } from '@/data/repositories/remote/order/order.repository.interface'
 import { IStarRepository } from '@/data/repositories/remote/star/star.repository.interface'
 import { AppStatus } from '@/shared/enums/app-status'
@@ -17,9 +18,9 @@ export type CheckoutPaymentMethod = 'payos' | 'cod' | 'star'
 
 export type CheckoutBuyNowCourse = {
   id: number
-  title: string
-  price: number
-  image?: string
+  title?: string
+  price?: number
+  thumbnail?: string
   slug?: string
   allowStarPayment?: boolean
   starPrice?: number
@@ -52,6 +53,7 @@ export interface CheckoutStoreState extends CheckoutStoreProps {
   setEmail: (value: string) => void
   setPhone: (value: string) => void
   setPaymentMethod: (value: CheckoutPaymentMethod) => void
+  fetchBuyNowCourse: (courseId: number) => Promise<void>
   submitOrder: () => Promise<boolean>
   clearPaymentRedirect: () => void
   reset: () => void
@@ -80,6 +82,10 @@ function resolveStarRepository(): IStarRepository {
   return resolveClient<IStarRepository>(IOC_TOKENS.STAR_REPOSITORY)
 }
 
+function resolveCourseRepository(): ICourseRepository {
+  return resolveClient<ICourseRepository>(IOC_TOKENS.COURSE_REPOSITORY)
+}
+
 export const useCheckoutStore = create<CheckoutStoreState>((set, get) => ({
   ...initState,
 
@@ -102,6 +108,27 @@ export const useCheckoutStore = create<CheckoutStoreState>((set, get) => ({
   setEmail: (value) => set({ email: value }),
   setPhone: (value) => set({ phone: value }),
   setPaymentMethod: (value) => set({ paymentMethod: value }),
+
+  fetchBuyNowCourse: async (courseId) => {
+    const result = await resolveCourseRepository().getById(courseId)
+
+    if (!result.response) {
+      return
+    }
+
+    const course = result.response.data
+    set({
+      buyNowCourse: {
+        id: course.id as number,
+        title: course.name ?? 'Khóa học tiếng Anh',
+        price: course.price ?? 0,
+        thumbnail: course.thumbnail,
+        slug: course.slug,
+        allowStarPayment: course.allowStarPayment,
+        starPrice: course.starPrice,
+      },
+    })
+  },
 
   submitOrder: async () => {
     const state = get()

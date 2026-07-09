@@ -35,6 +35,7 @@ export const AppEndpoints = {
   course: {
     index: "/courses",
     detail: (slug: string) => `/courses/slug/${encodeURIComponent(slug)}`,
+    detailById: (id: number) => `/courses/${id}`,
     access: (courseId: number) => `/courses/${courseId}/access`,
     learningProgress: (courseId: number) => `/courses/${courseId}/learning-progress`,
     completeLesson: (courseId: number, lessonId: number) => `/courses/${courseId}/lessons/${lessonId}/complete`,

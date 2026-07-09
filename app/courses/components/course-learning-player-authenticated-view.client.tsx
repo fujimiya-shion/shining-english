@@ -163,12 +163,7 @@ export function CourseLearningPlayerAuthenticatedView({
     const query = new URLSearchParams({
       mode: 'buy_now',
       courseId: `${courseId}`,
-      title: course.name ?? 'Khóa học tiếng Anh',
-      price: `${course.price ?? 0}`,
-      image: course.thumbnail ?? '',
       slug: course.slug ?? '',
-      allowStarPayment: course.allowStarPayment ? 'true' : '',
-      starPrice: `${course.starPrice ?? 0}`,
     })
 
     router.push(`/checkout?${query.toString()}`)

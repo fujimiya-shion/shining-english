@@ -18,20 +18,14 @@ import {
 
 function parseBuyNowCourse(searchParams: URLSearchParams) {
   const courseId = Number(searchParams.get('courseId') ?? 0)
-  const title = searchParams.get('title')?.trim() ?? ''
 
-  if (!courseId || !title) {
+  if (!courseId) {
     return null
   }
 
   return {
     id: courseId,
-    title,
-    price: Number(searchParams.get('price') ?? 0),
-    image: searchParams.get('image') ?? '',
     slug: searchParams.get('slug') ?? '',
-    allowStarPayment: searchParams.get('allowStarPayment') === 'true',
-    starPrice: Number(searchParams.get('starPrice') ?? 0),
   }
 }
 
@@ -57,6 +51,7 @@ function CheckoutPageContent() {
   const buyNowCourse = useCheckoutStore((state) => state.buyNowCourse)
   const errorMessage = useCheckoutStore((state) => state.errorMessage)
   const initialize = useCheckoutStore((state) => state.initialize)
+  const fetchBuyNowCourse = useCheckoutStore((state) => state.fetchBuyNowCourse)
   const setPaymentMethod = useCheckoutStore((state) => state.setPaymentMethod)
   const setFullName = useCheckoutStore((state) => state.setFullName)
   const setEmail = useCheckoutStore((state) => state.setEmail)
@@ -84,6 +79,14 @@ function CheckoutPageContent() {
       resetCheckout()
     }
   }, [buyNowPayload, currentUser?.email, currentUser?.name, currentUser?.phone, initialize, resetCheckout, searchParams])
+
+  useEffect(() => {
+    if (mode !== 'buy_now' || !buyNowPayload?.id) {
+      return
+    }
+
+    void fetchBuyNowCourse(buyNowPayload.id)
+  }, [fetchBuyNowCourse, mode, buyNowPayload?.id])
 
   useEffect(() => {
     if (!authenticated || mode !== 'cart') {
@@ -128,9 +131,9 @@ function CheckoutPageContent() {
       return [
         {
           id: buyNowCourse.id,
-          title: buyNowCourse.title,
-          image: buyNowCourse.image,
-          price: buyNowCourse.price,
+          title: buyNowCourse.title ?? 'Khóa học tiếng Anh',
+          image: buyNowCourse.thumbnail,
+          price: buyNowCourse.price ?? 0,
           quantity: 1,
         },
       ]
@@ -228,6 +231,7 @@ function CheckoutPageContent() {
         <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
           <CheckoutBillingSection
             actionStatus={actionStatus}
+            allowStarPayment={buyNowCourse?.allowStarPayment}
             email={email}
             errorMessage={errorMessage}
             fullName={fullName}

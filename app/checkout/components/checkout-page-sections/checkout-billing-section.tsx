@@ -9,6 +9,7 @@ import { AppStatus } from '@/shared/enums/app-status'
 
 export function CheckoutBillingSection({
   actionStatus,
+  allowStarPayment,
   email,
   errorMessage,
   fullName,
@@ -24,6 +25,7 @@ export function CheckoutBillingSection({
   submitDisabled,
 }: {
   actionStatus: AppStatus
+  allowStarPayment?: boolean
   email: string
   errorMessage: string | null
   fullName: string
@@ -96,7 +98,7 @@ export function CheckoutBillingSection({
               <p className="mt-0.5 text-sm text-muted-foreground">Xác nhận đơn hàng và thanh toán sau qua ngân hàng.</p>
             </div>
           </button>
-          {isBuyNow ? (
+          {isBuyNow && allowStarPayment && typeof starPrice === 'number' && starPrice > 0 ? (
             <button
               type="button"
               className={`flex items-center gap-3 rounded-2xl border px-4 py-4 text-left transition-colors ${

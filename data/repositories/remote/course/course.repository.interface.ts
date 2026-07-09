@@ -14,6 +14,7 @@ import { LessonComment } from "@/data/models/lesson-comment.model";
 
 export interface ICourseRepository {
   getAll(request?: CommonRequest): Promise<ApiResult<PaginationResponse<Course>, ApiException>>;
+  getById(id: number): Promise<ApiResult<ObjectResponse<Course>, ApiException>>;
   getBySlug(slug: string): Promise<ApiResult<ObjectResponse<Course>, ApiException>>;
   getAccess(courseId: number): Promise<ApiResult<ObjectResponse<CourseAccess>, ApiException>>;
   getLearningProgress(courseId: number): Promise<ApiResult<ObjectResponse<CourseLearningProgress>, ApiException>>;
