@@ -18,4 +18,13 @@ export class CourseAccess {
 
   @Expose({ name: 'can_enroll_free' })
   canEnrollFree = false
+
+  @Expose({ name: 'allow_star_payment' })
+  allowStarPayment = false
+
+  @Expose({ name: 'star_price' })
+  starPrice = 0
+
+  @Expose({ name: 'star_balance' })
+  starBalance = 0
 }

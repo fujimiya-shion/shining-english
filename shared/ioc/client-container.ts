@@ -21,6 +21,10 @@ import { EventManager } from "@/infra/events/event-manager";
 import { EventBus } from "@/infra/events/event-bus";
 import { IContactRepository } from "@/data/repositories/remote/contact/contact.repository.interface";
 import { ContactRepository } from "@/data/repositories/remote/contact/contact.repository";
+import { IHomeRepository } from "@/data/repositories/remote/home/home.repository.interface";
+import { HomeRepository } from "@/data/repositories/remote/home/home.repository";
+import { IStarRepository } from '@/data/repositories/remote/star/star.repository.interface'
+import { StarRepository } from '@/data/repositories/remote/star/star.repository'
 
 let clientContainer: IoCContainer | null = null;
 
@@ -36,6 +40,10 @@ function buildClientContainer(): IoCContainer {
   container.bind<ICityRepository>(
     IOC_TOKENS.CITY_REPOSITORY,
     () => new CityRepository(new ClientSideHttpClient()),
+  );
+  container.bind<IHomeRepository>(
+    IOC_TOKENS.HOME_REPOSITORY,
+    () => new HomeRepository(new ClientSideHttpClient()),
   );
   container.bind<IDashboardRepository>(
     IOC_TOKENS.DASHBOARD_REPOSITORY,
@@ -69,6 +77,11 @@ function buildClientContainer(): IoCContainer {
   container.bind<IContactRepository>(
     IOC_TOKENS.CONTACT_REPOSITORY,
     () => new ContactRepository(new ClientSideHttpClient()),
+  );
+
+  container.bind<IStarRepository>(
+    IOC_TOKENS.STAR_REPOSITORY,
+    () => new StarRepository(new ClientSideHttpClient()),
   );
 
   container.bind<EventManager>(

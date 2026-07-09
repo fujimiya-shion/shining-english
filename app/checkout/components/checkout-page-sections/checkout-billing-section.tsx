@@ -1,5 +1,7 @@
 'use client'
 
+import { CreditCard, Landmark, Star } from 'lucide-react'
+import { useStarStore } from '@/shared/stores/star.store'
 import { AppButton } from '@/shared/components/ui/app-button'
 import { Card } from '@/shared/components/ui/card'
 import { Input } from '@/shared/components/ui/input'
@@ -7,9 +9,11 @@ import { AppStatus } from '@/shared/enums/app-status'
 
 export function CheckoutBillingSection({
   actionStatus,
+  allowStarPayment,
   email,
   errorMessage,
   fullName,
+  mode,
   onEmailChange,
   onFullNameChange,
   onPhoneChange,
@@ -17,21 +21,28 @@ export function CheckoutBillingSection({
   paymentMethod,
   phone,
   setPaymentMethod,
+  starPrice,
   submitDisabled,
 }: {
   actionStatus: AppStatus
+  allowStarPayment?: boolean
   email: string
   errorMessage: string | null
   fullName: string
+  mode: 'cart' | 'buy_now'
   onEmailChange: (value: string) => void
   onFullNameChange: (value: string) => void
   onPhoneChange: (value: string) => void
   onSubmit: () => void
-  paymentMethod: 'payos' | 'cod'
+  paymentMethod: 'payos' | 'cod' | 'star'
   phone: string
-  setPaymentMethod: (value: 'payos' | 'cod') => void
+  setPaymentMethod: (value: 'payos' | 'cod' | 'star') => void
+  starPrice?: number
   submitDisabled: boolean
 }) {
+  const starBalance = useStarStore((state) => state.balance)
+  const isBuyNow = mode === 'buy_now'
+  const hasEnoughStars = typeof starBalance === 'number' && typeof starPrice === 'number' && starBalance >= starPrice
   return (
     <Card className="space-y-6 border-border/70 bg-white/95 p-6">
       <div>
@@ -56,31 +67,63 @@ export function CheckoutBillingSection({
 
       <div className="space-y-3">
         <p className="text-sm font-medium">Phương thức thanh toán</p>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-3">
           <button
             type="button"
-            className={`rounded-2xl border px-4 py-4 text-left transition-colors ${
+            className={`flex items-center gap-3 rounded-2xl border px-4 py-4 text-left transition-colors ${
               paymentMethod === 'payos'
                 ? 'border-primary/50 bg-primary/5 text-[color:var(--brand-900)]'
                 : 'border-border/70 bg-background'
             }`}
             onClick={() => setPaymentMethod('payos')}
           >
-            <p className="font-semibold">PayOS</p>
-            <p className="mt-1 text-sm text-muted-foreground">Thanh toán online theo flow hiện tại của backend.</p>
+            <CreditCard className="h-5 w-5 shrink-0" />
+            <div>
+              <p className="font-semibold">Chuyển khoản / Thẻ tín dụng</p>
+              <p className="mt-0.5 text-sm text-muted-foreground">Thanh toán trực tuyến bằng thẻ tín dụng hoặc chuyển khoản ngân hàng.</p>
+            </div>
           </button>
           <button
             type="button"
-            className={`rounded-2xl border px-4 py-4 text-left transition-colors ${
+            className={`flex items-center gap-3 rounded-2xl border px-4 py-4 text-left transition-colors ${
               paymentMethod === 'cod'
                 ? 'border-primary/50 bg-primary/5 text-[color:var(--brand-900)]'
                 : 'border-border/70 bg-background'
             }`}
             onClick={() => setPaymentMethod('cod')}
           >
-            <p className="font-semibold">COD</p>
-            <p className="mt-1 text-sm text-muted-foreground">Tạo đơn hàng trực tiếp theo API đang có.</p>
+            <Landmark className="h-5 w-5 shrink-0" />
+            <div>
+              <p className="font-semibold">Thanh toán thủ công</p>
+              <p className="mt-0.5 text-sm text-muted-foreground">Xác nhận đơn hàng và thanh toán sau qua ngân hàng.</p>
+            </div>
           </button>
+          {isBuyNow && allowStarPayment && typeof starPrice === 'number' && starPrice > 0 ? (
+            <button
+              type="button"
+              className={`flex items-center gap-3 rounded-2xl border px-4 py-4 text-left transition-colors ${
+                paymentMethod === 'star'
+                  ? 'border-primary/50 bg-primary/5 text-[color:var(--brand-900)]'
+                  : 'border-border/70 bg-background'
+              }`}
+              onClick={() => setPaymentMethod('star')}
+            >
+              <Star className="h-5 w-5 shrink-0" />
+              <div className="min-w-0">
+                <p className="font-semibold">Thanh toán bằng sao</p>
+                {typeof starPrice === 'number' ? (
+                  <p className="mt-0.5 text-sm font-medium text-amber-600">
+                    Cần trả: {starPrice} sao
+                  </p>
+                ) : null}
+                <p className="truncate text-xs text-muted-foreground">
+                  {typeof starBalance === 'number'
+                    ? `Số dư hiện có: ${starBalance} sao`
+                    : 'Đang tải số dư...'}
+                </p>
+              </div>
+            </button>
+          ) : null}
         </div>
       </div>
 
@@ -92,10 +135,14 @@ export function CheckoutBillingSection({
 
       <AppButton
         className="h-11 w-full rounded-full text-base font-semibold"
-        disabled={submitDisabled}
+        disabled={submitDisabled || (paymentMethod === 'star' && !hasEnoughStars)}
         onClick={onSubmit}
       >
-        {actionStatus === AppStatus.loading ? 'Đang tạo đơn hàng...' : 'Xác nhận thanh toán'}
+        {actionStatus === AppStatus.loading
+          ? 'Đang xử lý...'
+          : paymentMethod === 'star'
+            ? 'Mở khóa bằng sao'
+            : 'Xác nhận thanh toán'}
       </AppButton>
     </Card>
   )

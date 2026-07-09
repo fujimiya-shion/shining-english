@@ -5,13 +5,13 @@ import { useCourseLearningPlayerState } from '@/app/courses/hooks/use-course-lea
 import { AppStatus } from '@/shared/enums/app-status'
 import { AppConfirmModal } from '@/shared/components/ui/app-confirm-modal'
 import { useRouter } from 'next/navigation'
+import { stripHtml } from '@/shared/utils/string-utils'
 import { useEffect, useState } from 'react'
 import { useCoursePurchaseStore } from '../stores/course/course-purchase.store'
 import { useLessonNoteStore } from '@/shared/stores/lesson-note.store'
 import { useCourseLearningProgressStore } from '../stores/course/course-learning-progress.store'
 import { useCourseQuizStore } from '../stores/course/course-quiz.store'
 import { useCourseFeedbackStore } from '../stores/course/course-feedback.store'
-import { formatRelativeTime } from '@/shared/utils/date-time-utils'
 import { useAuthStore } from '@/shared/stores/auth.store'
 import {
   CourseLearningPlayerHeaderSection,
@@ -163,9 +163,7 @@ export function CourseLearningPlayerAuthenticatedView({
     const query = new URLSearchParams({
       mode: 'buy_now',
       courseId: `${courseId}`,
-      title: playerState.courseMeta.title,
-      price: `${course.price ?? 0}`,
-      image: course.thumbnail ?? '',
+      slug: course.slug ?? '',
     })
 
     router.push(`/checkout?${query.toString()}`)
@@ -198,15 +196,7 @@ export function CourseLearningPlayerAuthenticatedView({
     await addToCart(courseId)
   }
 
-  const mappedLessonNotes = lessonNotes.map((note) => ({
-    id: note.id ?? '',
-    content: note.content?.trim() || 'Ghi chú đang được cập nhật.',
-    time: formatRelativeTime(
-      note.createdAt instanceof Date ? note.createdAt.toISOString() : note.createdAt,
-    ),
-    lessonName: note.lesson?.name?.trim() || playerState.currentLessonData?.title || 'Bài học hiện tại',
-    courseName: note.lesson?.course?.name?.trim() || course.name,
-  }))
+  const serializedLessonNotes = lessonNotes.map((note) => note.serialize())
 
   const handleSaveNote = async () => {
     const lessonId = playerState.currentLesson
@@ -375,7 +365,7 @@ export function CourseLearningPlayerAuthenticatedView({
               currentLessonIndex={playerState.currentLessonIndex}
               currentLessonVideoUrl={playerState.currentLessonVideoUrl}
               lessonIds={playerState.lessonIds}
-              lessonNotes={mappedLessonNotes}
+              lessonNotes={serializedLessonNotes}
               lessonNotesStatus={lessonNotesStatus}
               notes={playerState.notes}
               noteActionStatus={noteActionStatus}
@@ -412,11 +402,11 @@ export function CourseLearningPlayerAuthenticatedView({
             />
           ) : (
             <CourseLearningPlayerLockedHero
-              title={playerState.courseMeta.title}
-              subtitle={playerState.courseMeta.subtitle}
+              title={course.name ?? 'Khóa học tiếng Anh'}
+              subtitle={course.description ? stripHtml(course.description) : ''}
               lessonTitle={playerState.currentLessonData?.title}
-              totalLessons={playerState.courseMeta.totalLessons}
-              totalHours={playerState.courseMeta.totalHours}
+              totalLessons={course.lessons?.length ?? 0}
+              totalHours={Number(((course.lessons?.reduce((sum, l) => sum + (l.durationMinutes ?? 0), 0) ?? 0) / 60).toFixed(1))}
               authenticated
               thumbnail={course.thumbnail}
             />
@@ -426,9 +416,7 @@ export function CourseLearningPlayerAuthenticatedView({
             authenticated
             canWatchCourse={canWatchCourse}
             pendingAccess={pendingAccess}
-            courseMeta={playerState.courseMeta}
-            coursePrice={course.price}
-            isFreeCourse={(course.price ?? 0) <= 0}
+            course={course}
             inCart={inCart}
             progressPercentage={playerState.progressPercentage}
             onAddToCart={() => {
@@ -449,7 +437,7 @@ export function CourseLearningPlayerAuthenticatedView({
               currentLessonIndex={playerState.currentLessonIndex}
               currentLessonVideoUrl={playerState.currentLessonVideoUrl}
               lessonIds={playerState.lessonIds}
-              lessonNotes={mappedLessonNotes}
+              lessonNotes={serializedLessonNotes}
               lessonNotesStatus={lessonNotesStatus}
               notes={playerState.notes}
               noteActionStatus={noteActionStatus}

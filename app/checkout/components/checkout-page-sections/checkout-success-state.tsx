@@ -20,7 +20,7 @@ export function CheckoutSuccessState({ order }: { order: Order }) {
       </p>
       {isCodPending ? (
         <p className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          Đơn COD của bạn hiện đang chờ thanh toán/xác nhận. Khóa học sẽ chỉ được mở khi đơn hàng chuyển sang trạng thái paid.
+          Đơn hàng của bạn đang chờ xác nhận. Khóa học sẽ được mở sau khi thanh toán được xác nhận.
         </p>
       ) : null}
       <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">

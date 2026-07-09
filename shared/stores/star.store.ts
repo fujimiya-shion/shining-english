@@ -1,6 +1,6 @@
 'use client'
 
-import { IBlogRepository } from '@/data/repositories/remote/blog/blog.repository.interface'
+import { IStarRepository } from '@/data/repositories/remote/star/star.repository.interface'
 import { AppStatus } from '@/shared/enums/app-status'
 import { resolveClient } from '@/shared/ioc/client-container'
 import { IOC_TOKENS } from '@/shared/ioc/tokens'
@@ -26,8 +26,8 @@ const initState: StarStoreProps = {
   errorMessage: null,
 }
 
-function resolveBlogRepository(): IBlogRepository {
-  return resolveClient<IBlogRepository>(IOC_TOKENS.BLOG_REPOSITORY)
+function resolveStarRepository(): IStarRepository {
+  return resolveClient<IStarRepository>(IOC_TOKENS.STAR_REPOSITORY)
 }
 
 export const useStarStore = create<StarStoreState>((set, get) => ({
@@ -51,7 +51,7 @@ export const useStarStore = create<StarStoreState>((set, get) => ({
       errorMessage: null,
     })
 
-    const result = await resolveBlogRepository().getAll()
+    const result = await resolveStarRepository().getBalance()
 
     if (!result.response) {
       set({
@@ -63,10 +63,9 @@ export const useStarStore = create<StarStoreState>((set, get) => ({
 
     set({
       status: AppStatus.done,
-      balance:
-        typeof result.response.data.starBalance === 'number'
-          ? result.response.data.starBalance
-          : null,
+      balance: typeof result.response.data.balance === 'number'
+        ? result.response.data.balance
+        : null,
       errorMessage: null,
     })
     return true

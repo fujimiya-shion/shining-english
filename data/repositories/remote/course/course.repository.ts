@@ -26,6 +26,13 @@ export class CourseRepository extends BaseRepository implements ICourseRepositor
     });
   }
 
+  async getById(id: number): Promise<ApiResult<ObjectResponse<Course>, ApiException>> {
+    return this.get({
+      url: AppEndpoints.course.detailById(id),
+      map: (raw) => ObjectResponse.fromApiJson<Course>(raw, Course),
+    });
+  }
+
   async getBySlug(slug: string): Promise<ApiResult<ObjectResponse<Course>, ApiException>> {
     return this.get({
       url: AppEndpoints.course.detail(slug),
@@ -105,6 +112,16 @@ export class CourseRepository extends BaseRepository implements ICourseRepositor
         submitted_at: payload.submittedAt,
       },
       map: (raw) => ObjectResponse.fromApiJson<QuizAttempt>(raw, QuizAttempt),
+    });
+  }
+
+  async getFree(
+    page?: number,
+  ): Promise<ApiResult<PaginationResponse<Course>, ApiException>> {
+    return this.get({
+      url: AppEndpoints.course.free,
+      query: page ? { page } : undefined,
+      map: (raw) => PaginationResponse.fromJson(raw, Course),
     });
   }
 

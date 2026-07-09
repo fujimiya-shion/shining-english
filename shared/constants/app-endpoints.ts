@@ -20,6 +20,9 @@ export const AppEndpoints = {
   contact: {
     submit: "/contact",
   },
+  home: {
+    index: "/home",
+  },
   dashboard: {
     overview: "/dashboard/overview",
   },
@@ -32,11 +35,13 @@ export const AppEndpoints = {
   course: {
     index: "/courses",
     detail: (slug: string) => `/courses/slug/${encodeURIComponent(slug)}`,
+    detailById: (id: number) => `/courses/${id}`,
     access: (courseId: number) => `/courses/${courseId}/access`,
     learningProgress: (courseId: number) => `/courses/${courseId}/learning-progress`,
     completeLesson: (courseId: number, lessonId: number) => `/courses/${courseId}/lessons/${lessonId}/complete`,
     setCurrentLesson: (courseId: number) => `/courses/${courseId}/current-lesson`,
     reviews: (courseId: number) => `/courses/${courseId}/reviews`,
+    free: "/courses/free",
     filter: "/courses/filter",
     filterProps: "/courses/filter-props",
   },
@@ -56,10 +61,17 @@ export const AppEndpoints = {
   },
   order: {
     index: "/orders",
+    detail: (orderId: number) => `/orders/${orderId}`,
+    cancel: (orderId: number) => `/orders/${orderId}/cancel`,
   },
   lessonNote: {
     index: '/notes',
     byLesson: (lessonId: number) => `/lessons/${lessonId}/notes`,
     detail: (noteId: number) => `/notes/${noteId}`,
+  },
+  star: {
+    balance: '/stars/balance',
+    checkIn: '/stars/check-in',
+    payForCourse: (courseId: number) => `/stars/courses/${courseId}/pay`,
   },
 } as const;

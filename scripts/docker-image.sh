@@ -76,7 +76,7 @@ for arg_name in "${BUILD_ARGS[@]}"; do
   DOCKER_BUILD_ARG_FLAGS+=(--build-arg "${arg_name}=${arg_value}")
 done
 
-docker build "${DOCKER_BUILD_ARG_FLAGS[@]}" -t "${IMAGE_NAME}:${TAG}" -t "${IMAGE_NAME}:latest" .
+docker build --progress=plain "${DOCKER_BUILD_ARG_FLAGS[@]}" -t "${IMAGE_NAME}:${TAG}" -t "${IMAGE_NAME}:latest" .
 
 if [[ "$PUSH" == "true" ]]; then
   echo "Pushing image: ${IMAGE_NAME}:${TAG}"

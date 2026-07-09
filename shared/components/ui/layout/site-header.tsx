@@ -1,27 +1,31 @@
 'use client'
 
-import Link from 'next/link'
 import { AppButton } from '@/shared/components/ui/app-button'
+import { AppConfirmModal } from '@/shared/components/ui/app-confirm-modal'
 import { AppStatus } from '@/shared/enums/app-status'
 import { useAuthStore } from '@/shared/stores/auth.store'
 import { useCartStore } from '@/shared/stores/cart.store'
 import { useStarStore } from '@/shared/stores/star.store'
-import { useEffect } from 'react'
 import {
   BookOpen,
   CircleUserRound,
   Home,
   Info,
-  Map,
-  NotebookPen,
+  LayoutDashboard,
+  LogIn,
+  LogOut,
+  LucideCircleDollarSign,
+  Menu,
+  Newspaper,
   Phone,
   ShoppingBag,
   Sparkles,
-  Users2,
-  LogIn,
-  Menu,
-  X,
+  User,
+  X
 } from 'lucide-react'
+import Link from 'next/link'
+import Image from 'next/image'
+import { useEffect, useRef, useState } from 'react'
 
 type NavItem = {
   label: string
@@ -34,7 +38,8 @@ const navItems: NavItem[] = [
   { label: 'Trang chủ', icon: Home, href: '/' },
   { label: 'Giới thiệu', icon: Info, href: '/about', showFrom: 'lg' },
   { label: 'Khóa học', icon: BookOpen, href: '/courses' },
-  { label: 'Miễn phí', icon: NotebookPen, href: '/blogs' },
+  { label: 'Miễn phí', icon: LucideCircleDollarSign, href: '/courses/free' },
+  { label: 'Blog', icon: Newspaper, href: '/blogs' },
   { label: 'Liên hệ', icon: Phone, href: '/contact', showFrom: 'lg' },
 ]
 
@@ -49,6 +54,7 @@ function CartCountBadge({ count }: { count: number }) {
 export function SiteHeader() {
   const authenticated = useAuthStore((state) => state.authenticated)
   const currentUserName = useAuthStore((state) => state.currentUser?.name ?? null)
+  const logout = useAuthStore((state) => state.logout)
   const cartCount = useCartStore((state) => state.quantityCount)
   const countStatus = useCartStore((state) => state.countStatus)
   const fetchCartCount = useCartStore((state) => state.fetchCount)
@@ -90,17 +96,35 @@ export function SiteHeader() {
   }
 
   const accountLabel = currentUserName?.trim() || 'Tài khoản'
-  const accountHref = '/dashboard'
-  const AccountIcon = authenticated ? CircleUserRound : LogIn
+  const [accountOpen, setAccountOpen] = useState(false)
+  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false)
+  const accountRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!accountOpen) return
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (accountRef.current && !accountRef.current.contains(event.target as Node)) {
+        setAccountOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [accountOpen])
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background">
       <div className="mx-auto grid max-w-7xl grid-cols-[auto_1fr_auto] items-center px-4 py-3 sm:px-6 lg:px-8">
-        <Link
-          href="/"
-          className="font-bold text-xl bg-linear-to-r from-(--brand-900) via-(--brand-800) via-60% to-primary bg-clip-text text-transparent"
-        >
-          Shining English
+        <Link href="/" className="flex items-center">
+          <Image
+            src="/images/header_logo.svg"
+            alt="Shining English"
+            width={120}
+            height={64}
+            className="h-16 w-auto"
+            priority
+          />
         </Link>
         <div className="flex items-center justify-center gap-3 lg:gap-6">
           <div className="hidden items-center gap-3 md:flex lg:gap-4">
@@ -144,15 +168,54 @@ export function SiteHeader() {
         </div>
         <div className="flex items-center justify-end gap-3 lg:gap-6">
           <div className="hidden lg:block">
-            <AppButton asChild size="sm" className="gap-2">
-              <Link
-                href={authenticated ? accountHref : '/login'}
-                className="inline-flex items-center justify-center gap-2"
-              >
-                <AccountIcon className="h-4 w-4" aria-hidden="true" />
-                <span>{authenticated ? accountLabel : 'Đăng Nhập'}</span>
-              </Link>
-            </AppButton>
+            {authenticated ? (
+              <div className="relative" ref={accountRef}>
+                <button
+                  type="button"
+                  className="inline-flex cursor-pointer items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:opacity-90"
+                  onClick={() => setAccountOpen((v) => !v)}
+                >
+                  <CircleUserRound className="h-4 w-4" aria-hidden="true" />
+                  <span>{accountLabel}</span>
+                </button>
+                {accountOpen ? (
+                  <div className="absolute right-0 mt-2 w-48 rounded-2xl border border-border bg-background p-2 shadow-lg">
+                    <Link
+                      href="/dashboard"
+                      className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors hover:bg-primary/5 hover:text-[color:var(--brand-900)]"
+                      onClick={() => setAccountOpen(false)}
+                    >
+                      <LayoutDashboard className="h-4 w-4" />
+                      Dashboard
+                    </Link>
+                    <Link
+                      href="/profile"
+                      className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors hover:bg-primary/5 hover:text-[color:var(--brand-900)]"
+                      onClick={() => setAccountOpen(false)}
+                    >
+                      <User className="h-4 w-4" />
+                      Profile
+                    </Link>
+                    <hr className="my-1 border-border/70" />
+                    <button
+                      type="button"
+                      className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors hover:bg-primary/5 hover:text-[color:var(--brand-900)]"
+                      onClick={() => { setAccountOpen(false); setLogoutConfirmOpen(true) }}
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Đăng xuất
+                    </button>
+                  </div>
+                ) : null}
+              </div>
+            ) : (
+              <AppButton asChild size="sm" className="gap-2">
+                <Link href="/login" className="inline-flex items-center justify-center gap-2">
+                  <LogIn className="h-4 w-4" aria-hidden="true" />
+                  <span>Đăng Nhập</span>
+                </Link>
+              </AppButton>
+            )}
           </div>
 
           {authenticated ? (
@@ -212,16 +275,45 @@ export function SiteHeader() {
                   )
                 )}
                 <div className="mt-3 space-y-3 border-t border-border/70 pt-3">
-                  <AppButton asChild size="sm" className="w-full gap-2">
-                    <Link
-                      href={authenticated ? accountHref : '/login'}
-                      onClick={closeMobileMenu}
-                      className="inline-flex w-full items-center justify-center gap-2"
-                    >
-                      <AccountIcon className="h-4 w-4" aria-hidden="true" />
-                      {authenticated ? accountLabel : 'Đăng Nhập'}
-                    </Link>
-                  </AppButton>
+                  {authenticated ? (
+                    <div className="space-y-1">
+                      <Link
+                        href="/dashboard"
+                        className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors hover:bg-primary/5 hover:text-[color:var(--brand-900)]"
+                        onClick={closeMobileMenu}
+                      >
+                        <LayoutDashboard className="h-4 w-4" />
+                        Dashboard
+                      </Link>
+                      <Link
+                        href="/profile"
+                        className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors hover:bg-primary/5 hover:text-[color:var(--brand-900)]"
+                        onClick={closeMobileMenu}
+                      >
+                        <User className="h-4 w-4" />
+                        Profile
+                      </Link>
+                      <button
+                        type="button"
+                        className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors hover:bg-primary/5 hover:text-[color:var(--brand-900)]"
+                        onClick={() => setLogoutConfirmOpen(true)}
+                      >
+                        <LogOut className="h-4 w-4" />
+                        Đăng xuất
+                      </button>
+                    </div>
+                  ) : (
+                    <AppButton asChild size="sm" className="w-full gap-2">
+                      <Link
+                        href="/login"
+                        onClick={closeMobileMenu}
+                        className="inline-flex w-full items-center justify-center gap-2"
+                      >
+                        <LogIn className="h-4 w-4" aria-hidden="true" />
+                        Đăng Nhập
+                      </Link>
+                    </AppButton>
+                  )}
                   <div className="flex items-center justify-between gap-3">
                     {authenticated ? (
                       <Link
@@ -255,6 +347,18 @@ export function SiteHeader() {
           </details>
         </div>
       </div>
+      <AppConfirmModal
+        open={logoutConfirmOpen}
+        title="Đăng xuất"
+        description="Bạn có chắc chắn muốn đăng xuất khỏi tài khoản hiện tại?"
+        confirmText="Đăng xuất"
+        cancelText="Hủy"
+        onConfirm={() => {
+          setLogoutConfirmOpen(false)
+          void logout()
+        }}
+        onCancal={() => setLogoutConfirmOpen(false)}
+      />
     </header>
   )
 }

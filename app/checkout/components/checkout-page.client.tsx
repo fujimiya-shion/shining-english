@@ -1,7 +1,7 @@
 'use client'
 
 import { Suspense, useEffect, useMemo } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { AppStatus } from '@/shared/enums/app-status'
 import { useAuthStore } from '@/shared/stores/auth.store'
 import { useCartStore } from '@/shared/stores/cart.store'
@@ -18,21 +18,19 @@ import {
 
 function parseBuyNowCourse(searchParams: URLSearchParams) {
   const courseId = Number(searchParams.get('courseId') ?? 0)
-  const title = searchParams.get('title')?.trim() ?? ''
 
-  if (!courseId || !title) {
+  if (!courseId) {
     return null
   }
 
   return {
     id: courseId,
-    title,
-    price: Number(searchParams.get('price') ?? 0),
-    image: searchParams.get('image') ?? '',
+    slug: searchParams.get('slug') ?? '',
   }
 }
 
 function CheckoutPageContent() {
+  const router = useRouter()
   const searchParams = useSearchParams()
   const authStatus = useAuthStore((state) => state.status)
   const authenticated = useAuthStore((state) => state.authenticated)
@@ -49,14 +47,17 @@ function CheckoutPageContent() {
   const email = useCheckoutStore((state) => state.email)
   const phone = useCheckoutStore((state) => state.phone)
   const order = useCheckoutStore((state) => state.order)
+  const paymentRedirectUrl = useCheckoutStore((state) => state.paymentRedirectUrl)
   const buyNowCourse = useCheckoutStore((state) => state.buyNowCourse)
   const errorMessage = useCheckoutStore((state) => state.errorMessage)
   const initialize = useCheckoutStore((state) => state.initialize)
+  const fetchBuyNowCourse = useCheckoutStore((state) => state.fetchBuyNowCourse)
   const setPaymentMethod = useCheckoutStore((state) => state.setPaymentMethod)
   const setFullName = useCheckoutStore((state) => state.setFullName)
   const setEmail = useCheckoutStore((state) => state.setEmail)
   const setPhone = useCheckoutStore((state) => state.setPhone)
   const submitOrder = useCheckoutStore((state) => state.submitOrder)
+  const clearPaymentRedirect = useCheckoutStore((state) => state.clearPaymentRedirect)
   const resetCheckout = useCheckoutStore((state) => state.reset)
 
   const buyNowPayload = useMemo(() => parseBuyNowCourse(searchParams), [searchParams])
@@ -80,6 +81,14 @@ function CheckoutPageContent() {
   }, [buyNowPayload, currentUser?.email, currentUser?.name, currentUser?.phone, initialize, resetCheckout, searchParams])
 
   useEffect(() => {
+    if (mode !== 'buy_now' || !buyNowPayload?.id) {
+      return
+    }
+
+    void fetchBuyNowCourse(buyNowPayload.id)
+  }, [fetchBuyNowCourse, mode, buyNowPayload?.id])
+
+  useEffect(() => {
     if (!authenticated || mode !== 'cart') {
       return
     }
@@ -88,6 +97,24 @@ function CheckoutPageContent() {
       void refreshCart()
     }
   }, [authenticated, cartStatus, mode, refreshCart])
+
+  useEffect(() => {
+    if (!paymentRedirectUrl) {
+      return
+    }
+
+    window.location.assign(paymentRedirectUrl)
+    clearPaymentRedirect()
+  }, [clearPaymentRedirect, paymentRedirectUrl])
+
+  const starPaymentSuccess = actionStatus === AppStatus.success && paymentMethod === 'star'
+  useEffect(() => {
+    if (!starPaymentSuccess || !buyNowCourse?.slug) {
+      return
+    }
+
+    router.push(`/courses/${buyNowCourse.slug}`)
+  }, [buyNowCourse?.slug, router, starPaymentSuccess])
 
   const displayItems = useMemo<CheckoutDisplayItem[]>(() => {
     if (order?.items?.length) {
@@ -104,9 +131,9 @@ function CheckoutPageContent() {
       return [
         {
           id: buyNowCourse.id,
-          title: buyNowCourse.title,
-          image: buyNowCourse.image,
-          price: buyNowCourse.price,
+          title: buyNowCourse.title ?? 'Khóa học tiếng Anh',
+          image: buyNowCourse.thumbnail,
+          price: buyNowCourse.price ?? 0,
           quantity: 1,
         },
       ]
@@ -151,7 +178,27 @@ function CheckoutPageContent() {
     )
   }
 
-  if (order) {
+  if (paymentRedirectUrl) {
+    return (
+      <main className="min-h-full bg-[radial-gradient(1200px_circle_at_top_left,var(--sky-90)_0%,var(--sky-50)_52%,var(--white)_100%)] py-10">
+        <div className="mx-auto max-w-7xl px-4 text-center text-muted-foreground sm:px-6 lg:px-8">
+          Đang chuyển tới cổng thanh toán PayOS...
+        </div>
+      </main>
+    )
+  }
+
+  if (actionStatus === AppStatus.success && paymentMethod === 'star') {
+    return (
+      <main className="min-h-full bg-[radial-gradient(1200px_circle_at_top_left,var(--sky-90)_0%,var(--sky-50)_52%,var(--white)_100%)] py-10">
+        <div className="mx-auto max-w-7xl px-4 text-center text-muted-foreground sm:px-6 lg:px-8">
+          Mở khóa thành công! Đang chuyển hướng tới khóa học...
+        </div>
+      </main>
+    )
+  }
+
+  if (order && (paymentMethod === 'cod' || order.status === 'paid')) {
     return (
       <main className="min-h-full bg-[radial-gradient(1200px_circle_at_top_left,var(--sky-90)_0%,var(--sky-50)_52%,var(--white)_100%)] py-10">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -184,9 +231,11 @@ function CheckoutPageContent() {
         <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
           <CheckoutBillingSection
             actionStatus={actionStatus}
+            allowStarPayment={buyNowCourse?.allowStarPayment}
             email={email}
             errorMessage={errorMessage}
             fullName={fullName}
+            mode={mode}
             onEmailChange={setEmail}
             onFullNameChange={setFullName}
             onPhoneChange={setPhone}
@@ -196,6 +245,7 @@ function CheckoutPageContent() {
             paymentMethod={paymentMethod}
             phone={phone}
             setPaymentMethod={setPaymentMethod}
+            starPrice={buyNowCourse?.starPrice}
             submitDisabled={submitDisabled}
           />
           <CheckoutSummaryCard items={displayItems} mode={mode} />

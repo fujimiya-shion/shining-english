@@ -1,20 +1,27 @@
 import { ObjectResponse } from '@/data/dtos/common/object-response'
+import { CheckoutOrderResponse } from '@/data/models/order-checkout-response.model'
 import { Order } from '@/data/models/order.model'
 import { ApiException } from '@/data/types/api-exception'
 import { ApiResult } from '@/data/types/api-result'
 import { AppEndpoints } from '@/shared/constants/app-endpoints'
 import { BaseRepository } from '../base.repository'
-import { IOrderRepository, OrderPaymentMethod } from './order.repository.interface'
+import { IOrderRepository, OrderCheckoutCustomerPayload, OrderPaymentMethod } from './order.repository.interface'
 
 export class OrderRepository extends BaseRepository implements IOrderRepository {
-  createFromCart(paymentMethod: OrderPaymentMethod = 'payos'): Promise<ApiResult<ObjectResponse<Order>, ApiException>> {
+  createFromCart(
+    paymentMethod: OrderPaymentMethod = 'payos',
+    customer?: OrderCheckoutCustomerPayload,
+  ): Promise<ApiResult<ObjectResponse<CheckoutOrderResponse>, ApiException>> {
     return this.post({
       url: AppEndpoints.order.index,
       body: {
         type: 'cart',
         payment_method: paymentMethod,
+        buyer_name: customer?.buyerName,
+        buyer_email: customer?.buyerEmail,
+        buyer_phone: customer?.buyerPhone,
       },
-      map: (raw) => ObjectResponse.fromApiJson<Order>(raw, Order),
+      map: (raw) => ObjectResponse.fromApiJson<CheckoutOrderResponse>(raw, CheckoutOrderResponse),
     })
   }
 
@@ -22,7 +29,8 @@ export class OrderRepository extends BaseRepository implements IOrderRepository 
     courseId: number,
     quantity = 1,
     paymentMethod: OrderPaymentMethod = 'payos',
-  ): Promise<ApiResult<ObjectResponse<Order>, ApiException>> {
+    customer?: OrderCheckoutCustomerPayload,
+  ): Promise<ApiResult<ObjectResponse<CheckoutOrderResponse>, ApiException>> {
     return this.post({
       url: AppEndpoints.order.index,
       body: {
@@ -30,7 +38,17 @@ export class OrderRepository extends BaseRepository implements IOrderRepository 
         payment_method: paymentMethod,
         course_id: courseId,
         quantity,
+        buyer_name: customer?.buyerName,
+        buyer_email: customer?.buyerEmail,
+        buyer_phone: customer?.buyerPhone,
       },
+      map: (raw) => ObjectResponse.fromApiJson<CheckoutOrderResponse>(raw, CheckoutOrderResponse),
+    })
+  }
+
+  getById(orderId: number): Promise<ApiResult<ObjectResponse<Order>, ApiException>> {
+    return this.get({
+      url: AppEndpoints.order.detail(orderId),
       map: (raw) => ObjectResponse.fromApiJson<Order>(raw, Order),
     })
   }

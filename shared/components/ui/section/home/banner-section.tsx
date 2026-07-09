@@ -1,12 +1,18 @@
 "use client";
 
-import { BannerStarfieldStatic } from "@/shared/components/ui/banner/banner-starfield-static";
-import { AppButton } from "@/shared/components/ui/app-button";
-import { Button } from "@/shared/components/ui/button";
-import { Award, BookOpen, Clock } from "lucide-react";
+import Link from "next/link";
 import Image from "next/image";
+import { HomeBannerSectionModel } from "@/data/models/home.model";
+import { AppButton } from "@/shared/components/ui/app-button";
+import { BannerStarfieldStatic } from "@/shared/components/ui/banner/banner-starfield-static";
+import { Button } from "@/shared/components/ui/button";
+import { resolveHomeIcon } from "@/shared/components/ui/section/home/home-section-icon";
 
-export const BannerSection = () => {
+type BannerSectionProps = {
+    banner: HomeBannerSectionModel;
+}
+
+export const BannerSection = ({ banner }: BannerSectionProps) => {
     return (
         <section className="relative h-112.5 overflow-hidden border-b border-border flex items-end md:items-center">
             <div className="absolute inset-0">
@@ -17,7 +23,7 @@ export const BannerSection = () => {
             </div>
             <div className="pointer-events-none absolute -right-10 -top-6 z-0 sm:hidden">
                 <Image
-                    src="/images/app_logo.svg"
+                    src={banner.bannerLogo || "/images/app_logo.svg"}
                     alt=""
                     width={420}
                     height={420}
@@ -29,7 +35,7 @@ export const BannerSection = () => {
                 <div className="flex flex-col gap-10 md:flex-row md:items-center">
                     <div className="hidden md:flex md:shrink-0 md:items-center">
                         <Image
-                            src="/images/app_logo.svg"
+                            src={banner.bannerLogo || "/images/app_logo.svg"}
                             alt="Shining English"
                             width={220}
                             height={220}
@@ -38,37 +44,40 @@ export const BannerSection = () => {
                     </div>
                     <div className="w-full text-white text-left">
                         <p className="banner-kicker text-xs uppercase tracking-[0.2em] text-(--sky-200) sm:text-sm">
-                            More Than English
+                            {banner.bannerEyebrow}
                         </p>
                         <h2 className="banner-title mt-4 text-3xl font-bold leading-tight max-w-7xl ml-0 sm:mt-5 sm:text-4xl lg:text-6xl">
-                            More Than English. <span className="text-white">Find Your Shine.</span>
+                            {banner.bannerTitle}
                         </h2>
 
                         <p className="banner-subtitle mt-4 text-sm text-(--sky-220) max-w-3xl ml-0 sm:mt-5 sm:text-lg lg:text-xl">
-                            Thay đổi cách bạn nhìn về tiếng Anh — và về chính mình.
+                            {banner.bannerDescription}
                         </p>
 
                         <div className="banner-buttons mt-8 grid gap-3 sm:flex sm:flex-wrap">
-                            <AppButton size="lg" variant="fillGradient" className="px-7 w-full sm:w-auto">
-                                Trải nghiệm miễn phí
-                            </AppButton>
-                            <Button size="lg" variant="outline" className="px-7 w-full sm:w-auto bg-transparent text-white border-white/40 hover:border-white">
-                                Khám phá khóa học
-                            </Button>
+                            {banner.bannerActionButtons.map((button) =>
+                                button.type === "primary" ? (
+                                    <AppButton key={`${button.type}-${button.title}`} asChild size="lg" variant="fillGradient" className="px-7 w-full sm:w-auto">
+                                        <Link href={button.action}>{button.title}</Link>
+                                    </AppButton>
+                                ) : (
+                                    <Button key={`${button.type}-${button.title}`} asChild size="lg" variant="outline" className="px-7 w-full sm:w-auto bg-transparent text-white border-white/40 hover:border-white">
+                                        <Link href={button.action}>{button.title}</Link>
+                                    </Button>
+                                )
+                            )}
                         </div>
                         <div className="mt-6 flex flex-wrap gap-3 text-xs text-(--sky-200)">
-                            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1">
-                                <BookOpen className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
-                                Xây dựng sự tự tin từ gốc.
-                            </span>
-                            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1">
-                                <Clock className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
-                                30 phút mỗi ngày.
-                            </span>
-                            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1">
-                                <Award className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
-                                Để bạn dùng được tiếng Anh trong đời sống.
-                            </span>
+                            {banner.bannerHighlights.map((highlight) => {
+                                const Icon = resolveHomeIcon(highlight.iconType)
+
+                                return (
+                                    <span key={`${highlight.iconType}-${highlight.text}`} className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1">
+                                        <Icon className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+                                        {highlight.text}
+                                    </span>
+                                )
+                            })}
                         </div>
                     </div>
                 </div>

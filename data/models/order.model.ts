@@ -15,6 +15,18 @@ export class Order extends BaseModel {
   @Expose({ name: 'payment_method' })
   paymentMethod?: string
 
+  @Expose({ name: 'payment_reference' })
+  paymentReference?: string
+
+  @Expose({ name: 'payment_checkout_url' })
+  paymentCheckoutUrl?: string
+
+  @Expose({ name: 'payment_metadata' })
+  paymentMetadata?: Record<string, unknown>
+
+  @Expose({ name: 'paid_at' })
+  paidAt?: Date | string
+
   @Expose({ name: 'placed_at' })
   placedAt?: Date | string
 
