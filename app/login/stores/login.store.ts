@@ -86,6 +86,7 @@ export const useLoginStore = create<LoginFormStoreState>((set, get) => ({
       status: AppStatus.error,
       message: null,
       errorMessage: message,
+      fieldErrors: {},
     }),
   login: async () => {
     if (get().status === AppStatus.loading) {
@@ -158,6 +159,7 @@ export const useLoginStore = create<LoginFormStoreState>((set, get) => ({
       status: AppStatus.loading,
       message: null,
       errorMessage: null,
+      fieldErrors: {},
     });
 
     const repository = resolveUserRepository();
