@@ -10,6 +10,7 @@ import { IOC_TOKENS } from '@/shared/ioc/tokens'
 import { useCartStore } from '@/shared/stores/cart.store'
 import { useStarStore } from '@/shared/stores/star.store'
 import { resolveApiErrorMessage } from '@/shared/utils/api-error-message'
+import { checkoutSchema } from '@/shared/validations/auth-schemas'
 import { create } from 'zustand'
 
 export type CheckoutMode = 'cart' | 'buy_now'
@@ -38,6 +39,7 @@ export interface CheckoutStoreProps {
   order: Order | null
   paymentRedirectUrl: string | null
   errorMessage: string | null
+  fieldErrors: Record<string, string | undefined>
 }
 
 export interface CheckoutStoreState extends CheckoutStoreProps {
@@ -52,6 +54,7 @@ export interface CheckoutStoreState extends CheckoutStoreProps {
   setEmail: (value: string) => void
   setPhone: (value: string) => void
   setPaymentMethod: (value: CheckoutPaymentMethod) => void
+  clearFieldError: (field: string) => void
   submitOrder: () => Promise<boolean>
   clearPaymentRedirect: () => void
   reset: () => void
@@ -70,6 +73,7 @@ const initState: CheckoutStoreProps = {
   order: null,
   paymentRedirectUrl: null,
   errorMessage: null,
+  fieldErrors: {},
 }
 
 function resolveOrderRepository(): IOrderRepository {
@@ -98,10 +102,11 @@ export const useCheckoutStore = create<CheckoutStoreState>((set, get) => ({
       actionStatus: AppStatus.initial,
     }),
 
-  setFullName: (value) => set({ fullName: value }),
-  setEmail: (value) => set({ email: value }),
-  setPhone: (value) => set({ phone: value }),
+  setFullName: (value) => set({ fullName: value, fieldErrors: { ...get().fieldErrors, fullName: undefined } }),
+  setEmail: (value) => set({ email: value, fieldErrors: { ...get().fieldErrors, email: undefined } }),
+  setPhone: (value) => set({ phone: value, fieldErrors: { ...get().fieldErrors, phone: undefined } }),
   setPaymentMethod: (value) => set({ paymentMethod: value }),
+  clearFieldError: (field) => set({ fieldErrors: { ...get().fieldErrors, [field]: undefined } }),
 
   submitOrder: async () => {
     const state = get()
@@ -109,7 +114,28 @@ export const useCheckoutStore = create<CheckoutStoreState>((set, get) => ({
     set({
       actionStatus: AppStatus.loading,
       errorMessage: null,
+      fieldErrors: {},
     })
+
+    if (state.paymentMethod !== 'star') {
+      const validation = checkoutSchema.safeParse({
+        fullName: state.fullName,
+        email: state.email,
+        phone: state.phone,
+      });
+
+      if (!validation.success) {
+        const fieldErrors: Record<string, string | undefined> = {};
+        for (const issue of validation.error.issues) {
+          const field = issue.path[0] as string;
+          if (!fieldErrors[field]) {
+            fieldErrors[field] = issue.message;
+          }
+        }
+        set({ actionStatus: AppStatus.error, fieldErrors });
+        return false;
+      }
+    }
 
     if (state.paymentMethod === 'star' && state.mode === 'buy_now' && state.buyNowCourse) {
       const result = await resolveStarRepository().payForCourse(state.buyNowCourse.id)

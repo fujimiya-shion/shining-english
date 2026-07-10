@@ -8,6 +8,7 @@ import { IUserRepository } from "@/data/repositories/remote/user/user.repository
 import { resolveApiErrorMessage } from "@/shared/utils/api-error-message";
 import { useAuthStore } from "@/shared/stores/auth.store";
 import { City } from "@/data/models/city.model";
+import { settingsSchema } from "@/shared/validations/auth-schemas";
 
 interface SettingsFormProps {
   status: AppStatus;
@@ -19,6 +20,7 @@ interface SettingsFormProps {
   avatarFile: File | null;
   message: string | null;
   errorMessage: string | null;
+  fieldErrors: Record<string, string | undefined>;
 }
 
 interface SettingsStoreState extends SettingsFormProps {
@@ -31,6 +33,7 @@ interface SettingsStoreState extends SettingsFormProps {
   setAvatarFile: (file: File | null) => void;
   loadFromAuth: () => void;
   clearFeedback: () => void;
+  clearFieldError: (field: string) => void;
   updateProfile: () => Promise<boolean>;
 }
 
@@ -44,6 +47,7 @@ const initState: SettingsFormProps = {
   avatarFile: null,
   message: null,
   errorMessage: null,
+  fieldErrors: {},
 };
 
 function resolveUserRepository(): IUserRepository {
@@ -53,8 +57,9 @@ function resolveUserRepository(): IUserRepository {
 export const useSettingsStore = create<SettingsStoreState>((set, get) => ({
   ...initState,
 
-  setName: (name) => set({ name }),
-  setPhone: (phone) => set({ phone }),
+  clearFieldError: (field) => set({ fieldErrors: { ...get().fieldErrors, [field]: undefined } }),
+  setName: (name) => set({ name, fieldErrors: { ...get().fieldErrors, name: undefined } }),
+  setPhone: (phone) => set({ phone, fieldErrors: { ...get().fieldErrors, phone: undefined } }),
   setBirthday: (birthday) => set({ birthday }),
   setCityQuery: (cityQuery) => set({ cityQuery, cityId: "" }),
   setCityId: (cityId) => set({ cityId }),
@@ -93,9 +98,30 @@ export const useSettingsStore = create<SettingsStoreState>((set, get) => ({
       return false;
     }
 
-    set({ status: AppStatus.loading, message: null, errorMessage: null });
+    set({ message: null, errorMessage: null, fieldErrors: {} });
 
     const state = get();
+
+    const validation = settingsSchema.safeParse({
+      name: state.name,
+      phone: state.phone,
+      birthday: state.birthday,
+    });
+
+    if (!validation.success) {
+      const fieldErrors: Record<string, string | undefined> = {};
+      for (const issue of validation.error.issues) {
+        const field = issue.path[0] as string;
+        if (!fieldErrors[field]) {
+          fieldErrors[field] = issue.message;
+        }
+      }
+      set({ status: AppStatus.error, fieldErrors });
+      return false;
+    }
+
+    set({ status: AppStatus.loading });
+
     const payload = new FormData();
     if (state.name.trim()) payload.append("name", state.name.trim());
     if (state.phone.trim()) payload.append("phone", state.phone.trim());

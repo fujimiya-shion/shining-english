@@ -20,6 +20,7 @@ export function ForgotPasswordPageClient() {
     email,
     message,
     errorMessage,
+    fieldErrors,
     setEmail,
     clearFeedback,
     forgotPassword,
@@ -59,12 +60,14 @@ export function ForgotPasswordPageClient() {
                 </label>
                 <Input
                   id="reset-email"
-                  type="email"
+                  type="text"
                   placeholder="you@email.com"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
-                  required
                 />
+                {fieldErrors.email && (
+                  <p className="text-xs text-red-500">{fieldErrors.email}</p>
+                )}
               </div>
               {message && (
                 <p className="text-sm text-emerald-700" role="status">

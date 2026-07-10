@@ -56,6 +56,7 @@ function CheckoutPageContent() {
   const paymentRedirectUrl = useCheckoutStore((state) => state.paymentRedirectUrl)
   const buyNowCourse = useCheckoutStore((state) => state.buyNowCourse)
   const errorMessage = useCheckoutStore((state) => state.errorMessage)
+  const fieldErrors = useCheckoutStore((state) => state.fieldErrors)
   const initialize = useCheckoutStore((state) => state.initialize)
   const setPaymentMethod = useCheckoutStore((state) => state.setPaymentMethod)
   const setFullName = useCheckoutStore((state) => state.setFullName)
@@ -230,6 +231,7 @@ function CheckoutPageContent() {
             actionStatus={actionStatus}
             email={email}
             errorMessage={errorMessage}
+            fieldErrors={fieldErrors}
             fullName={fullName}
             mode={mode}
             onEmailChange={setEmail}
