@@ -7,6 +7,7 @@ import { IOC_TOKENS } from "@/shared/ioc/tokens";
 import { IUserRepository } from "@/data/repositories/remote/user/user.repository.interface";
 import { useAuthStore } from "@/shared/stores/auth.store";
 import { resolveApiErrorMessage } from "@/shared/utils/api-error-message";
+import { loginSchema } from "@/shared/validations/auth-schemas";
 
 export interface LoginFormStoreProps {
   status: AppStatus;
@@ -15,6 +16,7 @@ export interface LoginFormStoreProps {
   rememberLogin: boolean;
   message: string | null;
   errorMessage: string | null;
+  fieldErrors: Record<string, string | undefined>;
 }
 
 export interface LoginFormStoreState extends LoginFormStoreProps {
@@ -22,6 +24,7 @@ export interface LoginFormStoreState extends LoginFormStoreProps {
   setPassword: (password: string) => void;
   setRememberLogin: (rememberLogin: boolean) => void;
   clearFeedback: () => void;
+  clearFieldError: (field: string) => void;
   setGoogleLoginError: (message: string) => void;
   login: () => Promise<boolean>;
   loginWithGoogle: (accessToken: string) => Promise<boolean>;
@@ -35,6 +38,7 @@ const initState: LoginFormStoreProps = {
   rememberLogin: false,
   message: null,
   errorMessage: null,
+  fieldErrors: {},
 };
 
 function resolveUserRepository(): IUserRepository {
@@ -72,10 +76,11 @@ function resolveErrorMessage(error?: { message?: string | null; httpStatus?: num
 export const useLoginStore = create<LoginFormStoreState>((set, get) => ({
   ...initState,
 
-  setEmail: (email) => set({ email }),
-  setPassword: (password) => set({ password }),
+  setEmail: (email) => set({ email, fieldErrors: { ...get().fieldErrors, email: undefined } }),
+  setPassword: (password) => set({ password, fieldErrors: { ...get().fieldErrors, password: undefined } }),
   setRememberLogin: (rememberLogin) => set({ rememberLogin }),
   clearFeedback: () => set({ message: null, errorMessage: null }),
+  clearFieldError: (field) => set({ fieldErrors: { ...get().fieldErrors, [field]: undefined } }),
   setGoogleLoginError: (message) =>
     set({
       status: AppStatus.error,
@@ -88,18 +93,38 @@ export const useLoginStore = create<LoginFormStoreState>((set, get) => ({
     }
 
     set({
-      status: AppStatus.loading,
       message: null,
       errorMessage: null,
+      fieldErrors: {},
     });
+
+    const state = get();
+    const validation = loginSchema.safeParse({
+      email: state.email,
+      password: state.password,
+    });
+
+    if (!validation.success) {
+      const fieldErrors: Record<string, string | undefined> = {};
+      for (const issue of validation.error.issues) {
+        const field = issue.path[0] as string;
+        if (!fieldErrors[field]) {
+          fieldErrors[field] = issue.message;
+        }
+      }
+      set({ status: AppStatus.error, fieldErrors });
+      return false;
+    }
+
+    set({ status: AppStatus.loading });
 
     const repository = resolveUserRepository();
     const device = buildDeviceMetadata();
     const result = await repository.login(
-      get().email,
-      get().password,
+      state.email,
+      state.password,
       device.identifier,
-      get().rememberLogin,
+      state.rememberLogin,
       device.name,
       device.platform,
       undefined,

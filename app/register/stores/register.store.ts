@@ -6,6 +6,7 @@ import { resolveClient } from "@/shared/ioc/client-container";
 import { IOC_TOKENS } from "@/shared/ioc/tokens";
 import { IUserRepository } from "@/data/repositories/remote/user/user.repository.interface";
 import { resolveApiErrorMessage } from "@/shared/utils/api-error-message";
+import { registerSchema } from "@/shared/validations/auth-schemas";
 
 export interface RegisterFormStoreProps {
   status: AppStatus;
@@ -18,6 +19,7 @@ export interface RegisterFormStoreProps {
   message: string | null;
   errorMessage: string | null;
   localError: string | null;
+  fieldErrors: Record<string, string | undefined>;
 }
 
 export interface RegisterFormStoreState extends RegisterFormStoreProps {
@@ -28,6 +30,7 @@ export interface RegisterFormStoreState extends RegisterFormStoreProps {
   setPasswordConfirmation: (passwordConfirmation: string) => void;
   setAcceptTerms: (acceptTerms: boolean) => void;
   clearFeedback: () => void;
+  clearFieldError: (field: string) => void;
   setLocalError: (localError: string | null) => void;
   register: (recaptchaToken: string) => Promise<boolean>;
   reset: () => void;
@@ -44,6 +47,7 @@ const initState: RegisterFormStoreProps = {
   message: null,
   errorMessage: null,
   localError: null,
+  fieldErrors: {},
 };
 
 function resolveUserRepository(): IUserRepository {
@@ -57,13 +61,14 @@ function resolveErrorMessage(error?: { message?: string | null; httpStatus?: num
 export const useRegisterStore = create<RegisterFormStoreState>((set, get) => ({
   ...initState,
 
-  setName: (name) => set({ name }),
-  setEmail: (email) => set({ email }),
-  setPhone: (phone) => set({ phone }),
-  setPassword: (password) => set({ password }),
-  setPasswordConfirmation: (passwordConfirmation) => set({ passwordConfirmation }),
-  setAcceptTerms: (acceptTerms) => set({ acceptTerms }),
+  setName: (name) => set({ name, fieldErrors: { ...get().fieldErrors, name: undefined } }),
+  setEmail: (email) => set({ email, fieldErrors: { ...get().fieldErrors, email: undefined } }),
+  setPhone: (phone) => set({ phone, fieldErrors: { ...get().fieldErrors, phone: undefined } }),
+  setPassword: (password) => set({ password, fieldErrors: { ...get().fieldErrors, password: undefined, passwordConfirmation: undefined } }),
+  setPasswordConfirmation: (passwordConfirmation) => set({ passwordConfirmation, fieldErrors: { ...get().fieldErrors, passwordConfirmation: undefined } }),
+  setAcceptTerms: (acceptTerms) => set({ acceptTerms, fieldErrors: { ...get().fieldErrors, acceptTerms: undefined } }),
   clearFeedback: () => set({ message: null, errorMessage: null, localError: null }),
+  clearFieldError: (field) => set({ fieldErrors: { ...get().fieldErrors, [field]: undefined } }),
   setLocalError: (localError) => set({ localError }),
   register: async (recaptchaToken: string) => {
     if (get().status === AppStatus.loading) {
@@ -74,25 +79,30 @@ export const useRegisterStore = create<RegisterFormStoreState>((set, get) => ({
       message: null,
       errorMessage: null,
       localError: null,
+      fieldErrors: {},
     });
 
-    if (get().password !== get().passwordConfirmation) {
-      set({
-        status: AppStatus.error,
-        localError: "Mật khẩu xác nhận không khớp.",
-      });
+    const state = get();
+    const validation = registerSchema.safeParse({
+      name: state.name,
+      email: state.email,
+      phone: state.phone,
+      password: state.password,
+      passwordConfirmation: state.passwordConfirmation,
+      acceptTerms: state.acceptTerms,
+    });
+
+    if (!validation.success) {
+      const fieldErrors: Record<string, string | undefined> = {};
+      for (const issue of validation.error.issues) {
+        const field = issue.path[0] as string;
+        if (!fieldErrors[field]) {
+          fieldErrors[field] = issue.message;
+        }
+      }
+      set({ status: AppStatus.error, fieldErrors });
       return false;
     }
-
-    if (!get().acceptTerms) {
-      set({
-        status: AppStatus.error,
-        localError: "Bạn cần đồng ý điều khoản để tạo tài khoản.",
-      });
-      return false;
-    }
-
-    set({ status: AppStatus.loading });
 
     if (!recaptchaToken) {
       set({
@@ -102,13 +112,15 @@ export const useRegisterStore = create<RegisterFormStoreState>((set, get) => ({
       return false;
     }
 
+    set({ status: AppStatus.loading });
+
     const repository = resolveUserRepository();
 
     const result = await repository.register(
-      get().name,
-      get().email,
-      get().phone,
-      get().password,
+      state.name,
+      state.email,
+      state.phone,
+      state.password,
       recaptchaToken,
     );
 

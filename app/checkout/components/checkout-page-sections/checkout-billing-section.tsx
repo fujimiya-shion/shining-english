@@ -11,6 +11,7 @@ export function CheckoutBillingSection({
   actionStatus,
   email,
   errorMessage,
+  fieldErrors,
   fullName,
   mode,
   onEmailChange,
@@ -26,6 +27,7 @@ export function CheckoutBillingSection({
   actionStatus: AppStatus
   email: string
   errorMessage: string | null
+  fieldErrors: Record<string, string | undefined>
   fullName: string
   mode: 'cart' | 'buy_now'
   onEmailChange: (value: string) => void
@@ -52,14 +54,17 @@ export function CheckoutBillingSection({
         <div className="sm:col-span-2">
           <label className="mb-2 block text-sm font-medium">Họ và tên</label>
           <Input value={fullName} onChange={(event) => onFullNameChange(event.target.value)} placeholder="Nguyễn Văn A" />
+          {fieldErrors.fullName && <p className="mt-1 text-xs text-red-500">{fieldErrors.fullName}</p>}
         </div>
         <div>
           <label className="mb-2 block text-sm font-medium">Email</label>
           <Input value={email} onChange={(event) => onEmailChange(event.target.value)} placeholder="you@email.com" />
+          {fieldErrors.email && <p className="mt-1 text-xs text-red-500">{fieldErrors.email}</p>}
         </div>
         <div>
           <label className="mb-2 block text-sm font-medium">Số điện thoại</label>
           <Input value={phone} onChange={(event) => onPhoneChange(event.target.value)} placeholder="09xx xxx xxx" />
+          {fieldErrors.phone && <p className="mt-1 text-xs text-red-500">{fieldErrors.phone}</p>}
         </div>
       </div>
 

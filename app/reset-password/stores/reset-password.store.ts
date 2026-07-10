@@ -6,6 +6,7 @@ import { resolveClient } from "@/shared/ioc/client-container";
 import { IOC_TOKENS } from "@/shared/ioc/tokens";
 import { IUserRepository } from "@/data/repositories/remote/user/user.repository.interface";
 import { resolveApiErrorMessage } from "@/shared/utils/api-error-message";
+import { resetPasswordSchema } from "@/shared/validations/auth-schemas";
 
 export interface ResetPasswordStoreProps {
   status: AppStatus;
@@ -14,12 +15,14 @@ export interface ResetPasswordStoreProps {
   message: string | null;
   errorMessage: string | null;
   localError: string | null;
+  fieldErrors: Record<string, string | undefined>;
 }
 
 export interface ResetPasswordStoreState extends ResetPasswordStoreProps {
   setPassword: (password: string) => void;
   setPasswordConfirmation: (passwordConfirmation: string) => void;
   clearFeedback: () => void;
+  clearFieldError: (field: string) => void;
   setLocalError: (localError: string | null) => void;
   resetPassword: (email: string, token: string) => Promise<boolean>;
   reset: () => void;
@@ -32,6 +35,7 @@ const initState: ResetPasswordStoreProps = {
   message: null,
   errorMessage: null,
   localError: null,
+  fieldErrors: {},
 };
 
 function resolveUserRepository(): IUserRepository {
@@ -45,9 +49,10 @@ function resolveErrorMessage(error?: { message?: string | null; httpStatus?: num
 export const useResetPasswordStore = create<ResetPasswordStoreState>((set, get) => ({
   ...initState,
 
-  setPassword: (password) => set({ password }),
-  setPasswordConfirmation: (passwordConfirmation) => set({ passwordConfirmation }),
+  setPassword: (password) => set({ password, fieldErrors: { ...get().fieldErrors, password: undefined, passwordConfirmation: undefined } }),
+  setPasswordConfirmation: (passwordConfirmation) => set({ passwordConfirmation, fieldErrors: { ...get().fieldErrors, passwordConfirmation: undefined } }),
   clearFeedback: () => set({ message: null, errorMessage: null, localError: null }),
+  clearFieldError: (field) => set({ fieldErrors: { ...get().fieldErrors, [field]: undefined } }),
   setLocalError: (localError) => set({ localError }),
   resetPassword: async (email, token) => {
     if (get().status === AppStatus.loading) {
@@ -58,6 +63,7 @@ export const useResetPasswordStore = create<ResetPasswordStoreState>((set, get) 
       message: null,
       errorMessage: null,
       localError: null,
+      fieldErrors: {},
     });
 
     if (!email.trim() || !token.trim()) {
@@ -68,11 +74,21 @@ export const useResetPasswordStore = create<ResetPasswordStoreState>((set, get) 
       return false;
     }
 
-    if (get().password !== get().passwordConfirmation) {
-      set({
-        status: AppStatus.error,
-        localError: "Mật khẩu xác nhận không khớp.",
-      });
+    const state = get();
+    const validation = resetPasswordSchema.safeParse({
+      password: state.password,
+      passwordConfirmation: state.passwordConfirmation,
+    });
+
+    if (!validation.success) {
+      const fieldErrors: Record<string, string | undefined> = {};
+      for (const issue of validation.error.issues) {
+        const field = issue.path[0] as string;
+        if (!fieldErrors[field]) {
+          fieldErrors[field] = issue.message;
+        }
+      }
+      set({ status: AppStatus.error, fieldErrors });
       return false;
     }
 
@@ -82,8 +98,8 @@ export const useResetPasswordStore = create<ResetPasswordStoreState>((set, get) 
     const result = await repository.resetPassword(
       email,
       token,
-      get().password,
-      get().passwordConfirmation,
+      state.password,
+      state.passwordConfirmation,
     );
 
     if (!result.response) {

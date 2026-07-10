@@ -30,6 +30,7 @@ export function SettingsPageClient() {
     avatarFile,
     message,
     errorMessage,
+    fieldErrors,
     setName,
     setPhone,
     setBirthday,
@@ -121,6 +122,7 @@ export function SettingsPageClient() {
                             setName(e.target.value);
                           }}
                         />
+                        {fieldErrors.name && <p className="text-xs text-red-500">{fieldErrors.name}</p>}
                       </div>
                       <div className="space-y-2">
                         <label htmlFor="profile-phone" className="text-sm font-medium">Số điện thoại</label>
@@ -132,6 +134,7 @@ export function SettingsPageClient() {
                             setPhone(e.target.value);
                           }}
                         />
+                        {fieldErrors.phone && <p className="text-xs text-red-500">{fieldErrors.phone}</p>}
                       </div>
                       <div className="space-y-2">
                         <label htmlFor="profile-birthday" className="text-sm font-medium">Ngày sinh</label>

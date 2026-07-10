@@ -17,6 +17,7 @@ export function ContactPageClient() {
     message,
     successMessage,
     errorMessage,
+    fieldErrors,
     setName,
     setEmail,
     setMessage,
@@ -70,8 +71,10 @@ export function ContactPageClient() {
                     placeholder="Nguyễn Minh Anh"
                     value={name}
                     onChange={(event) => setName(event.target.value)}
-                    required
                   />
+                  {fieldErrors.name && (
+                    <p className="text-xs text-red-500">{fieldErrors.name}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <label htmlFor="contact-email" className="text-sm font-medium">
@@ -79,12 +82,14 @@ export function ContactPageClient() {
                   </label>
                   <Input
                     id="contact-email"
-                    type="email"
+                    type="text"
                     placeholder="you@email.com"
                     value={email}
                     onChange={(event) => setEmail(event.target.value)}
-                    required
                   />
+                  {fieldErrors.email && (
+                    <p className="text-xs text-red-500">{fieldErrors.email}</p>
+                  )}
                 </div>
               </div>
               <div className="space-y-2">
@@ -97,8 +102,10 @@ export function ContactPageClient() {
                   placeholder="Bạn cần hỗ trợ gì?"
                   value={message}
                   onChange={(event) => setMessage(event.target.value)}
-                  required
                 />
+                {fieldErrors.message && (
+                  <p className="text-xs text-red-500">{fieldErrors.message}</p>
+                )}
               </div>
               {errorMessage && (
                 <p className="text-sm text-red-600" role="alert">

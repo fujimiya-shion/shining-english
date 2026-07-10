@@ -27,6 +27,7 @@ function ResetPasswordContent() {
     message,
     errorMessage,
     localError,
+    fieldErrors,
     setPassword,
     setPasswordConfirmation,
     clearFeedback,
@@ -78,7 +79,7 @@ function ResetPasswordContent() {
                 </label>
                 <Input
                   id="reset-context-email"
-                  type="email"
+                   type="text"
                   value={email}
                   readOnly
                   className="bg-muted"
@@ -94,8 +95,10 @@ function ResetPasswordContent() {
                   placeholder="••••••••"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
-                  required
                 />
+                {fieldErrors.password && (
+                  <p className="text-xs text-red-500">{fieldErrors.password}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <label htmlFor="confirm-password" className="text-sm font-medium">
@@ -107,8 +110,10 @@ function ResetPasswordContent() {
                   placeholder="••••••••"
                   value={passwordConfirmation}
                   onChange={(event) => setPasswordConfirmation(event.target.value)}
-                  required
                 />
+                {fieldErrors.passwordConfirmation && (
+                  <p className="text-xs text-red-500">{fieldErrors.passwordConfirmation}</p>
+                )}
               </div>
               {(localError || errorMessage) && (
                 <p className="text-sm text-red-600" role="alert">

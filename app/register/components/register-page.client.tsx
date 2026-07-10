@@ -34,6 +34,7 @@ function RegisterPageContent() {
     message,
     errorMessage,
     localError,
+    fieldErrors,
     setName,
     setEmail,
     setPhone,
@@ -145,8 +146,10 @@ function RegisterPageContent() {
                   placeholder="Nguyễn Minh Anh"
                   value={name}
                   onChange={(event) => setName(event.target.value)}
-                  required
                 />
+                {fieldErrors.name && (
+                  <p className="text-xs text-red-500">{fieldErrors.name}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium" htmlFor="register-email">
@@ -154,12 +157,14 @@ function RegisterPageContent() {
                 </label>
                 <Input
                   id="register-email"
-                  type="email"
+                  type="text"
                   placeholder="you@email.com"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
-                  required
                 />
+                {fieldErrors.email && (
+                  <p className="text-xs text-red-500">{fieldErrors.email}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium" htmlFor="register-phone">
@@ -167,12 +172,14 @@ function RegisterPageContent() {
                 </label>
                 <Input
                   id="register-phone"
-                  type="tel"
+                  type="text"
                   placeholder="0900000000"
                   value={phone}
                   onChange={(event) => setPhone(event.target.value)}
-                  required
                 />
+                {fieldErrors.phone && (
+                  <p className="text-xs text-red-500">{fieldErrors.phone}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium" htmlFor="register-password">
@@ -184,8 +191,10 @@ function RegisterPageContent() {
                   placeholder="••••••••"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
-                  required
                 />
+                {fieldErrors.password && (
+                  <p className="text-xs text-red-500">{fieldErrors.password}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium" htmlFor="register-confirm">
@@ -197,8 +206,10 @@ function RegisterPageContent() {
                   placeholder="••••••••"
                   value={passwordConfirmation}
                   onChange={(event) => setPasswordConfirmation(event.target.value)}
-                  required
                 />
+                {fieldErrors.passwordConfirmation && (
+                  <p className="text-xs text-red-500">{fieldErrors.passwordConfirmation}</p>
+                )}
               </div>
               <label className="flex items-start gap-2 text-sm text-muted-foreground">
                 <input
@@ -217,6 +228,9 @@ function RegisterPageContent() {
                 </Link>
                 .
               </label>
+              {fieldErrors.acceptTerms && (
+                <p className="text-xs text-red-500">{fieldErrors.acceptTerms}</p>
+              )}
               {(localError || errorMessage) && (
                 <p className="text-sm text-red-600" role="alert">
                   {localError ?? errorMessage}

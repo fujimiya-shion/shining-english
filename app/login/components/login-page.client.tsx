@@ -31,6 +31,7 @@ function LoginPageContent() {
     rememberLogin,
     message,
     errorMessage,
+    fieldErrors,
     setEmail,
     setPassword,
     setRememberLogin,
@@ -161,12 +162,14 @@ function LoginPageContent() {
                 </label>
                 <Input
                   id="login-email"
-                  type="email"
+                  type="text"
                   placeholder="you@email.com"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
-                  required
                 />
+                {fieldErrors.email && (
+                  <p className="text-xs text-red-500">{fieldErrors.email}</p>
+                )}
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium" htmlFor="login-password">
@@ -178,8 +181,10 @@ function LoginPageContent() {
                   placeholder="••••••••"
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
-                  required
                 />
+                {fieldErrors.password && (
+                  <p className="text-xs text-red-500">{fieldErrors.password}</p>
+                )}
               </div>
               <div className="flex items-center justify-between text-sm">
                 <label className="flex items-center gap-2 text-muted-foreground">
