@@ -75,14 +75,6 @@ export const useContactStore = create<ContactStoreState>((set, get) => ({
       return false;
     }
 
-    if (!recaptchaToken) {
-      set({
-        status: AppStatus.error,
-        errorMessage: "Không thể xác minh reCAPTCHA.",
-      });
-      return false;
-    }
-
     set({ status: AppStatus.loading });
 
     const repository = resolveContactRepository();
