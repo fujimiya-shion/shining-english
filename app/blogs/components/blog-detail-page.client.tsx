@@ -116,7 +116,7 @@ export function BlogDetailPageClient({ slug }: { slug: string }) {
             </p>
 
             <div
-              className="blog-content mt-8 text-sm leading-7 text-muted-foreground [&_h2]:mb-3 [&_h2]:mt-8 [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:leading-tight [&_h2]:text-[color:var(--brand-900)] [&_h2]:first:mt-0 [&_p]:mb-4 [&_p]:leading-7 [&_ul]:mb-4 [&_ol]:mb-4 [&_ul]:ml-6 [&_ol]:ml-6 [&_ul]:list-disc [&_ol]:list-decimal [&_li]:mb-2 [&_a]:text-primary [&_a]:underline [&_strong]:font-semibold [&_em]:italic"
+              className="blog-content mt-8 text-sm leading-7 text-muted-foreground [&_h2]:mb-3 [&_h2]:mt-8 [&_h2]:text-2xl [&_h2]:font-semibold [&_h2]:leading-tight [&_h2]:text-[color:var(--brand-900)] [&_h2]:first:mt-0 [&_p]:mb-4 [&_p]:leading-7 [&_ul]:mb-4 [&_ol]:mb-4 [&_ul]:ml-6 [&_ol]:ml-6 [&_ul]:list-disc [&_ol]:list-decimal [&_li]:mb-2 [&_a]:text-primary [&_a]:underline [&_strong]:font-semibold [&_em]:italic [&_table]:w-full [&_table]:border-collapse [&_table]:mb-6 [&_table_th]:border [&_table_th]:border-border [&_table_th]:bg-muted [&_table_th]:px-4 [&_table_th]:py-2 [&_table_th]:text-left [&_table_th]:font-semibold [&_table_td]:border [&_table_td]:border-border [&_table_td]:px-4 [&_table_td]:py-2"
               dangerouslySetInnerHTML={{ __html: blog.content ?? '' }}
             />
 
