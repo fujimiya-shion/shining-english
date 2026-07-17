@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, type RefObject } from 'react'
 import { NotificationItem } from './notification-item'
 import { useNotificationStore } from '@/shared/stores/notification.store'
 import { AppStatus } from '@/shared/enums/app-status'
@@ -9,9 +9,10 @@ import { Bell, CheckCheck } from 'lucide-react'
 
 type NotificationDropdownProps = {
   onClose: () => void
+  excludeRef: RefObject<HTMLDivElement | null>
 }
 
-export function NotificationDropdown({ onClose }: NotificationDropdownProps) {
+export function NotificationDropdown({ onClose, excludeRef }: NotificationDropdownProps) {
   const {
     list,
     status,
@@ -30,14 +31,20 @@ export function NotificationDropdown({ onClose }: NotificationDropdownProps) {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      const target = event.target as Node
+
+      if (excludeRef.current?.contains(target)) {
+        return
+      }
+
+      if (dropdownRef.current && !dropdownRef.current.contains(target)) {
         onClose()
       }
     }
 
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [onClose])
+  }, [onClose, excludeRef])
 
   return (
     <div

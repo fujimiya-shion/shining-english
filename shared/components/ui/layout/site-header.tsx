@@ -229,21 +229,23 @@ export function SiteHeader() {
           </div>
 
           {authenticated ? (
-            <div className="hidden md:block lg:block">
-              <Link
-                href="/blogs"
-                className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-2 text-sm font-semibold text-[color:var(--brand-900)] shadow-sm transition-colors hover:border-primary/40 hover:text-primary"
-                aria-label="Số sao hiện có"
-              >
-                <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" />
-                <span>{typeof starBalance === 'number' ? `${starBalance} sao` : '...'}</span>
-              </Link>
-            </div>
-          ) : null}
+            <>
+              <div className="hidden md:block lg:block">
+                <Link
+                  href="/blogs"
+                  className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-2 text-sm font-semibold text-[color:var(--brand-900)] shadow-sm transition-colors hover:border-primary/40 hover:text-primary"
+                  aria-label="Số sao hiện có"
+                >
+                  <Sparkles className="h-4 w-4 text-primary" aria-hidden="true" />
+                  <span>{typeof starBalance === 'number' ? `${starBalance} sao` : '...'}</span>
+                </Link>
+              </div>
 
-          <div className="hidden md:block lg:block">
-            <NotificationBell />
-          </div>
+              <div className="hidden md:block lg:block">
+                <NotificationBell />
+              </div>
+            </>
+          ) : null}
 
           <div className="relative hidden md:block lg:block">
             <Link href="/cart" className="relative" aria-label="Giỏ hàng">
@@ -338,22 +340,24 @@ export function SiteHeader() {
                   )}
                   <div className="flex items-center justify-between gap-3">
                     {authenticated ? (
-                      <Link
-                        href="/blogs"
-                        className="inline-flex min-w-0 items-center gap-2 rounded-full border border-border bg-background px-3 py-2 text-sm font-semibold text-[color:var(--brand-900)] shadow-sm"
-                        onClick={closeMobileMenu}
-                      >
-                        <Sparkles className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
-                        <span className="leading-tight">
-                          {typeof starBalance === 'number' ? `${starBalance} sao` : '...'}
-                        </span>
-                      </Link>
+                      <>
+                        <Link
+                          href="/blogs"
+                          className="inline-flex min-w-0 items-center gap-2 rounded-full border border-border bg-background px-3 py-2 text-sm font-semibold text-[color:var(--brand-900)] shadow-sm"
+                          onClick={closeMobileMenu}
+                        >
+                          <Sparkles className="h-4 w-4 shrink-0 text-primary" aria-hidden="true" />
+                          <span className="leading-tight">
+                            {typeof starBalance === 'number' ? `${starBalance} sao` : '...'}
+                          </span>
+                        </Link>
+                        <div className="shrink-0">
+                          <NotificationBell />
+                        </div>
+                      </>
                     ) : (
                       <div />
                     )}
-                    <div className="shrink-0">
-                      <NotificationBell />
-                    </div>
                     <Link
                       href="/cart"
                       className="relative shrink-0"

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNotificationStore } from '@/shared/stores/notification.store'
 import { AppStatus } from '@/shared/enums/app-status'
 import { NotificationDropdown } from './notification-dropdown'
@@ -8,6 +8,7 @@ import { Bell } from 'lucide-react'
 
 export function NotificationBell() {
   const [open, setOpen] = useState(false)
+  const buttonRef = useRef<HTMLDivElement>(null)
   const unreadCount = useNotificationStore((state) => state.unreadCount)
   const fetchUnreadCount = useNotificationStore((state) => state.fetchUnreadCount)
   const status = useNotificationStore((state) => state.status)
@@ -34,7 +35,7 @@ export function NotificationBell() {
   }, [open, fetchUnreadCount])
 
   return (
-    <div className="relative">
+    <div className="relative" ref={buttonRef}>
       <button
         type="button"
         className="relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-background shadow-sm transition-colors hover:border-primary/40 hover:text-primary"
@@ -48,7 +49,7 @@ export function NotificationBell() {
           </span>
         ) : null}
       </button>
-      {open ? <NotificationDropdown onClose={handleClose} /> : null}
+      {open ? <NotificationDropdown onClose={handleClose} excludeRef={buttonRef} /> : null}
     </div>
   )
 }
