@@ -73,4 +73,10 @@ export const AppEndpoints = {
     checkIn: '/stars/check-in',
     payForCourse: (courseId: number) => `/stars/courses/${courseId}/pay`,
   },
+  notification: {
+    index: '/notifications',
+    unreadCount: '/notifications/unread-count',
+    markAsRead: (id: string) => `/notifications/${id}/read`,
+    markAllAsRead: '/notifications/read-all',
+  },
 } as const;

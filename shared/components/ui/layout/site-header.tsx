@@ -7,6 +7,7 @@ import { useAuthStore } from '@/shared/stores/auth.store'
 import { useCartStore } from '@/shared/stores/cart.store'
 import { useStarStore } from '@/shared/stores/star.store'
 import {
+  Bell,
   BookOpen,
   CircleUserRound,
   Home,
@@ -23,6 +24,7 @@ import {
   User,
   X
 } from 'lucide-react'
+import { NotificationBell } from '@/shared/components/ui/notification/notification-bell'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
@@ -166,7 +168,7 @@ export function SiteHeader() {
 
           <div className="md:hidden" />
         </div>
-        <div className="flex items-center justify-end gap-3 lg:gap-6">
+        <div className="flex items-center justify-end gap-2 lg:gap-3">
           <div className="hidden lg:block">
             {authenticated ? (
               <div className="relative" ref={accountRef}>
@@ -195,6 +197,14 @@ export function SiteHeader() {
                     >
                       <User className="h-4 w-4" />
                       Profile
+                    </Link>
+                    <Link
+                      href="/notifications"
+                      className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors hover:bg-primary/5 hover:text-[color:var(--brand-900)]"
+                      onClick={() => setAccountOpen(false)}
+                    >
+                      <Bell className="h-4 w-4" />
+                      Thông báo
                     </Link>
                     <hr className="my-1 border-border/70" />
                     <button
@@ -230,6 +240,10 @@ export function SiteHeader() {
               </Link>
             </div>
           ) : null}
+
+          <div className="hidden md:block lg:block">
+            <NotificationBell />
+          </div>
 
           <div className="relative hidden md:block lg:block">
             <Link href="/cart" className="relative" aria-label="Giỏ hàng">
@@ -293,6 +307,14 @@ export function SiteHeader() {
                         <User className="h-4 w-4" />
                         Profile
                       </Link>
+                      <Link
+                        href="/notifications"
+                        className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors hover:bg-primary/5 hover:text-[color:var(--brand-900)]"
+                        onClick={closeMobileMenu}
+                      >
+                        <Bell className="h-4 w-4" />
+                        Thông báo
+                      </Link>
                       <button
                         type="button"
                         className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors hover:bg-primary/5 hover:text-[color:var(--brand-900)]"
@@ -329,6 +351,9 @@ export function SiteHeader() {
                     ) : (
                       <div />
                     )}
+                    <div className="shrink-0">
+                      <NotificationBell />
+                    </div>
                     <Link
                       href="/cart"
                       className="relative shrink-0"
