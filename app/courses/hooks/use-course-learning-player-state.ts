@@ -29,6 +29,8 @@ export function useCourseLearningPlayerState({
         group: lesson.groupName?.trim() || 'Danh sách bài học',
         description: lesson.description ? stripHtml(lesson.description) : '',
         hasQuiz: Boolean(lesson.hasQuiz),
+        quizId: lesson.quizId,
+        quizPassPercent: lesson.quizPassPercent,
         isPreviewFree: Boolean(lesson.isPreviewFree),
         videoUrl: resolveLessonVideoUrl(lesson.id, lesson.videoUrl),
         duration: lesson.durationMinutes,
@@ -152,7 +154,7 @@ export function useCourseLearningPlayerState({
   const currentLessonIndex = lessonIds.findIndex((id) => id === currentLesson)
   const currentLessonData = allLessons.find((lesson) => lesson.id === currentLesson)
   const currentLessonDetail = currentLesson ? lessonMap.get(currentLesson) : undefined
-  const currentLessonHasQuiz = Boolean(currentLessonDetail?.hasQuiz)
+  const currentLessonHasQuiz = Boolean(currentLessonDetail?.hasQuiz && currentLessonDetail?.quizId)
   const currentLessonVideoUrl = currentLessonDetail?.videoUrl ?? ''
   const shouldShowVideo = isLessonUnlocked.has(currentLesson) && Boolean(
     currentLessonVideoUrl && !unavailableVideoIds.includes(currentLesson)
