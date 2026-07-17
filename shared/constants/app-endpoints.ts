@@ -62,6 +62,7 @@ export const AppEndpoints = {
     index: "/orders",
     detail: (orderId: number) => `/orders/${orderId}`,
     cancel: (orderId: number) => `/orders/${orderId}/cancel`,
+    repay: (orderId: number) => `/orders/${orderId}/repay`,
   },
   lessonNote: {
     index: '/notes',

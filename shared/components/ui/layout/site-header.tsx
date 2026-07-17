@@ -199,6 +199,14 @@ export function SiteHeader() {
                       Profile
                     </Link>
                     <Link
+                      href="/orders"
+                      className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors hover:bg-primary/5 hover:text-[color:var(--brand-900)]"
+                      onClick={() => setAccountOpen(false)}
+                    >
+                      <ShoppingBag className="h-4 w-4" />
+                      Đơn hàng
+                    </Link>
+                    <Link
                       href="/notifications"
                       className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors hover:bg-primary/5 hover:text-[color:var(--brand-900)]"
                       onClick={() => setAccountOpen(false)}
@@ -308,6 +316,14 @@ export function SiteHeader() {
                       >
                         <User className="h-4 w-4" />
                         Profile
+                      </Link>
+                      <Link
+                        href="/orders"
+                        className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors hover:bg-primary/5 hover:text-[color:var(--brand-900)]"
+                        onClick={closeMobileMenu}
+                      >
+                        <ShoppingBag className="h-4 w-4" />
+                        Đơn hàng
                       </Link>
                       <Link
                         href="/notifications"

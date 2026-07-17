@@ -1,4 +1,5 @@
 import { ObjectResponse } from '@/data/dtos/common/object-response'
+import { PaginationResponse } from '@/data/dtos/common/pagination-response'
 import { CheckoutOrderResponse } from '@/data/models/order-checkout-response.model'
 import { Order } from '@/data/models/order.model'
 import { ApiException } from '@/data/types/api-exception'
@@ -8,6 +9,17 @@ import { BaseRepository } from '../base.repository'
 import { IOrderRepository, OrderCheckoutCustomerPayload, OrderPaymentMethod } from './order.repository.interface'
 
 export class OrderRepository extends BaseRepository implements IOrderRepository {
+  list(
+    page = 1,
+    perPage = 15,
+  ): Promise<ApiResult<PaginationResponse<Order>, ApiException>> {
+    return this.get({
+      url: AppEndpoints.order.index,
+      query: { page, perPage },
+      map: (raw) => PaginationResponse.fromJson<Order>(raw, Order),
+    })
+  }
+
   createFromCart(
     paymentMethod: OrderPaymentMethod = 'payos',
     customer?: OrderCheckoutCustomerPayload,
@@ -50,6 +62,19 @@ export class OrderRepository extends BaseRepository implements IOrderRepository 
     return this.get({
       url: AppEndpoints.order.detail(orderId),
       map: (raw) => ObjectResponse.fromApiJson<Order>(raw, Order),
+    })
+  }
+
+  cancel(orderId: number): Promise<ApiResult<ObjectResponse<string>, ApiException>> {
+    return this.post({
+      url: AppEndpoints.order.cancel(orderId),
+    })
+  }
+
+  repay(orderId: number): Promise<ApiResult<ObjectResponse<CheckoutOrderResponse>, ApiException>> {
+    return this.post({
+      url: AppEndpoints.order.repay(orderId),
+      map: (raw) => ObjectResponse.fromApiJson<CheckoutOrderResponse>(raw, CheckoutOrderResponse),
     })
   }
 }
