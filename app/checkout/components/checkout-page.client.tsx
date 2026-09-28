@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useMemo } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { AppStatus } from '@/shared/enums/app-status'
+import { AppStatus, isInitial, isLoading } from '@/shared/enums/app-status'
 import { useAuthStore } from '@/shared/stores/auth.store'
 import { useCartStore } from '@/shared/stores/cart.store'
 import { normalizeReturnTo } from '@/shared/utils/return-to-utils'
@@ -15,6 +15,8 @@ import {
   CheckoutSummaryCard,
   type CheckoutDisplayItem,
 } from './checkout-page-sections'
+import { useGatewayStore } from '../stores/gateway.store'
+import { CheckoutBillingSectionSkeleton } from './checkout-page-sections/checkout-billing-section-skeleton'
 
 function parseBuyNowCourse(searchParams: URLSearchParams) {
   const courseId = Number(searchParams.get('courseId') ?? 0)
@@ -48,7 +50,7 @@ function CheckoutPageContent() {
 
   const mode = useCheckoutStore((state) => state.mode)
   const actionStatus = useCheckoutStore((state) => state.actionStatus)
-  const paymentMethod = useCheckoutStore((state) => state.paymentMethod)
+  const gatewayId = useCheckoutStore((state) => state.gatewayId)
   const fullName = useCheckoutStore((state) => state.fullName)
   const email = useCheckoutStore((state) => state.email)
   const phone = useCheckoutStore((state) => state.phone)
@@ -66,11 +68,17 @@ function CheckoutPageContent() {
   const clearPaymentRedirect = useCheckoutStore((state) => state.clearPaymentRedirect)
   const resetCheckout = useCheckoutStore((state) => state.reset)
 
+  const gatewayStore = useGatewayStore();
+
   const buyNowPayload = useMemo(() => parseBuyNowCourse(searchParams), [searchParams])
   const returnTo = useMemo(
     () => normalizeReturnTo(`/checkout?${searchParams.toString()}`.replace(/\?$/, ''), '/checkout'),
     [searchParams],
   )
+
+  useEffect(() => {
+    gatewayStore.initial();
+  }, []);
 
   useEffect(() => {
     initialize({
@@ -104,15 +112,6 @@ function CheckoutPageContent() {
     window.location.assign(paymentRedirectUrl)
     clearPaymentRedirect()
   }, [clearPaymentRedirect, paymentRedirectUrl])
-
-  const starPaymentSuccess = actionStatus === AppStatus.success && paymentMethod === 'star'
-  useEffect(() => {
-    if (!starPaymentSuccess || !buyNowCourse?.slug) {
-      return
-    }
-
-    router.push(`/courses/${buyNowCourse.slug}`)
-  }, [buyNowCourse?.slug, router, starPaymentSuccess])
 
   const displayItems = useMemo<CheckoutDisplayItem[]>(() => {
     if (order?.items?.length) {
@@ -186,26 +185,6 @@ function CheckoutPageContent() {
     )
   }
 
-  if (actionStatus === AppStatus.success && paymentMethod === 'star') {
-    return (
-      <main className="min-h-full bg-[radial-gradient(1200px_circle_at_top_left,var(--sky-90)_0%,var(--sky-50)_52%,var(--white)_100%)] py-10">
-        <div className="mx-auto max-w-7xl px-4 text-center text-muted-foreground sm:px-6 lg:px-8">
-          Mở khóa thành công! Đang chuyển hướng tới khóa học...
-        </div>
-      </main>
-    )
-  }
-
-  if (order && (paymentMethod === 'cod' || order.status === 'paid')) {
-    return (
-      <main className="min-h-full bg-[radial-gradient(1200px_circle_at_top_left,var(--sky-90)_0%,var(--sky-50)_52%,var(--white)_100%)] py-10">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <CheckoutSuccessState order={order} />
-        </div>
-      </main>
-    )
-  }
-
   if (displayItems.length === 0) {
     return (
       <main className="min-h-full bg-[radial-gradient(1200px_circle_at_top_left,var(--sky-90)_0%,var(--sky-50)_52%,var(--white)_100%)] py-10">
@@ -227,26 +206,34 @@ function CheckoutPageContent() {
     <main className="min-h-full bg-[radial-gradient(1200px_circle_at_top_left,var(--sky-90)_0%,var(--sky-50)_52%,var(--white)_100%)] py-10">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
-          <CheckoutBillingSection
-            actionStatus={actionStatus}
-            email={email}
-            errorMessage={errorMessage}
-            fieldErrors={fieldErrors}
-            fullName={fullName}
-            mode={mode}
-            onEmailChange={setEmail}
-            onFullNameChange={setFullName}
-            onPhoneChange={setPhone}
-            onSubmit={() => {
-              void submitOrder()
-            }}
-            paymentMethod={paymentMethod}
-            phone={phone}
-            setPaymentMethod={setPaymentMethod}
-            starPrice={buyNowCourse?.starPrice}
-            submitDisabled={submitDisabled}
-          />
-          <CheckoutSummaryCard items={displayItems} mode={mode} />
+
+          {isLoading(gatewayStore.status) || isInitial(gatewayStore.status)
+            ? <CheckoutBillingSectionSkeleton />
+            : <>
+              <CheckoutBillingSection
+                actionStatus={actionStatus}
+                email={email}
+                errorMessage={errorMessage}
+                fieldErrors={fieldErrors}
+                fullName={fullName}
+                mode={mode}
+                onEmailChange={setEmail}
+                onFullNameChange={setFullName}
+                onPhoneChange={setPhone}
+                onSubmit={() => {
+                  void submitOrder()
+                }}
+                gatewayId={gatewayId}
+                phone={phone}
+                setPaymentMethod={setPaymentMethod}
+                starPrice={buyNowCourse?.starPrice}
+                submitDisabled={submitDisabled}
+                gateways={gatewayStore.gateways.map(e => e.serialize())}
+              />
+              <CheckoutSummaryCard items={displayItems} mode={mode} />
+            </>}
+
+
         </div>
       </div>
     </main>

@@ -6,6 +6,8 @@ import { AppButton } from '@/shared/components/ui/app-button'
 import { Card } from '@/shared/components/ui/card'
 import { Input } from '@/shared/components/ui/input'
 import { AppStatus } from '@/shared/enums/app-status'
+import { PaymentMethodSelectButton } from '../buttons/payment-method-select-button'
+import { SerializedGateway } from '@/data/models/gateway.model'
 
 export function CheckoutBillingSection({
   actionStatus,
@@ -18,11 +20,12 @@ export function CheckoutBillingSection({
   onFullNameChange,
   onPhoneChange,
   onSubmit,
-  paymentMethod,
+  gatewayId,
   phone,
   setPaymentMethod,
   starPrice,
   submitDisabled,
+  gateways,
 }: {
   actionStatus: AppStatus
   email: string
@@ -34,11 +37,12 @@ export function CheckoutBillingSection({
   onFullNameChange: (value: string) => void
   onPhoneChange: (value: string) => void
   onSubmit: () => void
-  paymentMethod: 'payos' | 'cod' | 'star'
+  gatewayId?: number | string
   phone: string
-  setPaymentMethod: (value: 'payos' | 'cod' | 'star') => void
+  setPaymentMethod: (value?: string | number) => void
   starPrice?: number
-  submitDisabled: boolean
+  submitDisabled: boolean,
+  gateways: SerializedGateway[],
 }) {
   const starBalance = useStarStore((state) => state.balance)
   const isBuyNow = mode === 'buy_now'
@@ -71,62 +75,16 @@ export function CheckoutBillingSection({
       <div className="space-y-3">
         <p className="text-sm font-medium">Phương thức thanh toán</p>
         <div className="grid gap-3">
-          <button
-            type="button"
-            className={`flex items-center gap-3 rounded-2xl border px-4 py-4 text-left transition-colors ${
-              paymentMethod === 'payos'
-                ? 'border-primary/50 bg-primary/5 text-[color:var(--brand-900)]'
-                : 'border-border/70 bg-background'
-            }`}
-            onClick={() => setPaymentMethod('payos')}
-          >
-            <CreditCard className="h-5 w-5 shrink-0" />
-            <div>
-              <p className="font-semibold">Chuyển khoản / Thẻ tín dụng</p>
-              <p className="mt-0.5 text-sm text-muted-foreground">Thanh toán trực tuyến bằng thẻ tín dụng hoặc chuyển khoản ngân hàng.</p>
-            </div>
-          </button>
-          <button
-            type="button"
-            className={`flex items-center gap-3 rounded-2xl border px-4 py-4 text-left transition-colors ${
-              paymentMethod === 'cod'
-                ? 'border-primary/50 bg-primary/5 text-[color:var(--brand-900)]'
-                : 'border-border/70 bg-background'
-            }`}
-            onClick={() => setPaymentMethod('cod')}
-          >
-            <Landmark className="h-5 w-5 shrink-0" />
-            <div>
-              <p className="font-semibold">Thanh toán thủ công</p>
-              <p className="mt-0.5 text-sm text-muted-foreground">Xác nhận đơn hàng và thanh toán sau qua ngân hàng.</p>
-            </div>
-          </button>
-          {isBuyNow ? (
-            <button
-              type="button"
-              className={`flex items-center gap-3 rounded-2xl border px-4 py-4 text-left transition-colors ${
-                paymentMethod === 'star'
-                  ? 'border-primary/50 bg-primary/5 text-[color:var(--brand-900)]'
-                  : 'border-border/70 bg-background'
-              }`}
-              onClick={() => setPaymentMethod('star')}
-            >
-              <Star className="h-5 w-5 shrink-0" />
-              <div className="min-w-0">
-                <p className="font-semibold">Thanh toán bằng sao</p>
-                {typeof starPrice === 'number' ? (
-                  <p className="mt-0.5 text-sm font-medium text-amber-600">
-                    Cần trả: {starPrice} sao
-                  </p>
-                ) : null}
-                <p className="truncate text-xs text-muted-foreground">
-                  {typeof starBalance === 'number'
-                    ? `Số dư hiện có: ${starBalance} sao`
-                    : 'Đang tải số dư...'}
-                </p>
-              </div>
-            </button>
-          ) : null}
+          {gateways && gateways.length > 0 ? gateways.map(gateway => (
+            <PaymentMethodSelectButton
+              key={gateway.id}
+              icon={<CreditCard className="h-5 w-5 shrink-0" />}
+              title={gateway.name}
+              description='Thanh toán trực tuyến bằng thẻ tín dụng hoặc chuyển khoản ngân hàng.'
+              isActive={gatewayId === gateway.id}
+              onClick={() => setPaymentMethod(gateway.id)}
+            />
+          )) : <div className='p-4 bg-amber-100 rounded-2xl'><p className='text-amber-600'>Nền tảng hiện tại đang chưa hỗ trợ phương thức thanh toán nào</p></div>}
         </div>
       </div>
 
@@ -138,14 +96,12 @@ export function CheckoutBillingSection({
 
       <AppButton
         className="h-11 w-full rounded-full text-base font-semibold"
-        disabled={submitDisabled || (paymentMethod === 'star' && !hasEnoughStars)}
+        disabled={submitDisabled}
         onClick={onSubmit}
       >
         {actionStatus === AppStatus.loading
           ? 'Đang xử lý...'
-          : paymentMethod === 'star'
-            ? 'Mở khóa bằng sao'
-            : 'Xác nhận thanh toán'}
+          : 'Xác nhận thanh toán'}
       </AppButton>
     </Card>
   )

@@ -27,6 +27,8 @@ import { IStarRepository } from '@/data/repositories/remote/star/star.repository
 import { StarRepository } from '@/data/repositories/remote/star/star.repository'
 import { INotificationRepository } from '@/data/repositories/remote/notification/notification.repository.interface'
 import { NotificationRepository } from '@/data/repositories/remote/notification/notification.repository'
+import { IGatewayRepository } from "@/data/repositories/remote/gateway/gateway.repository.interface";
+import { GatewayRepository } from "@/data/repositories/remote/gateway/gateway.repository";
 
 let clientContainer: IoCContainer | null = null;
 
@@ -90,6 +92,11 @@ function buildClientContainer(): IoCContainer {
     IOC_TOKENS.NOTIFICATION_REPOSITORY,
     () => new NotificationRepository(new ClientSideHttpClient()),
   );
+
+  container.bind<IGatewayRepository>(
+    IOC_TOKENS.GATEWAY_REPOSITORY,
+    () => new GatewayRepository(new ClientSideHttpClient()),
+  )
 
   container.bind<EventManager>(
     IOC_TOKENS.EVENT_MANAGER,

@@ -14,7 +14,6 @@ import { checkoutSchema } from '@/shared/validations/auth-schemas'
 import { create } from 'zustand'
 
 export type CheckoutMode = 'cart' | 'buy_now'
-export type CheckoutPaymentMethod = 'payos' | 'cod' | 'star'
 
 export type CheckoutBuyNowCourse = {
   id: number
@@ -30,7 +29,7 @@ export interface CheckoutStoreProps {
   status: AppStatus
   actionStatus: AppStatus
   mode: CheckoutMode
-  paymentMethod: CheckoutPaymentMethod
+  gatewayId?: string | number
   fullName: string
   email: string
   phone: string
@@ -53,7 +52,7 @@ export interface CheckoutStoreState extends CheckoutStoreProps {
   setFullName: (value: string) => void
   setEmail: (value: string) => void
   setPhone: (value: string) => void
-  setPaymentMethod: (value: CheckoutPaymentMethod) => void
+  setPaymentMethod: (value?: string | number) => void
   clearFieldError: (field: string) => void
   submitOrder: () => Promise<boolean>
   clearPaymentRedirect: () => void
@@ -64,7 +63,7 @@ const initState: CheckoutStoreProps = {
   status: AppStatus.initial,
   actionStatus: AppStatus.initial,
   mode: 'cart',
-  paymentMethod: 'payos',
+  gatewayId: undefined,
   fullName: '',
   email: '',
   phone: '',
@@ -105,7 +104,7 @@ export const useCheckoutStore = create<CheckoutStoreState>((set, get) => ({
   setFullName: (value) => set({ fullName: value, fieldErrors: { ...get().fieldErrors, fullName: undefined } }),
   setEmail: (value) => set({ email: value, fieldErrors: { ...get().fieldErrors, email: undefined } }),
   setPhone: (value) => set({ phone: value, fieldErrors: { ...get().fieldErrors, phone: undefined } }),
-  setPaymentMethod: (value) => set({ paymentMethod: value }),
+  setPaymentMethod: (value) => set({ gatewayId: value }),
   clearFieldError: (field) => set({ fieldErrors: { ...get().fieldErrors, [field]: undefined } }),
 
   submitOrder: async () => {
@@ -117,27 +116,7 @@ export const useCheckoutStore = create<CheckoutStoreState>((set, get) => ({
       fieldErrors: {},
     })
 
-    if (state.paymentMethod !== 'star') {
-      const validation = checkoutSchema.safeParse({
-        fullName: state.fullName,
-        email: state.email,
-        phone: state.phone,
-      });
-
-      if (!validation.success) {
-        const fieldErrors: Record<string, string | undefined> = {};
-        for (const issue of validation.error.issues) {
-          const field = issue.path[0] as string;
-          if (!fieldErrors[field]) {
-            fieldErrors[field] = issue.message;
-          }
-        }
-        set({ actionStatus: AppStatus.error, fieldErrors });
-        return false;
-      }
-    }
-
-    if (state.paymentMethod === 'star' && state.mode === 'buy_now' && state.buyNowCourse) {
+    if (state.mode === 'buy_now' && state.buyNowCourse) {
       const result = await resolveStarRepository().payForCourse(state.buyNowCourse.id)
 
       if (!result.response) {
@@ -160,7 +139,7 @@ export const useCheckoutStore = create<CheckoutStoreState>((set, get) => ({
       return true
     }
 
-    const pm = state.paymentMethod as 'payos' | 'cod'
+    const pm = state.gatewayId;
     const result =
       state.mode === 'buy_now' && state.buyNowCourse
         ? await resolveOrderRepository().createBuyNow(state.buyNowCourse.id, 1, pm, {
