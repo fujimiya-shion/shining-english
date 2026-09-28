@@ -167,7 +167,7 @@ export const useCoursePurchaseStore = create<CoursePurchaseStoreState>((set) => 
       errorMessage: null,
     });
 
-    const orderResult = await resolveOrderRepository().createBuyNow(courseId, 1, "cod");
+    const orderResult = await resolveOrderRepository().createBuyNow(courseId, 1);
     if (!orderResult.response) {
       set({
         actionStatus: AppStatus.error,
