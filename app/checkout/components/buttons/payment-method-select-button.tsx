@@ -1,7 +1,6 @@
 "use client";
 
 import { ReactNode } from "react";
-import { isString } from "util";
 
 export interface PaymentMethodSelectButtonProps {
     icon?: ReactNode;

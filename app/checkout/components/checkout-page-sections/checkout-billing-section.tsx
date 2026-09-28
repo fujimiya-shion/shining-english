@@ -1,7 +1,6 @@
 'use client'
 
-import { CreditCard, Landmark, Star } from 'lucide-react'
-import { useStarStore } from '@/shared/stores/star.store'
+import { CreditCard } from 'lucide-react'
 import { AppButton } from '@/shared/components/ui/app-button'
 import { Card } from '@/shared/components/ui/card'
 import { Input } from '@/shared/components/ui/input'
@@ -15,15 +14,13 @@ export function CheckoutBillingSection({
   errorMessage,
   fieldErrors,
   fullName,
-  mode,
   onEmailChange,
   onFullNameChange,
   onPhoneChange,
   onSubmit,
   gatewayId,
   phone,
-  setPaymentMethod,
-  starPrice,
+  setGatewayId,
   submitDisabled,
   gateways,
 }: {
@@ -32,21 +29,16 @@ export function CheckoutBillingSection({
   errorMessage: string | null
   fieldErrors: Record<string, string | undefined>
   fullName: string
-  mode: 'cart' | 'buy_now'
   onEmailChange: (value: string) => void
   onFullNameChange: (value: string) => void
   onPhoneChange: (value: string) => void
   onSubmit: () => void
   gatewayId?: number | string
   phone: string
-  setPaymentMethod: (value?: string | number) => void
-  starPrice?: number
-  submitDisabled: boolean,
-  gateways: SerializedGateway[],
+  setGatewayId: (value?: string | number) => void
+  submitDisabled: boolean
+  gateways: SerializedGateway[]
 }) {
-  const starBalance = useStarStore((state) => state.balance)
-  const isBuyNow = mode === 'buy_now'
-  const hasEnoughStars = typeof starBalance === 'number' && typeof starPrice === 'number' && starBalance >= starPrice
   return (
     <Card className="space-y-6 border-border/70 bg-white/95 p-6">
       <div>
@@ -82,7 +74,7 @@ export function CheckoutBillingSection({
               title={gateway.name}
               description='Thanh toán trực tuyến bằng thẻ tín dụng hoặc chuyển khoản ngân hàng.'
               isActive={gatewayId === gateway.id}
-              onClick={() => setPaymentMethod(gateway.id)}
+              onClick={() => setGatewayId(gateway.id)}
             />
           )) : <div className='p-4 bg-amber-100 rounded-2xl'><p className='text-amber-600'>Nền tảng hiện tại đang chưa hỗ trợ phương thức thanh toán nào</p></div>}
         </div>

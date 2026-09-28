@@ -1,7 +1,7 @@
 'use client'
 
 import { Suspense, useEffect, useMemo } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { AppStatus, isInitial, isLoading } from '@/shared/enums/app-status'
 import { useAuthStore } from '@/shared/stores/auth.store'
 import { useCartStore } from '@/shared/stores/cart.store'
@@ -32,13 +32,10 @@ function parseBuyNowCourse(searchParams: URLSearchParams) {
     price: Number(searchParams.get('price') ?? 0),
     image: searchParams.get('image') ?? '',
     slug: searchParams.get('slug') ?? '',
-    allowStarPayment: searchParams.get('allowStarPayment') === 'true',
-    starPrice: Number(searchParams.get('starPrice') ?? 0),
   }
 }
 
 function CheckoutPageContent() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const authStatus = useAuthStore((state) => state.status)
   const authenticated = useAuthStore((state) => state.authenticated)
@@ -60,7 +57,7 @@ function CheckoutPageContent() {
   const errorMessage = useCheckoutStore((state) => state.errorMessage)
   const fieldErrors = useCheckoutStore((state) => state.fieldErrors)
   const initialize = useCheckoutStore((state) => state.initialize)
-  const setPaymentMethod = useCheckoutStore((state) => state.setPaymentMethod)
+  const setGatewayId = useCheckoutStore((state) => state.setGatewayId)
   const setFullName = useCheckoutStore((state) => state.setFullName)
   const setEmail = useCheckoutStore((state) => state.setEmail)
   const setPhone = useCheckoutStore((state) => state.setPhone)
@@ -185,6 +182,16 @@ function CheckoutPageContent() {
     )
   }
 
+  if (order) {
+    return (
+      <main className="min-h-full bg-[radial-gradient(1200px_circle_at_top_left,var(--sky-90)_0%,var(--sky-50)_52%,var(--white)_100%)] py-10">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <CheckoutSuccessState order={order} />
+        </div>
+      </main>
+    )
+  }
+
   if (displayItems.length === 0) {
     return (
       <main className="min-h-full bg-[radial-gradient(1200px_circle_at_top_left,var(--sky-90)_0%,var(--sky-50)_52%,var(--white)_100%)] py-10">
@@ -216,7 +223,6 @@ function CheckoutPageContent() {
                 errorMessage={errorMessage}
                 fieldErrors={fieldErrors}
                 fullName={fullName}
-                mode={mode}
                 onEmailChange={setEmail}
                 onFullNameChange={setFullName}
                 onPhoneChange={setPhone}
@@ -225,8 +231,7 @@ function CheckoutPageContent() {
                 }}
                 gatewayId={gatewayId}
                 phone={phone}
-                setPaymentMethod={setPaymentMethod}
-                starPrice={buyNowCourse?.starPrice}
+                setGatewayId={setGatewayId}
                 submitDisabled={submitDisabled}
                 gateways={gatewayStore.gateways.map(e => e.serialize())}
               />

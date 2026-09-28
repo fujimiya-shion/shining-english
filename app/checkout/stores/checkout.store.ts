@@ -3,12 +3,10 @@
 import { CheckoutOrderResponse } from '@/data/models/order-checkout-response.model'
 import { Order } from '@/data/models/order.model'
 import { IOrderRepository } from '@/data/repositories/remote/order/order.repository.interface'
-import { IStarRepository } from '@/data/repositories/remote/star/star.repository.interface'
 import { AppStatus } from '@/shared/enums/app-status'
 import { resolveClient } from '@/shared/ioc/client-container'
 import { IOC_TOKENS } from '@/shared/ioc/tokens'
 import { useCartStore } from '@/shared/stores/cart.store'
-import { useStarStore } from '@/shared/stores/star.store'
 import { resolveApiErrorMessage } from '@/shared/utils/api-error-message'
 import { checkoutSchema } from '@/shared/validations/auth-schemas'
 import { create } from 'zustand'
@@ -21,8 +19,6 @@ export type CheckoutBuyNowCourse = {
   price: number
   image?: string
   slug?: string
-  allowStarPayment?: boolean
-  starPrice?: number
 }
 
 export interface CheckoutStoreProps {
@@ -52,7 +48,7 @@ export interface CheckoutStoreState extends CheckoutStoreProps {
   setFullName: (value: string) => void
   setEmail: (value: string) => void
   setPhone: (value: string) => void
-  setPaymentMethod: (value?: string | number) => void
+  setGatewayId: (value?: string | number) => void
   clearFieldError: (field: string) => void
   submitOrder: () => Promise<boolean>
   clearPaymentRedirect: () => void
@@ -79,10 +75,6 @@ function resolveOrderRepository(): IOrderRepository {
   return resolveClient<IOrderRepository>(IOC_TOKENS.ORDER_REPOSITORY)
 }
 
-function resolveStarRepository(): IStarRepository {
-  return resolveClient<IStarRepository>(IOC_TOKENS.STAR_REPOSITORY)
-}
-
 export const useCheckoutStore = create<CheckoutStoreState>((set, get) => ({
   ...initState,
 
@@ -104,7 +96,7 @@ export const useCheckoutStore = create<CheckoutStoreState>((set, get) => ({
   setFullName: (value) => set({ fullName: value, fieldErrors: { ...get().fieldErrors, fullName: undefined } }),
   setEmail: (value) => set({ email: value, fieldErrors: { ...get().fieldErrors, email: undefined } }),
   setPhone: (value) => set({ phone: value, fieldErrors: { ...get().fieldErrors, phone: undefined } }),
-  setPaymentMethod: (value) => set({ gatewayId: value }),
+  setGatewayId: (value) => set({ gatewayId: value, errorMessage: null }),
   clearFieldError: (field) => set({ fieldErrors: { ...get().fieldErrors, [field]: undefined } }),
 
   submitOrder: async () => {
@@ -116,42 +108,38 @@ export const useCheckoutStore = create<CheckoutStoreState>((set, get) => ({
       fieldErrors: {},
     })
 
-    if (state.mode === 'buy_now' && state.buyNowCourse) {
-      const result = await resolveStarRepository().payForCourse(state.buyNowCourse.id)
+    const validation = checkoutSchema.safeParse({
+      fullName: state.fullName,
+      email: state.email,
+      phone: state.phone,
+    })
 
-      if (!result.response) {
-        set({
-          actionStatus: AppStatus.error,
-          errorMessage: resolveApiErrorMessage(result.exception),
-        })
-        return false
+    if (!validation.success) {
+      const fieldErrors: Record<string, string | undefined> = {}
+      for (const issue of validation.error.issues) {
+        const field = issue.path[0] as string
+        if (!fieldErrors[field]) {
+          fieldErrors[field] = issue.message
+        }
       }
-
-      useStarStore.getState().syncBalance(result.response.data.star_balance)
-
-      set({
-        actionStatus: AppStatus.success,
-        paymentRedirectUrl: null,
-        errorMessage: null,
-      })
-
-      void useCartStore.getState().fetchCount()
-      return true
+      set({ actionStatus: AppStatus.error, fieldErrors })
+      return false
     }
 
-    const pm = state.gatewayId;
+    if (state.gatewayId === undefined) {
+      set({ actionStatus: AppStatus.error, errorMessage: 'Vui lòng chọn phương thức thanh toán.' })
+      return false
+    }
+
+    const customer = {
+      buyerName: state.fullName.trim(),
+      buyerEmail: state.email.trim(),
+      buyerPhone: state.phone.trim(),
+    }
     const result =
       state.mode === 'buy_now' && state.buyNowCourse
-        ? await resolveOrderRepository().createBuyNow(state.buyNowCourse.id, 1, pm, {
-            buyerName: state.fullName.trim(),
-            buyerEmail: state.email.trim(),
-            buyerPhone: state.phone.trim(),
-          })
-        : await resolveOrderRepository().createFromCart(pm, {
-            buyerName: state.fullName.trim(),
-            buyerEmail: state.email.trim(),
-            buyerPhone: state.phone.trim(),
-          })
+        ? await resolveOrderRepository().createBuyNow(state.buyNowCourse.id, 1, state.gatewayId, customer)
+        : await resolveOrderRepository().createFromCart(state.gatewayId, customer)
 
     if (!result.response) {
       set({
