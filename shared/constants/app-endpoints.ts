@@ -80,4 +80,8 @@ export const AppEndpoints = {
     markAsRead: (id: string) => `/notifications/${id}/read`,
     markAllAsRead: '/notifications/read-all',
   },
+
+  gateway: {
+    index: '/payments/gateways',
+  },
 } as const;

@@ -9,7 +9,7 @@ import { formatPrice } from '@/shared/utils/currency-utils'
 export function CheckoutSuccessState({ order }: { order: Order }) {
   const firstCourse = order.items?.[0]?.course
   const isPaid = order.status === 'paid'
-  const isCodPending = order.paymentMethod === 'cod' && order.status === 'pending'
+  const isPending = order.status === 'pending'
 
   return (
     <div className="mx-auto max-w-3xl rounded-3xl border border-emerald-200 bg-white/95 p-10 text-center shadow-[0_24px_70px_-50px_rgba(15,43,82,0.35)]">
@@ -18,7 +18,7 @@ export function CheckoutSuccessState({ order }: { order: Order }) {
       <p className="mt-3 text-muted-foreground">
         Hệ thống đã ghi nhận đơn hàng #{order.id}. Tổng giá trị đơn là {formatPrice(order.totalAmount)}.
       </p>
-      {isCodPending ? (
+      {isPending ? (
         <p className="mt-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
           Đơn hàng của bạn đang chờ xác nhận. Khóa học sẽ được mở sau khi thanh toán được xác nhận.
         </p>

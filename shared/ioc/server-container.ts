@@ -17,6 +17,8 @@ import { EventBus } from "@/infra/events/event-bus";
 import { EventManager } from "@/infra/events/event-manager";
 import { IContactRepository } from "@/data/repositories/remote/contact/contact.repository.interface";
 import { ContactRepository } from "@/data/repositories/remote/contact/contact.repository";
+import { IGatewayRepository } from "@/data/repositories/remote/gateway/gateway.repository.interface";
+import { GatewayRepository } from "@/data/repositories/remote/gateway/gateway.repository";
 
 let serverContainer: IoCContainer | null = null;
 
@@ -49,6 +51,12 @@ function buildServerContainer(): IoCContainer {
     IOC_TOKENS.CONTACT_REPOSITORY,
     () => new ContactRepository(new ServerSideHttpClient()),
   );
+
+  container.bind<IGatewayRepository>(
+    IOC_TOKENS.GATEWAY_REPOSITORY,
+    () => new GatewayRepository(new ServerSideHttpClient()),
+  )
+
   container.bind<EventManager>(
     IOC_TOKENS.EVENT_MANAGER,
     () => eventManager,

@@ -167,8 +167,6 @@ export function CourseLearningPlayerAuthenticatedView({
       price: `${course.price ?? 0}`,
       image: course.thumbnail ?? '',
       slug: course.slug ?? '',
-      allowStarPayment: course.allowStarPayment ? 'true' : '',
-      starPrice: `${course.starPrice ?? 0}`,
     })
 
     router.push(`/checkout?${query.toString()}`)

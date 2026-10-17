@@ -5,7 +5,6 @@ import { Order } from '@/data/models/order.model'
 import { ApiException } from '@/data/types/api-exception'
 import { ApiResult } from '@/data/types/api-result'
 
-export type OrderPaymentMethod = 'cod' | 'payos'
 export type OrderCheckoutCustomerPayload = {
   buyerName: string
   buyerEmail: string
@@ -18,13 +17,13 @@ export interface IOrderRepository {
     perPage?: number,
   ): Promise<ApiResult<PaginationResponse<Order>, ApiException>>
   createFromCart(
-    paymentMethod?: OrderPaymentMethod,
+    gatewayId?: string | number,
     customer?: OrderCheckoutCustomerPayload,
   ): Promise<ApiResult<ObjectResponse<CheckoutOrderResponse>, ApiException>>
   createBuyNow(
     courseId: number,
     quantity?: number,
-    paymentMethod?: OrderPaymentMethod,
+    gatewayId?: string | number,
     customer?: OrderCheckoutCustomerPayload,
   ): Promise<ApiResult<ObjectResponse<CheckoutOrderResponse>, ApiException>>
   getById(orderId: number): Promise<ApiResult<ObjectResponse<Order>, ApiException>>

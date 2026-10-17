@@ -6,7 +6,7 @@ import { ApiException } from '@/data/types/api-exception'
 import { ApiResult } from '@/data/types/api-result'
 import { AppEndpoints } from '@/shared/constants/app-endpoints'
 import { BaseRepository } from '../base.repository'
-import { IOrderRepository, OrderCheckoutCustomerPayload, OrderPaymentMethod } from './order.repository.interface'
+import { IOrderRepository, OrderCheckoutCustomerPayload } from './order.repository.interface'
 
 export class OrderRepository extends BaseRepository implements IOrderRepository {
   list(
@@ -21,14 +21,14 @@ export class OrderRepository extends BaseRepository implements IOrderRepository 
   }
 
   createFromCart(
-    paymentMethod: OrderPaymentMethod = 'payos',
+    gatewayId?: string | number,
     customer?: OrderCheckoutCustomerPayload,
   ): Promise<ApiResult<ObjectResponse<CheckoutOrderResponse>, ApiException>> {
     return this.post({
       url: AppEndpoints.order.index,
       body: {
         type: 'cart',
-        payment_method: paymentMethod,
+        gateway_id: gatewayId,
         buyer_name: customer?.buyerName,
         buyer_email: customer?.buyerEmail,
         buyer_phone: customer?.buyerPhone,
@@ -40,14 +40,14 @@ export class OrderRepository extends BaseRepository implements IOrderRepository 
   createBuyNow(
     courseId: number,
     quantity = 1,
-    paymentMethod: OrderPaymentMethod = 'payos',
+    gatewayId?: string | number,
     customer?: OrderCheckoutCustomerPayload,
   ): Promise<ApiResult<ObjectResponse<CheckoutOrderResponse>, ApiException>> {
     return this.post({
       url: AppEndpoints.order.index,
       body: {
         type: 'buy_now',
-        payment_method: paymentMethod,
+        gateway_id: gatewayId,
         course_id: courseId,
         quantity,
         buyer_name: customer?.buyerName,
