@@ -3,7 +3,7 @@
 import { ReactNode } from "react";
 
 export interface PaymentMethodSelectButtonProps {
-    icon?: ReactNode;
+    icon?: ReactNode|string;
     title?: string;
     description?: string|ReactNode;
     onClick?: VoidFunction;
@@ -20,8 +20,8 @@ export const PaymentMethodSelectButton = ({
         <button 
             type="button"
             onClick={onClick ?? (() => {})}
-            className={`flex items-center gap-3 rounded-2xl border px-4 py-4 text-left transition-colors ${isActive ? 'border-primary/50 bg-primary/5 text-(--brand-900)' : 'border-border/70 bg-background'}`}>
-                {icon}
+            className={`hover:cursor-pointer flex items-center gap-3 rounded-2xl border px-4 py-4 text-left transition-colors ${isActive ? 'border-primary/50 bg-primary/5 text-(--brand-900)' : 'border-border/70 bg-background'}`}>
+                {typeof icon === 'string' ? <img src={icon} className="h-6 w-6 flex-shrink-0" /> : icon}
             <div>
                 <p className="font-semibold">{title}</p>
                 {

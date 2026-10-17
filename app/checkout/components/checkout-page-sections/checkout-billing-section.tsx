@@ -70,9 +70,9 @@ export function CheckoutBillingSection({
           {gateways && gateways.length > 0 ? gateways.map(gateway => (
             <PaymentMethodSelectButton
               key={gateway.id}
-              icon={<CreditCard className="h-5 w-5 shrink-0" />}
-              title={gateway.name}
-              description='Thanh toán trực tuyến bằng thẻ tín dụng hoặc chuyển khoản ngân hàng.'
+              icon={gateway.settings?.icon}
+              title={gateway.settings?.name}
+              description={gateway.settings?.description}
               isActive={gatewayId === gateway.id}
               onClick={() => setGatewayId(gateway.id)}
             />
